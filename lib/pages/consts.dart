@@ -1,0 +1,1 @@
+String philLogo = "assets/phil.jpg";
