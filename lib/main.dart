@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:phil_mobile/pages/login/login.dart';
-import 'package:phil_mobile/pages/splash/splashscreen.dart';
 import 'package:genos_dart/genos_dart.dart';
 import 'package:phil_mobile/provider/queries_provider.dart';
 import 'package:provider/provider.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(ChangeNotifierProvider(create: (BuildContext context) {  },
     child: const MyApp(),));
 }
@@ -18,8 +18,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  bool _genosInit = true;
-  late final QueriesProvider _provider;
+  bool _genosInit = false;
   bool gotData = true;
   bool getDataError = false;
 
@@ -29,34 +28,29 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
     _initGenos();
-    _initProvider();
   }
 
-  void _initProvider() async{
-    _provider = await QueriesProvider.instance;
-    checkDatabase();
-  }
 
   @override
   Widget build(BuildContext context) {
-    if (_genosInit) {
+    if (!_genosInit) {
       return MaterialApp(
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
           useMaterial3: true,
         ),
-        home: const SplashScreen(),
+        home: MyLoadingScreen(),
       );
     }
     return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
-      home: const LoginPage(),
-    );
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+          useMaterial3: true,
+        ),
+        home: LoginPage(),
+        );
   }
   Future<void> _initGenos() async {
     Genos.instance
@@ -65,35 +59,17 @@ class _MyAppState extends State<MyApp> {
         appWsSignature: '91a2dbf0-292d-11ed-91f1-4f98460f464c',
         appPrivateDirectory: '.',
         encryptionKey: '91a2dbf0-292d-11ed-91f1-4f98460d',
-        host: '192.168.0.110',
+        host: '192.168.1.84',
         port: '8080',
         unsecurePort: '80',
         dbms: DBMS.postgres,
         onInitialization: (ge) async {
           setState(() {
-            _genosInit = false;
+            _genosInit = true;
           });
         },
     );
   }
-
-  Future<void> checkDatabase() async {
-    await _provider.checkDatabase(
-      secure: false,
-      onSuccess: (r) {
-        setState(() {
-          print("Connected");
-        });
-      },
-      onError: (e) {
-        setState(() {
-          print(e);
-        });
-      },
-    );
-  }
-
-
 
   void shoErrorDialog(BuildContext context) async {
     showDialog<String>(
@@ -105,6 +81,27 @@ class _MyAppState extends State<MyApp> {
       )
     );
   }
-
 }
 
+class MyLoadingScreen extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
+            ),
+            SizedBox(height: 20),
+            Text(
+              'Chargement',
+              style: TextStyle(fontSize: 20),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
