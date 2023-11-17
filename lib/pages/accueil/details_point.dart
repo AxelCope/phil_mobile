@@ -17,10 +17,12 @@ class PageDetailsPdv extends StatefulWidget {
 
 class _PageDetailsPdvState extends State<PageDetailsPdv> {
 
-  late final QueriesProvider _provider;
   DateTime month = DateTime.now();
   List<ChiffreAffaire> listCA = [];
   bool gotCa = false;
+  bool gotCaError = true;
+
+  late final QueriesProvider _provider;
 
   @override
   void initState() {
@@ -36,6 +38,17 @@ class _PageDetailsPdvState extends State<PageDetailsPdv> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        leading: IconButton(
+            icon: const Icon(Icons.arrow_back_ios),
+            onPressed: () {
+              previousPage(context);
+            }
+        ),
+        title: Text("Détails du point"),
+        centerTitle: true,
+        scrolledUnderElevation: 0,
+      ),
       body: ListView(
         children: [
           Container(
@@ -151,10 +164,14 @@ class _PageDetailsPdvState extends State<PageDetailsPdv> {
     );
   }
   Future<void>  getCA() async {
+    setState(() {
+      gotCaError = false;
+      gotCa = false;
+    });
     await _provider.getCA(
       secure: false,
       pdv: widget.pdv.numeroFlooz,
-      month: month.month,
+      month: month.month-2,
       onSuccess: (r) {
         setState(() {
           for(var element in r)
@@ -162,11 +179,13 @@ class _PageDetailsPdvState extends State<PageDetailsPdv> {
             listCA.add(ChiffreAffaire.MapChiffresaffaire(element));
           }
           gotCa = true;
+          gotCaError = false;
         });
       },
       onError: (e) {
         setState(() {
-          gotCa = false;
+          gotCaError = true;
+          gotCa = true;
           print(e);
         });
       },
@@ -188,7 +207,7 @@ class _PageDetailsPdvState extends State<PageDetailsPdv> {
   {
     if(!gotCa)
     {
-      return SizedBox(
+      return const SizedBox(
         width: 10,
         height: 10,
         child: CircularProgressIndicator(
@@ -197,7 +216,24 @@ class _PageDetailsPdvState extends State<PageDetailsPdv> {
         ),
       );
     }
-    return Text("${_ca()} CFA", style: TextStyle(fontWeight: FontWeight.bold),);
+    if(gotCaError)
+      {
+        return Center(
+          child: Column(
+            children: [
+
+              TextButton(
+                child: Text("Réessayer", style: TextStyle(color: Colors.green),), onPressed: () {
+                setState(() {
+                  listCA.clear();
+                  getCA();
+                });
+              },),
+            ],
+          ),
+        );
+      }
+    return Text("${_ca() ?? 0} CFA", style: TextStyle(fontWeight: FontWeight.bold),);
   }
 
 }

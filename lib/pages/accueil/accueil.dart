@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:phil_mobile/methods/methods.dart';
 import 'package:phil_mobile/models/caPdv.dart';
@@ -6,7 +7,9 @@ import 'package:phil_mobile/models/pdvs.dart';
 import 'package:phil_mobile/pages/accueil/details_point.dart';
 import 'package:phil_mobile/pages/consts.dart';
 import 'package:phil_mobile/models/users.dart';
-import 'package:phil_mobile/pages/performances/dotations_reconversion.dart';
+import 'package:phil_mobile/pages/performances/inactifs.dart';
+import 'package:phil_mobile/pages/performances/tabs.dart';
+import 'package:phil_mobile/pages/performances/page_givecom.dart';
 import 'package:phil_mobile/pages/sim%20services/swap%20grille.dart';
 import 'package:phil_mobile/provider/queries_provider.dart';
 import 'package:intl/intl.dart';
@@ -28,8 +31,8 @@ class _HomePageState extends State<HomePage> {
   List<PointDeVente>? _searchList;
   late final QueriesProvider _provider;
   DateTime date = DateTime.now();
-  bool gotObjectif = false;
-  bool gotComm = false;
+  bool gotPdvs = true;
+  bool gotPdvsError = false;
 
 
 
@@ -42,8 +45,6 @@ class _HomePageState extends State<HomePage> {
   void _initProvider() async{
     _provider = await QueriesProvider.instance;
     fetchPdvs();
-    objectifsComm();
-    getCommission();
   }
 
   @override
@@ -64,14 +65,13 @@ class _HomePageState extends State<HomePage> {
                   Text(widget.comm.nomCommerciaux!, style: TextStyle(fontSize: 25),),
                   Text(widget.comm.id!.toString(), style: TextStyle(fontSize: 20),),
                   SizedBox(height: 10,),
-                  Text(" Commission zone/Objectif du mois", style: TextStyle(fontWeight: FontWeight.bold),),
-                  _getCa(),
+                  Text(widget.comm.nicknameCommerciaux!, style: TextStyle(fontWeight: FontWeight.bold),),
                 ],
               ),
             ),
 
             ListTile(
-              title: Text("Mes dotations et reconversions"),
+              title: Text("Mes performances"),
               leading: Icon(Icons.swap_horiz),
               onTap: (){
                 nextPage(context, Performances(comms: widget.comm));
@@ -79,11 +79,17 @@ class _HomePageState extends State<HomePage> {
             ),
             ListTile(
               title: Text("Mes inactifs"),
+              onTap: (){
+                nextPage(context, PageInactifs(comms: widget.comm));
+              },
               leading: Image.asset('assets/inactifs.png', width: 30,),
             ),
             ListTile(
-              title: Text("Mes segments"),
-              leading: Image.asset('assets/store.png', width: 30,),
+              title: Text("Points qui vont en banque"),
+              leading: SvgPicture.asset('assets/givecom.svg', width: 30,),
+              onTap: (){
+                nextPage(context, PageGiveComs(comms: widget.comm));
+              },
             ),
 
             ExpansionTile(title: Text("Services SIM"),
@@ -128,7 +134,6 @@ class _HomePageState extends State<HomePage> {
       ),
       appBar: AppBar(
         scrolledUnderElevation: 0,
-        automaticallyImplyLeading: false,
         centerTitle: true,
         title: Text(" Mon univers (${listPdvs.length} pdvs)"),
       ),
@@ -192,7 +197,7 @@ class _HomePageState extends State<HomePage> {
           },
           child: ListTile(
             title: Text("${pdvs.nomDuPoint} "),
-            subtitle: Text("${pdvs.numeroFlooz}"),
+            subtitle: Text("${pdvs.numeroFlooz}\nNombre de dotations dans le mois: ${pdvs.dotee ?? "0"} "),
           ),
         ),
       ),
@@ -219,78 +224,70 @@ class _HomePageState extends State<HomePage> {
       );
     }
 
-    return ListView.builder(
-      shrinkWrap: true,
-      itemCount: listPdvs.length,
-        itemBuilder: (BuildContext, index)
-    {
-      return _pdvs(listPdvs[index]);
-    });
+    if(gotPdvs)
+      {
+        return const Center(
+          child: Padding(
+            padding: EdgeInsets.symmetric(vertical: 200.0),
+            child: SizedBox(
+              height: 30,
+              width: 30,
+              child: CircularProgressIndicator(color: Colors.green,),
+            ),
+          ),
+        );
+      }
+    if(gotPdvsError){
+      return Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text("Nous n'avons pas pu contacter le serveur"),
+          TextButton(
+            child: Text("Veuillez réessayer", style: TextStyle(color: Colors.green),), onPressed: () {
+            setState(() {
+              listPdvs.clear();
+              fetchPdvs();
+            });
+          },),
+        ],
+      );
+    }
+    return RefreshIndicator(
+      onRefresh: _refresh,
+      child: ListView.builder(
+        shrinkWrap: true,
+        itemCount: listPdvs.length,
+          itemBuilder: (BuildContext, index)
+      {
+        return _pdvs(listPdvs[index]);
+      }),
+    );
   }
 
   Future<void> fetchPdvs() async {
+    setState(() {
+      gotPdvs = true;
+      gotPdvsError = false;
+    });
     await _provider.fetchPdvs(
       secure: false,
       id: widget.comm.id,
+      month: date.month - 1,
       onSuccess: (r) {
         setState(() {
           for(var element in r)
           {
             listPdvs.add(PointDeVente.MapPdvs(element));
           }
-        });
-      },
-      onError: (e) {
-        setState(() {
-          print(e);
-        });
-      },
-    );
-  }
+          gotPdvs = false;
+          gotPdvsError = false;
 
-  Future<void> objectifsComm() async {
-    await _provider.objectifsbyComm(
-      secure: false,
-      id: widget.comm.id,
-      date: 'OCTOBER',
-      onSuccess: (r) {
-        setState(() {
-          for(var element in r)
-          {
-            objectifComm.add(ChiffreAffaire.MapObj(element));
-            print(element);
-          }
-          gotObjectif = true;
         });
       },
       onError: (e) {
         setState(() {
-          gotObjectif = false;
-          print(e);
-        });
-      },
-    );
-  }
-
-  Future<void>  getCommission() async {
-    await _provider.commissionCommerciaux(
-      secure: false,
-      cmId: widget.comm.id,
-      date: date.month,
-      onSuccess: (r) {
-        setState(() {
-          for(var element in r)
-          {
-            print(element);
-            commCagnt.add(ChiffreAffaire.MapComm(element));
-          }
-          gotComm = true;
-        });
-      },
-      onError: (e) {
-        setState(() {
-          gotComm = false;
-          print(e);
+          gotPdvs = false;
+          gotPdvsError = true;
         });
       },
     );
@@ -313,38 +310,12 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-
-  _getCa()
-  {
-
-    int obj = 0;
-    int comm = 0;
-    if(!gotObjectif && !gotComm)
-    {
-      return SizedBox(
-        width: 10,
-        height: 10,
-        child: CircularProgressIndicator(
-          valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
-        ),
-      );
-    }
-    if(objectifComm.isNotEmpty && commCagnt.isNotEmpty)
-    {
-      obj = objectifComm[0].obj!;
-      comm = commCagnt[0].comm!;
-    }
-    return Column(
-      children: [
-        Text(" ${NumberFormat("###,### CFA").format(comm)} /${NumberFormat("###,### CFA").format(obj)}  ", style: TextStyle(fontWeight: FontWeight.bold),),
-        SizedBox(height:5,),
-        LinearProgressIndicator(
-          value: ((comm/(obj))*100)/100,
-          backgroundColor: hexToColor("#87CEEB"), // Couleur de la barre
-          valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF6cc167)),
-        )
-      ],
-    );
+  Future<void> _refresh() async {
+    setState(() {
+      listPdvs.clear();
+      fetchPdvs();
+    });
   }
+
 
 }

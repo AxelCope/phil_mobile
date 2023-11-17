@@ -83,7 +83,6 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
             ),
-
             SizedBox(height: 50,),
             ElevatedButton(
                 style: ElevatedButton.styleFrom(
@@ -161,6 +160,7 @@ class _LoginPageState extends State<LoginPage> {
       onError: (e) {
         setState(() {
           previousPage(context);
+          _internetConnectionFailedDialog();
         });
       },
     );
@@ -178,6 +178,33 @@ class _LoginPageState extends State<LoginPage> {
               children: <Widget>[
                 Text('Cet utilisateur n\'existe pas.'),
                 Text('Veuillez vérifier vos informations de connexion.'),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+  Future<void> _internetConnectionFailedDialog() async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Erreur de Connexion"),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Text('Impossible de se connecter à internet'),
+                Text('Veuillez rééssayer avec une connexion internet stable.'),
               ],
             ),
           ),

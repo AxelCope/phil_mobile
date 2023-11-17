@@ -59,7 +59,7 @@ class _MyAppState extends State<MyApp> {
         appWsSignature: '91a2dbf0-292d-11ed-91f1-4f98460f464c',
         appPrivateDirectory: '.',
         encryptionKey: '91a2dbf0-292d-11ed-91f1-4f98460d',
-        host: '192.168.1.84',
+        host: '192.168.1.66',
         port: '8080',
         unsecurePort: '80',
         dbms: DBMS.postgres,

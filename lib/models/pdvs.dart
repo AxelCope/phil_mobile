@@ -23,6 +23,7 @@ class PointDeVente {
    String? etatDuSupportDeVisibiliteBonMauvais;
    int? numeroCagnt;
    String? commercial;
+   int? dotee;
    bool checked;
    TextEditingController comment;
 
@@ -48,11 +49,12 @@ class PointDeVente {
      this.etatDuSupportDeVisibiliteBonMauvais,
      this.numeroCagnt,
      this.commercial,
+     this.dotee,
      this.checked = false,
   }): comment = TextEditingController();
 
 
-   factory PointDeVente.MapPdvs(Map<String, dynamic> map) {
+   factory PointDeVente.MapPdvs(Map<String, dynamic> map) { 
      return PointDeVente(
          numeroFlooz: map[dbnumeroFlooz],
          nomDuPoint: map[dbnomDuPoint],
@@ -74,7 +76,8 @@ class PointDeVente {
          supportDeVisibiliteChevaletPotenceAutocollant: map[dbsupportDeVisibiliteChevaletPotenceAutocollant],
          etatDuSupportDeVisibiliteBonMauvais: map[dbetatDuSupportDeVisibiliteBonMauvais],
          numeroCagnt: map[dbnumeroCagnt],
-         commercial: map[dbcommercial]
+         commercial: map[dbcommercial],
+        dotee: map[dbRegContent]
      );
    }
 
