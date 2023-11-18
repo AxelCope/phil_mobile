@@ -38,7 +38,7 @@ class _PageInactifsState extends State<PageInactifs> {
         scrolledUnderElevation: 0,
         centerTitle: true,
         backgroundColor: Colors.blueGrey,
-        title: Row(
+        title: const Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
@@ -55,11 +55,11 @@ class _PageInactifsState extends State<PageInactifs> {
       ),
       body: Column(
         children: [
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
           Center(
             child: Text(
               "Inactifs du mois de ${_getMonthName(DateTime.now().month)}", // Utilisation de la fonction _getMonthName pour obtenir le mois en français
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
                 color: Colors.blueGrey,
@@ -92,9 +92,9 @@ class _PageInactifsState extends State<PageInactifs> {
       return Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text("Nous n'avons pas pu contacter le serveur"),
+          const Text("Nous n'avons pas pu contacter le serveur"),
           TextButton(
-            child: Text("Veuillez réessayer", style: TextStyle(color: Colors.green),), onPressed: () {
+            child: const Text("Veuillez réessayer", style: TextStyle(color: Colors.green),), onPressed: () {
             setState(() {
               inactivite.clear();
               fetchInactifs();
@@ -127,20 +127,20 @@ class _PageInactifsState extends State<PageInactifs> {
           onTap: () {
             nextPage(context, PageDetailsPdv(pdv: pdvs));
           },
-          leading: Icon(
+          leading: const Icon(
             Icons.store,
             color: Colors.blueGrey,
           ),
           title: Text(
             "${pdvs.numeroFlooz.toString()}",
-            style: TextStyle(
+            style: const TextStyle(
               fontWeight: FontWeight.bold,
               color: Colors.red,
             ),
           ),
           subtitle: Text(
             "${pdvs.nomDuPoint}",
-            style: TextStyle(
+            style: const TextStyle(
               fontStyle: FontStyle.italic,
             ),
           ),

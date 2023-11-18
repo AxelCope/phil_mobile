@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:hive/hive.dart';
 import 'package:phil_mobile/methods/methods.dart';
 import 'package:phil_mobile/pages/accueil/accueil.dart';
 import 'package:phil_mobile/pages/consts.dart';
@@ -44,21 +45,22 @@ class _LoginPageState extends State<LoginPage> {
         child: ListView(
           children: [
             Center(child: Image.asset(philLogo, scale: 2,)),
-            SizedBox(height: 40,),
+            const SizedBox(height: 40,),
             TextField(
               controller: userId,
               keyboardType: TextInputType.number,
               decoration: InputDecoration(
                   errorText: mailMsg,
                   hintText: "Numero commercial",
+                  helperText: "Inclure l'indicatif (228)",
                   fillColor: Colors.grey.withOpacity(0.2),
                   filled: true,
-                  border: OutlineInputBorder(
+                  border: const OutlineInputBorder(
                       borderSide: BorderSide.none
                   )
               ),
             ),
-            SizedBox(height: 30,),
+            const SizedBox(height: 30,),
             TextField(
               controller: password,
               obscureText: obscurePassword,
@@ -67,7 +69,7 @@ class _LoginPageState extends State<LoginPage> {
                 errorText: passMsg,
                 filled: true,
                 fillColor: Colors.grey.withOpacity(0.2),
-                border: OutlineInputBorder(
+                border: const OutlineInputBorder(
                     borderSide: BorderSide.none
                 ),
                 suffixIcon: IconButton(
@@ -83,7 +85,7 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
             ),
-            SizedBox(height: 50,),
+            const SizedBox(height: 50,),
             ElevatedButton(
                 style: ElevatedButton.styleFrom(
                     backgroundColor: philMainColor
@@ -106,17 +108,25 @@ class _LoginPageState extends State<LoginPage> {
 
   void checkCredentials() {
     bool userExists = false;
-    for (var check in listUsers) {
-      if (int.tryParse(userId.text) == check.id && password.text == check.password) {
-        Comms user = check;
-        nextPage(context, HomePage(comm: user));
-        userExists = true;
-        break;
+    if(userId.text.isEmpty || password.text.isEmpty)
+      {
+        _remplirTousLeschamps();
+      }
+    else{
+      for (var check in listUsers) {
+        if (int.parse(userId.text) == check.id && password.text == check.password) {
+          Comms user = check;
+          _setPreferences(user);
+          nextPage(context, HomePage(comm: user));
+          userExists = true;
+          break;
+        }
+      }
+      if (!userExists) {
+        _showUserNotFoundErrorDialog();
       }
     }
-    if (!userExists) {
-      _showUserNotFoundErrorDialog();
-    }
+
   }
 
   Future<void> fetchUsers() async {
@@ -151,8 +161,8 @@ class _LoginPageState extends State<LoginPage> {
             {
               listUsers.add(Comms.MapCommercial(element));
             }
-          userId.text = listUsers[0].id.toString();
-          password.text = listUsers[0].password!;
+          // userId.text = listUsers[0].id.toString();
+          // password.text = listUsers[0].password!;
           previousPage(context);
           checkCredentials();
         });
@@ -172,8 +182,8 @@ class _LoginPageState extends State<LoginPage> {
       barrierDismissible: false,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text("Erreur de Connexion"),
-          content: SingleChildScrollView(
+          title: const Text("Erreur de Connexion"),
+          content: const SingleChildScrollView(
             child: ListBody(
               children: <Widget>[
                 Text('Cet utilisateur n\'existe pas.'),
@@ -183,7 +193,7 @@ class _LoginPageState extends State<LoginPage> {
           ),
           actions: <Widget>[
             TextButton(
-              child: Text('OK'),
+              child: const Text('OK'),
               onPressed: () {
                 Navigator.of(context).pop();
               },
@@ -199,8 +209,8 @@ class _LoginPageState extends State<LoginPage> {
       barrierDismissible: false,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text("Erreur de Connexion"),
-          content: SingleChildScrollView(
+          title: const Text("Erreur de Connexion"),
+          content: const SingleChildScrollView(
             child: ListBody(
               children: <Widget>[
                 Text('Impossible de se connecter à internet'),
@@ -210,7 +220,7 @@ class _LoginPageState extends State<LoginPage> {
           ),
           actions: <Widget>[
             TextButton(
-              child: Text('OK'),
+              child: const Text('OK'),
               onPressed: () {
                 Navigator.of(context).pop();
               },
@@ -219,6 +229,42 @@ class _LoginPageState extends State<LoginPage> {
         );
       },
     );
+  }
+  Future<void> _remplirTousLeschamps() async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Attention"),
+          content: const SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Text('Veuillez remplir convenablement tous les champs'),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+
+
+  Future<void> _setPreferences(Comms comms) async {
+    try {
+      final box = await Hive.openBox('commsBox');
+      await box.put('user', comms);
+     } catch (e) {
+     }
   }
 
 

@@ -1,18 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:hive/hive.dart';
 import 'package:phil_mobile/methods/methods.dart';
 import 'package:phil_mobile/models/caPdv.dart';
 import 'package:phil_mobile/models/pdvs.dart';
 import 'package:phil_mobile/pages/accueil/details_point.dart';
 import 'package:phil_mobile/pages/consts.dart';
 import 'package:phil_mobile/models/users.dart';
+import 'package:phil_mobile/pages/login/login.dart';
 import 'package:phil_mobile/pages/performances/inactifs.dart';
 import 'package:phil_mobile/pages/performances/tabs.dart';
 import 'package:phil_mobile/pages/performances/page_givecom.dart';
 import 'package:phil_mobile/pages/sim%20services/swap%20grille.dart';
 import 'package:phil_mobile/provider/queries_provider.dart';
-import 'package:intl/intl.dart';
 
 
 class HomePage extends StatefulWidget {
@@ -51,83 +52,110 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       drawer: Drawer(
-        child: ListView(
-          shrinkWrap: true,
-          padding: EdgeInsets.zero,
+        child: Column(
           children: [
-             DrawerHeader(
-               padding: EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: philMainColor,
-              ),
-              child: Column(
+            Expanded(
+              child: ListView(
+                shrinkWrap: true,
+                padding: EdgeInsets.zero,
                 children: [
-                  Text(widget.comm.nomCommerciaux!, style: TextStyle(fontSize: 25),),
-                  Text(widget.comm.id!.toString(), style: TextStyle(fontSize: 20),),
-                  SizedBox(height: 10,),
-                  Text(widget.comm.nicknameCommerciaux!, style: TextStyle(fontWeight: FontWeight.bold),),
+                   DrawerHeader(
+                     padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: philMainColor,
+                    ),
+                    child: Column(
+                      children: [
+                        Text(widget.comm.nomCommerciaux!, style: const TextStyle(fontSize: 25),),
+                        Text(widget.comm.id!.toString(), style: const TextStyle(fontSize: 20),),
+                        const SizedBox(height: 10,),
+                        Text(widget.comm.nicknameCommerciaux!, style: const TextStyle(fontWeight: FontWeight.bold),),
+                      ],
+                    ),
+                  ),
+                  ListTile(
+                    title: const Text("Mes performances"),
+                    leading: const Icon(Icons.swap_horiz),
+                    onTap: (){
+                      nextPage(context, Performances(comms: widget.comm));
+                    },
+                  ),
+                  ListTile(
+                    title: const Text("Mes inactifs"),
+                    onTap: (){
+                      nextPage(context, PageInactifs(comms: widget.comm));
+                    },
+                    leading: Image.asset('assets/inactifs.png', width: 30,),
+                  ),
+                  ListTile(
+                    title: const Text("Points qui vont en banque"),
+                    leading: SvgPicture.asset('assets/givecom.svg', width: 30,),
+                    onTap: (){
+                      nextPage(context, PageGiveComs(comms: widget.comm));
+                    },
+                  ),
+              
+                  ExpansionTile(title: const Text("Services SIM"),
+                  children: [
+                    ListTile(
+                      leading: Image.asset('assets/creation.png'),
+                      title: const Text('Créer un nouveau pdv'),
+                      onTap: () {
+                        // Update the state of the app.
+                        // ...
+                      },
+                    ),
+                    const SizedBox(height: 20,),
+                    ListTile(
+                      leading: Image.asset('assets/sim swap.png'),
+                      title: const Text('Swapp pour redéploiement'),
+                      onTap: () {
+                      },
+                    ),
+                    const SizedBox(height: 20,),
+                    ListTile(
+                      leading: Image.asset('assets/sim broken.png'),
+                      title: const Text('Swapp pour SIM grillé ou perdu'),
+                      onTap: () {
+                        nextPage(context, SwappGrille(pdvs: listPdvs,));
+                      },
+                    ),
+                    const SizedBox(height: 20,),
+                    ListTile(
+                      leading: Image.asset('assets/update.png'),
+                      title: const Text('Update pdv'),
+                      onTap: () {
+                        // Update the state of the app.
+                        // ...
+                      },
+                    ),
+              
+                  ],),
                 ],
               ),
             ),
-
-            ListTile(
-              title: Text("Mes performances"),
-              leading: Icon(Icons.swap_horiz),
-              onTap: (){
-                nextPage(context, Performances(comms: widget.comm));
-              },
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0, ),
+              child:  ListTile(
+                leading: const Icon(Icons.settings),
+                title: Text(
+                  'Paramètres',
+                  style: TextStyle(fontSize: 16.0),
+                ),
+                onTap: () => (),
+              ),
             ),
-            ListTile(
-              title: Text("Mes inactifs"),
-              onTap: (){
-                nextPage(context, PageInactifs(comms: widget.comm));
-              },
-              leading: Image.asset('assets/inactifs.png', width: 30,),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0, ),
+              child:  ListTile(
+                  leading: const Icon(Icons.logout),
+                  title: Text(
+                    'Se déconnecter',
+                    style: TextStyle(fontSize: 16.0),
+                  ),
+                onTap: () => _setPreferences(context),
+              ),
             ),
-            ListTile(
-              title: Text("Points qui vont en banque"),
-              leading: SvgPicture.asset('assets/givecom.svg', width: 30,),
-              onTap: (){
-                nextPage(context, PageGiveComs(comms: widget.comm));
-              },
-            ),
-
-            ExpansionTile(title: Text("Services SIM"),
-            children: [
-              ListTile(
-                leading: Image.asset('assets/creation.png'),
-                title: const Text('Créer un nouveau pdv'),
-                onTap: () {
-                  // Update the state of the app.
-                  // ...
-                },
-              ),
-              SizedBox(height: 20,),
-              ListTile(
-                leading: Image.asset('assets/sim swap.png'),
-                title: const Text('Swapp pour redéploiement'),
-                onTap: () {
-                },
-              ),
-              SizedBox(height: 20,),
-              ListTile(
-                leading: Image.asset('assets/sim broken.png'),
-                title: const Text('Swapp pour SIM grillé ou perdu'),
-                onTap: () {
-                  nextPage(context, SwappGrille(pdvs: listPdvs,));
-                },
-              ),
-              SizedBox(height: 20,),
-              ListTile(
-                leading: Image.asset('assets/update.png'),
-                title: const Text('Update pdv'),
-                onTap: () {
-                  // Update the state of the app.
-                  // ...
-                },
-              ),
-
-            ],),
 
           ],
         ),
@@ -158,19 +186,19 @@ class _HomePageState extends State<HomePage> {
                     _searchList = null;
                   });
                 },
-                icon: Icon(Icons.close),
+                icon: const Icon(Icons.close),
               ) : null,
               enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(30),
-                  borderSide: BorderSide(color: Colors.transparent,)
+                  borderSide: const BorderSide(color: Colors.transparent,)
               ),
               focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(30),
-                  borderSide: BorderSide(color: Colors.transparent,)
+                  borderSide: const BorderSide(color: Colors.transparent,)
               ),
               fillColor: hexToColor('#f5f5f5'),
               border: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.transparent),
+                  borderSide: const BorderSide(color: Colors.transparent),
                   borderRadius: BorderRadius.circular(30)
               )
           ),
@@ -241,9 +269,9 @@ class _HomePageState extends State<HomePage> {
       return Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text("Nous n'avons pas pu contacter le serveur"),
+          const Text("Nous n'avons pas pu contacter le serveur"),
           TextButton(
-            child: Text("Veuillez réessayer", style: TextStyle(color: Colors.green),), onPressed: () {
+            child: const Text("Veuillez réessayer", style: TextStyle(color: Colors.green),), onPressed: () {
             setState(() {
               listPdvs.clear();
               fetchPdvs();
@@ -317,5 +345,67 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  Future<void> _setPreferences( BuildContext context) async {
+    try {
+      bool confirmed = await showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Déconnexion'),
+            content: const Text('Voulez vous vraiment vous déconneter ?'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(false); // Cancel the logout
+                },
+                child: const Text('Annuler'),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(true); // Confirm the logout
+                },
+                child: const Text('Se déconnecter'),
+              ),
+            ],
+          );
+        },
+      );
+
+      // If the user confirms the logout, proceed with the logout process
+      if (confirmed == true) {
+        // Show a loading dialog while simulating the logout process
+        showDialog(
+          context: context,
+          barrierDismissible: false, // Prevent user from dismissing the dialog
+          builder: (BuildContext context) {
+            return const AlertDialog(
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CircularProgressIndicator(),
+                  SizedBox(height: 16),
+                  Text('Logging out...'),
+                ],
+              ),
+            );
+          },
+        );
+
+        // Simulate logout process with a delay
+        await Future.delayed(const Duration(seconds: 2));
+
+        // Close the loading dialog
+        Navigator.of(context).pop();
+
+        // Clear user preferences
+        final box = await Hive.openBox('commsBox');
+        await box.clear();
+
+         Navigator.pushReplacement(context, MaterialPageRoute(builder:
+         (BuildContext context) => const LoginPage())); // Example for navigation
+      }
+    } catch (e) {
+    }
+  }
 
 }
