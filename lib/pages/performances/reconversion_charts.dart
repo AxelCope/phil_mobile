@@ -122,23 +122,23 @@ class _DetailsReconversionState extends State<DetailsReconversion> with Automati
             SfCartesianChart(
               title: ChartTitle(
                 text: "Reconversion journalière de ${widget.comms.nomCommerciaux}",
-                textStyle: TextStyle(
+                textStyle: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                 ),
               ),
               tooltipBehavior: TooltipBehavior(enable: true),
-              legend: Legend(
+              legend: const Legend(
                 isVisible: false,
                 toggleSeriesVisibility: true,
-                textStyle: const TextStyle(
+                textStyle: TextStyle(
                   fontSize: 12,
                 ),
               ),
               primaryXAxis: CategoryAxis(
 
-                majorGridLines: MajorGridLines(width: 0),
-                minorGridLines: MinorGridLines(width: 0),
+                majorGridLines: const MajorGridLines(width: 0),
+                minorGridLines: const MinorGridLines(width: 0),
                 axisBorderType: AxisBorderType.withoutTopAndBottom,
                 labelStyle: const TextStyle(
                   fontSize: 10,
@@ -170,14 +170,14 @@ class _DetailsReconversionState extends State<DetailsReconversion> with Automati
           onPressed: () {
             datePicker();
           },
-          child: Text('Selectionner la plage de daes'),
+          child: const Text('Selectionner la plage de daes'),
         ),
       ],
     );
   }
 
   datePicker() async{
-    List<DateTime> _dates = [DateTime.now(),  ];
+    List<DateTime> dates = [DateTime.now(),  ];
     var results = await showCalendarDatePicker2Dialog(
       context: context,
       config: CalendarDatePicker2WithActionButtonsConfig(
@@ -185,7 +185,7 @@ class _DetailsReconversionState extends State<DetailsReconversion> with Automati
 
       ),
       dialogSize: const Size(325, 400),
-      value: _dates,
+      value: dates,
       borderRadius: BorderRadius.circular(15),
     );
     setState(() {
@@ -232,38 +232,82 @@ class _DetailsReconversionState extends State<DetailsReconversion> with Automati
     }
     average = (somme == 0 ? 0 : somme / reconversion.length).toInt();
 
-    return  Card(
-      elevation: 5, // Ajoute une ombre à la carte
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(15), // Coins arrondis
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(10.0), // Espacement intérieur
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              "Moyenne de Reconversion de ${widget.comms.nomCommerciaux}",
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.blue), // Police plus grande et en gras
-            ),
-            SizedBox(height: 10),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  "${NumberFormat("#,###,### CFA").format(average)}/jours",
-                  style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.green), // Police plus grande, en gras et en couleur
-                ),
-                Icon(
-                  Icons.star,
-                  color: Colors.orange, // Couleur de l'icône étoile
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
+     return Card(
+       elevation: 5,
+       child: ClipPath(
+         child: Container(
+           decoration: BoxDecoration(
+             border: Border(
+               bottom: BorderSide(color: Colors.blue, width: 5),
+             ),
+           ),
+           child: Padding(
+             padding: const EdgeInsets.all(10), // Ajoute une marge intérieure pour un espacement équilibré
+             child: Column(
+               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+               crossAxisAlignment: CrossAxisAlignment.center,
+               children: [
+                 const SizedBox(height: 10),
+                 Column(
+                   crossAxisAlignment: CrossAxisAlignment.start,
+                   children: [
+                     Text(
+                                 "Moyenne de Reconversion de ${widget.comms.nomCommerciaux}",
+                                 style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold), // Police plus grande et en gras
+                               ),
+                               const SizedBox(height: 10),
+                               Row(
+                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                 children: [
+                                   Text(
+                                     "${NumberFormat("#,###,### CFA").format(average)}/jours",
+                                     style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold), // Police plus grande, en gras et en couleur
+                                   ),
+                                   const Icon(
+                                     Icons.star,
+                                     color: Colors.orange, // Couleur de l'icône étoile
+                                   ),
+                       ],
+                     ),
+                   ],
+                 ),],
+             ),
+           ),
+         ),
+       ),
+     );
+    // Card(
+    //   elevation: 5, // Ajoute une ombre à la carte
+    //   shape: RoundedRectangleBorder(
+    //     borderRadius: BorderRadius.circular(15), // Coins arrondis
+    //   ),
+    //   child: Padding(
+    //     padding: const EdgeInsets.all(10.0), // Espacement intérieur
+    //     child: Column(
+    //       crossAxisAlignment: CrossAxisAlignment.start,
+    //       children: [
+    //         Text(
+    //           "Moyenne de Reconversion de ${widget.comms.nomCommerciaux}",
+    //           style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.blue), // Police plus grande et en gras
+    //         ),
+    //         const SizedBox(height: 10),
+    //         Row(
+    //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    //           children: [
+    //             Text(
+    //               "${NumberFormat("#,###,### CFA").format(average)}/jours",
+    //               style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.green), // Police plus grande, en gras et en couleur
+    //             ),
+    //             const Icon(
+    //               Icons.star,
+    //               color: Colors.orange, // Couleur de l'icône étoile
+    //             ),
+    //           ],
+    //         ),
+    //       ],
+    //     ),
+    //   ),
+    // );
 
   }
 
@@ -288,38 +332,83 @@ class _DetailsReconversionState extends State<DetailsReconversion> with Automati
       }
     }
 
-    return  Card(
-      elevation: 5, // Ajoute une ombre à la carte
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(15), // Coins arrondis
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(10.0), // Espacement intérieur
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              "Plus haute Reconversion de ${widget.comms.nomCommerciaux}",
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.blue), // Police plus grande et en gras
+    return
+      Card(
+        elevation: 5,
+        child: ClipPath(
+          child: Container(
+            decoration: BoxDecoration(
+              border: Border(
+                bottom: BorderSide(color: Colors.blue, width: 5),
+              ),
             ),
-            SizedBox(height: 10),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  "${NumberFormat("#,###,### CFA").format(max)}",
-                  style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.green), // Police plus grande, en gras et en couleur
-                ),
-                Icon(
-                  Icons.trending_up,
-                  color: Colors.green, // Couleur de l'icône flèche vers le haut
-                ),
-              ],
+            child: Padding(
+              padding: const EdgeInsets.all(10), // Ajoute une marge intérieure pour un espacement équilibré
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const SizedBox(height: 10),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                                  "Plus haute Reconversion de ${widget.comms.nomCommerciaux}",
+                                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold), // Police plus grande et en gras
+                                ),
+                                const SizedBox(height: 10),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      NumberFormat("#,###,### CFA").format(max),
+                                      style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold), // Police plus grande, en gras et en couleur
+                                    ),
+                                    const Icon(
+                                      Icons.trending_up,
+                                      color: Colors.green, // Couleur de l'icône flèche vers le haut
+                                    ),
+                        ],
+                      ),
+                    ],
+                  ),],
+              ),
             ),
-          ],
+          ),
         ),
-      ),
-    );
+      );
+    //   Card(
+    //   elevation: 5, // Ajoute une ombre à la carte
+    //   shape: RoundedRectangleBorder(
+    //     borderRadius: BorderRadius.circular(15), // Coins arrondis
+    //   ),
+    //   child: Padding(
+    //     padding: const EdgeInsets.all(10.0), // Espacement intérieur
+    //     child: Column(
+    //       crossAxisAlignment: CrossAxisAlignment.start,
+    //       children: [
+    //         Text(
+    //           "Plus haute Reconversion de ${widget.comms.nomCommerciaux}",
+    //           style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.blue), // Police plus grande et en gras
+    //         ),
+    //         const SizedBox(height: 10),
+    //         Row(
+    //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    //           children: [
+    //             Text(
+    //               NumberFormat("#,###,### CFA").format(max),
+    //               style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.green), // Police plus grande, en gras et en couleur
+    //             ),
+    //             const Icon(
+    //               Icons.trending_up,
+    //               color: Colors.green, // Couleur de l'icône flèche vers le haut
+    //             ),
+    //           ],
+    //         ),
+    //       ],
+    //     ),
+    //   ),
+    // );
 
   }
 
@@ -330,7 +419,7 @@ class _DetailsReconversionState extends State<DetailsReconversion> with Automati
       child: Wrap(
         children: [
           averageDotationCard(),
-          SizedBox(width: 20,),
+          const SizedBox(width: 20,),
           maxDotation(),
         ],
       ),

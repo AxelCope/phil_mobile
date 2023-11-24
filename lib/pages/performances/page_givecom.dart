@@ -5,7 +5,7 @@ import 'package:phil_mobile/models/users.dart';
 import 'package:phil_mobile/provider/queries_provider.dart';
 
 class PageGiveComs extends StatefulWidget {
-  const PageGiveComs({Key? key, required this.comms});
+  const PageGiveComs({super.key, required this.comms});
 
   final Comms comms;
 
@@ -65,9 +65,9 @@ class _PageGiveComsState extends State<PageGiveComs> {
       return Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text("Nous n'avons pas pu contacter le serveur"),
+          const Text("Nous n'avons pas pu contacter le serveur"),
           TextButton(
-            child: Text(
+            child: const Text(
               "Veuillez réessayer",
               style: TextStyle(color: Colors.green),
             ),
@@ -116,7 +116,7 @@ class _PageGiveComsState extends State<PageGiveComs> {
               Text(
                 NumberFormat("#,###,###,#### CFA").format(data.montant),
                 textAlign: TextAlign.center,
-                style: TextStyle(
+                style: const TextStyle(
                   color: Colors.red, // Couleur rouge pour les frais
                   fontWeight: FontWeight.bold,
                 ),
@@ -126,7 +126,7 @@ class _PageGiveComsState extends State<PageGiveComs> {
               Text(
                 "${data.pdvs!.toString()} (${data.numero.toString()})",
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(fontSize: 13),
+                style: const TextStyle(fontSize: 13),
                 softWrap: true,
 
               ),

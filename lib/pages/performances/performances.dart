@@ -3,9 +3,9 @@ import 'package:intl/intl.dart';
  import 'package:phil_mobile/models/caPdv.dart';
 import 'package:phil_mobile/models/segmentation.dart';
  import 'package:phil_mobile/models/users.dart';
-import 'package:phil_mobile/pages/performances/segmentation.dart';
 import 'package:phil_mobile/provider/queries_provider.dart';
 import 'package:phil_mobile/widget/card.dart';
+import 'package:syncfusion_flutter_gauges/gauges.dart';
 
 class ProgressionObjectif extends StatefulWidget {
   const ProgressionObjectif({super.key,required this.comms
@@ -31,8 +31,9 @@ class _ProgressionObjectifState extends State<ProgressionObjectif> with Automati
   List zoneC = [];
   List zoneD = [];
   List zoneE = [];
-  List Allzone = [];
-  late var allList = [zoneA, zoneB, zoneC, zoneD, zoneE, Allzone];
+  List allZone = [];
+  late var allList = [zoneA, zoneB, zoneC, zoneD, zoneE, allZone];
+
 
   @override
   void initState() {
@@ -48,13 +49,12 @@ class _ProgressionObjectifState extends State<ProgressionObjectif> with Automati
   }
   @override
   Widget build(BuildContext context) {
+    super.build(context);
+    Size screenSize = MediaQuery.of(context).size;
     return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.all(30.0),
-        child: RefreshIndicator(
-          onRefresh: _refresh,
-          child: all()
-        ),
+      body: RefreshIndicator(
+        onRefresh: _refresh,
+        child: all()
       ),
     );
   }
@@ -65,10 +65,10 @@ class _ProgressionObjectifState extends State<ProgressionObjectif> with Automati
   return ListView(
   children: [
   _getCa(),
-    SizedBox(height: 10,),
-    Text("Mes segments", style: TextStyle(fontSize: 21),),
+    const SizedBox(height: 10,),
+    const Text("Mes segments", style: TextStyle(fontSize: 21),),
     allSegments(),
-    SizedBox(height: 10,),
+    const SizedBox(height: 10,),
   ],
   );
   }
@@ -98,48 +98,88 @@ class _ProgressionObjectifState extends State<ProgressionObjectif> with Automati
       comm = commCagnt[0].comm!;
       rep1 = ((comm / obj) * 100).round();
     }
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(15.0),
-        child: Row(
-          children: [
-            Stack(
-              children: [
-                Positioned(
-                  child: Text(
-                    "${rep1}%",
-                    style: TextStyle(fontSize: 20),
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Card(
+        elevation: 5,
+        child: Padding(
+          padding: const EdgeInsets.all(15.0),
+          child: Column(
+            children: [
+              const Text("Ma progreesion sur l'objectif du mois", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),),
+              const SizedBox(
+                width: 70,
+                  child: Divider()),
+              SizedBox(
+                width: 130,
+                height: 130,
+                 child:SfRadialGauge(axes: <RadialAxis>[
+                   RadialAxis(
+                       showLabels: false,
+                       showTicks: false,
+                       startAngle: 270,
+                       endAngle: 270,
+                       //radiusFactor: model.isWebFullView ? 0.7 : 0.8,
+                       axisLineStyle: const AxisLineStyle(
+                         thickness: 1,
+                         color: Color.fromARGB(255, 0, 169, 181),
+                         thicknessUnit: GaugeSizeUnit.factor,
+                       ),
+                       pointers: <GaugePointer>[
+                         RangePointer(
+                           value: ((comm / obj) * 100),
+                           width: 0.15,
+                           enableAnimation: true,
+                           animationDuration: 30,
+                           color: Colors.white,
+                           pointerOffset: 0.1,
+                           cornerStyle: CornerStyle.bothCurve,
+                           animationType: AnimationType.linear,
+                           sizeUnit: GaugeSizeUnit.factor,
+                         )
+                       ],
+                       annotations: <GaugeAnnotation>[
+                         GaugeAnnotation(
+                             positionFactor: 0.5,
+                             widget: Text('${rep1.toStringAsFixed(0)}%',
+                                 style: const TextStyle(
+                                     color: Colors.white, fontWeight: FontWeight.bold)))
+                       ])
+                 ]),
+                // CircularProgressIndicator(
+                //   value: (comm / obj).clamp(0.0, 1.0),
+                //   valueColor: const AlwaysStoppedAnimation<Color>(Colors.green),
+                //   strokeWidth: 10,
+                //   backgroundColor: Colors.grey[200],
+                //   strokeCap: StrokeCap.round,
+                // ),
+              ),
+
+              Padding(
+                padding: const EdgeInsets.only(top:10.0),
+                child: RichText(
+                  textAlign: TextAlign.center,
+                  text: TextSpan(
+                    children: [
+                      const TextSpan(
+                        text: "Commission/Objectif\n",
+                        style: TextStyle(fontSize: 19, color: Colors.black),
+                      ),
+                      TextSpan(
+                        text: " ${NumberFormat("###,### CFA").format(comm)} / ${NumberFormat("###,### CFA").format(obj)}",
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.black),
+                      ),
+                    ],
                   ),
-                  top: 33,
-                  left: 30,
                 ),
-                SizedBox(
-                  width: 90,
-                  height: 90,
-                  child: CircularProgressIndicator(
-                    value: (comm / obj).clamp(0.0, 1.0),
-                    valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
-                    strokeWidth: 10,
-                    backgroundColor: Colors.grey[200],
-                    strokeCap: StrokeCap.round,
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(width: 10,),
-            Column(
-              children: [
-                Text("Commission/Objectif"),
-                Text(
-                  " ${NumberFormat("###,### CFA").format(comm)} / ${NumberFormat("###,### CFA").format(obj)}",
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
-                ),
-              ],
-            )
-          ],
+              )
+
+            ],
+          ),
         ),
       ),
     );
+
 
   }
 
@@ -156,7 +196,6 @@ class _ProgressionObjectifState extends State<ProgressionObjectif> with Automati
           for(var element in r)
           {
             objectifComm.add(ChiffreAffaire.MapObj(element));
-            print(element);
           }
           gotObjectif = true;
         });
@@ -164,7 +203,6 @@ class _ProgressionObjectifState extends State<ProgressionObjectif> with Automati
       onError: (e) {
         setState(() {
           gotObjectif = false;
-          print(e);
         });
       },
     );
@@ -190,7 +228,6 @@ class _ProgressionObjectifState extends State<ProgressionObjectif> with Automati
       onError: (e) {
         setState(() {
           gotComm = false;
-          print(e);
         });
       },
     );
@@ -255,7 +292,7 @@ class _ProgressionObjectifState extends State<ProgressionObjectif> with Automati
         ),
         codeSnippet: ListView.builder(
           shrinkWrap: true,
-          physics: NeverScrollableScrollPhysics(),
+          physics: const NeverScrollableScrollPhysics(),
           itemCount: zoneA.length,
           itemBuilder: (BuildContext c, int index) {
             return segment(zoneA[index]);
@@ -263,7 +300,7 @@ class _ProgressionObjectifState extends State<ProgressionObjectif> with Automati
         ),
         child: Text(
           "Segments A: ${zoneA.length} points de ventes",
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 16.0,
             fontWeight: FontWeight.normal,
           ),
@@ -285,7 +322,7 @@ class _ProgressionObjectifState extends State<ProgressionObjectif> with Automati
         ),
         codeSnippet: ListView.builder(
           shrinkWrap: true,
-          physics: NeverScrollableScrollPhysics(),
+          physics: const NeverScrollableScrollPhysics(),
           itemCount: zoneB.length,
           itemBuilder: (BuildContext c, int index) {
             return segment(zoneB[index]);
@@ -293,7 +330,7 @@ class _ProgressionObjectifState extends State<ProgressionObjectif> with Automati
         ),
         child: Text(
           "Segments B: ${zoneB.length} points de ventes",
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 16.0,
             fontWeight: FontWeight.normal,
           ),
@@ -314,7 +351,7 @@ class _ProgressionObjectifState extends State<ProgressionObjectif> with Automati
           ),
         ),
         codeSnippet: ListView.builder(
-          physics: NeverScrollableScrollPhysics(),
+          physics: const NeverScrollableScrollPhysics(),
           shrinkWrap: true,
           itemCount: zoneC.length,
           itemBuilder: (BuildContext c, int index) {
@@ -323,7 +360,7 @@ class _ProgressionObjectifState extends State<ProgressionObjectif> with Automati
         ),
         child: Text(
           "Segments C: ${zoneC.length} points de ventes",
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 16.0,
             fontWeight: FontWeight.normal,
           ),
@@ -344,7 +381,7 @@ class _ProgressionObjectifState extends State<ProgressionObjectif> with Automati
           ),
         ),
         codeSnippet: ListView.builder(
-          physics: NeverScrollableScrollPhysics(),
+          physics: const NeverScrollableScrollPhysics(),
           shrinkWrap: true,
           itemCount: zoneD.length,
           itemBuilder: (BuildContext c, int index) {
@@ -353,7 +390,7 @@ class _ProgressionObjectifState extends State<ProgressionObjectif> with Automati
         ),
         child: Text(
           "Segments D: ${zoneD.length} points de ventes",
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 16.0,
             fontWeight: FontWeight.normal,
           ),
@@ -375,7 +412,7 @@ class _ProgressionObjectifState extends State<ProgressionObjectif> with Automati
         ),
         codeSnippet: ListView.builder(
           shrinkWrap: true,
-          physics: NeverScrollableScrollPhysics(),
+          physics: const NeverScrollableScrollPhysics(),
           itemCount: zoneE.length,
           itemBuilder: (BuildContext c, int index) {
             return segment(zoneE[index]);
@@ -383,7 +420,7 @@ class _ProgressionObjectifState extends State<ProgressionObjectif> with Automati
         ),
         child: Text(
           "Segments E: ${zoneE.length} points de ventes",
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 16.0,
             fontWeight: FontWeight.normal,
           ),
@@ -424,7 +461,7 @@ setState(() {
       onSuccess: (cms) {
         for (var element in cms) {
           var seg = double.parse(element['sommedotes']);
-          Allzone.add(Segmentation.mapSegmentation(element));
+          allZone.add(Segmentation.mapSegmentation(element));
 
           seg > 10000000
               ? zoneA.add(Segmentation.mapSegmentation(element))
@@ -440,7 +477,6 @@ setState(() {
               : (null);
           seg == 0 ? zoneE.add(Segmentation.mapSegmentation(element)) : (null);
 
-          print(element);
         }
         setState(() {
           segmentationCheck = false;

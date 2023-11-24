@@ -60,9 +60,9 @@ class Comms {
       mail: map[dbMail],
       nicknameCommerciaux: map[dbNickName],
       StatusCompte: map[dbStatusCompteComm],
-      startDateTime: DateTime.now().subtract(Duration(days: 7)),
+      startDateTime: DateTime.now().subtract(const Duration(days: 7)),
       endDateTime: DateTime.now(),
-      startDateTimeR: DateTime.now().subtract(Duration(days: 7)),
+      startDateTimeR: DateTime.now().subtract(const Duration(days: 7)),
       endDateTimeR: DateTime.now(),
     );
   }

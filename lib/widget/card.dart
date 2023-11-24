@@ -1,6 +1,4 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 class CardHighlight extends StatefulWidget {
   const CardHighlight({
@@ -31,15 +29,15 @@ class _CardHighlightState extends State<CardHighlight>
 
     return Card(
       child: ExpansionTile(
-        tilePadding: EdgeInsets.symmetric(horizontal: 16.0), // Ajuste le padding du titre
+        tilePadding: const EdgeInsets.symmetric(horizontal: 16.0), // Ajuste le padding du titre
         title:
           widget.child,
         onExpansionChanged: (state) {
-          WidgetsBinding.instance!.addPostFrameCallback((timeStamp) {
+          WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
             if (mounted) setState(() => isOpen = state);
           });
         },
-        trailing: Icon(null),
+        trailing: const Icon(null),
         iconColor: Colors.blue, // Couleur de l'icône
         collapsedIconColor: Colors.grey, // Couleur de l'icône lorsque l'ExpansionTile est fermé
         leading: Icon(

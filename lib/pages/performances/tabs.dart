@@ -31,7 +31,7 @@ class _PerformancesState extends State<Performances> {
                   previousPage(context);
                 }
             ),
-            title: Text('Performances'),
+            title: const Text('Performances'),
             bottom: const TabBar(
               tabs: [
                 Tab(text: 'Dotations'),

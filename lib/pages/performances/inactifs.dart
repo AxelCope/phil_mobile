@@ -132,7 +132,7 @@ class _PageInactifsState extends State<PageInactifs> {
             color: Colors.blueGrey,
           ),
           title: Text(
-            "${pdvs.numeroFlooz.toString()}",
+            pdvs.numeroFlooz.toString(),
             style: const TextStyle(
               fontWeight: FontWeight.bold,
               color: Colors.red,

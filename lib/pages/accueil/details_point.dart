@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:map_launcher/map_launcher.dart';
-import 'package:maps_launcher/maps_launcher.dart';
 import 'package:phil_mobile/methods/methods.dart';
 import 'package:phil_mobile/models/caPdv.dart';
 import 'package:phil_mobile/models/pdvs.dart';
@@ -45,7 +44,7 @@ class _PageDetailsPdvState extends State<PageDetailsPdv> {
               previousPage(context);
             }
         ),
-        title: Text("Détails du point"),
+        title: const Text("Détails du point"),
         centerTitle: true,
         scrolledUnderElevation: 0,
       ),
@@ -59,10 +58,10 @@ class _PageDetailsPdvState extends State<PageDetailsPdv> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(widget.pdv.nomDuPoint!, style: TextStyle(fontSize: 25),),
-                SizedBox(height: 10,),
-                Text(widget.pdv.numeroFlooz!.toString(), style: TextStyle(fontSize: 21),),
-                SizedBox(height: 10,),
+                Text(widget.pdv.nomDuPoint!, style: const TextStyle(fontSize: 25),),
+                const SizedBox(height: 10,),
+                Text(widget.pdv.numeroFlooz!.toString(), style: const TextStyle(fontSize: 21),),
+                const SizedBox(height: 10,),
               ],
             ),
           ),
@@ -75,19 +74,19 @@ class _PageDetailsPdvState extends State<PageDetailsPdv> {
                 Row(
                   children: [
                      Image.asset("assets/income.png", width: 30, color: philMainColor,),
-                    SizedBox(width: 10,),
+                    const SizedBox(width: 10,),
                     _getCa()
 
                   ],
                 ),
-                SizedBox(height: 30,),
-                Text("Profile: ${widget.pdv.profil}", style: TextStyle(fontWeight: FontWeight.bold),),
-                SizedBox(height: 20,),
-                Text("Numero du propirétaire: ${widget.pdv.numeroProprietaireDuPdv} ( ${widget.pdv.sexeDuGerant})", style: TextStyle(fontWeight: FontWeight.bold),),
-                SizedBox(height: 20,),
+                const SizedBox(height: 30,),
+                Text("Profile: ${widget.pdv.profil}", style: const TextStyle(fontWeight: FontWeight.bold),),
+                const SizedBox(height: 20,),
+                Text("Numero du propirétaire: ${widget.pdv.numeroProprietaireDuPdv} ( ${widget.pdv.sexeDuGerant})", style: const TextStyle(fontWeight: FontWeight.bold),),
+                const SizedBox(height: 20,),
 
-                Text("Type d'activité: ${widget.pdv.typeDactivite}", style: TextStyle(fontWeight: FontWeight.bold),),
-                SizedBox(height: 20,),
+                Text("Type d'activité: ${widget.pdv.typeDactivite}", style: const TextStyle(fontWeight: FontWeight.bold),),
+                const SizedBox(height: 20,),
                 Container(
                   padding: const EdgeInsets.all(20.0),
                   decoration: BoxDecoration(
@@ -102,15 +101,15 @@ class _PageDetailsPdvState extends State<PageDetailsPdv> {
                           mainAxisSize: MainAxisSize.max,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text("Region: ${widget.pdv.region}", style: TextStyle(fontWeight: FontWeight.bold),),
-                            SizedBox(height: 20,),
-                            Text("Prefecture: ${widget.pdv.prefecture}", style: TextStyle(fontWeight: FontWeight.bold),),
-                            SizedBox(height: 20,),
-                            Text("Commune: ${widget.pdv.commune}", style: TextStyle(fontWeight: FontWeight.bold),),
-                            SizedBox(height: 20,),
-                            Text("Canton: ${widget.pdv.canton}", style: TextStyle(fontWeight: FontWeight.bold),),
-                            SizedBox(height: 20,),
-                            Text("Quartier: ${widget.pdv.quartier}", style: TextStyle(fontWeight: FontWeight.bold),),
+                            Text("Region: ${widget.pdv.region}", style: const TextStyle(fontWeight: FontWeight.bold),),
+                            const SizedBox(height: 20,),
+                            Text("Prefecture: ${widget.pdv.prefecture}", style: const TextStyle(fontWeight: FontWeight.bold),),
+                            const SizedBox(height: 20,),
+                            Text("Commune: ${widget.pdv.commune}", style: const TextStyle(fontWeight: FontWeight.bold),),
+                            const SizedBox(height: 20,),
+                            Text("Canton: ${widget.pdv.canton}", style: const TextStyle(fontWeight: FontWeight.bold),),
+                            const SizedBox(height: 20,),
+                            Text("Quartier: ${widget.pdv.quartier}", style: const TextStyle(fontWeight: FontWeight.bold),),
                           ],
                         ),
                       ),
@@ -131,7 +130,7 @@ class _PageDetailsPdvState extends State<PageDetailsPdv> {
                           shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(20)
                           ),
-                          child: Padding(
+                          child: const Padding(
                             padding: EdgeInsets.all(13.0),
                             child: Column(
                               children: [
@@ -145,16 +144,18 @@ class _PageDetailsPdvState extends State<PageDetailsPdv> {
                     ],
                   ),
                 ),
-                SizedBox(height: 20,),
-                Text("Localisation:  ${widget.pdv.localisation}", style: TextStyle(fontWeight: FontWeight.bold),),
-                SizedBox(height: 20,),
-                Text("NIF:  ${widget.pdv.nif ?? "Non indiqué" }", style: TextStyle(fontWeight: FontWeight.bold),),
-                SizedBox(height: 20,),
-                Text("Régime fiscal:  ${widget.pdv.regimeFiscal ?? "Non indiqué" }", style: TextStyle(fontWeight: FontWeight.bold),),
-                SizedBox(height: 20,),
-                Text("Support de visibilité:  ${widget.pdv.supportDeVisibiliteChevaletPotenceAutocollant ?? "Non indiqué" }", style: TextStyle(fontWeight: FontWeight.bold),),
-                SizedBox(height: 20,),
-                Text("Etat de la visibilité:  ${widget.pdv.etatDuSupportDeVisibiliteBonMauvais ?? "Non indiqué" }", style: TextStyle(fontWeight: FontWeight.bold),),
+                const SizedBox(height: 20,),
+                Text("Localisation:  ${widget.pdv.localisation}", style: const TextStyle(fontWeight: FontWeight.bold),),
+                const SizedBox(height: 20,),
+                Text("NIF:  ${widget.pdv.nif ?? "Non indiqué" }", style: const TextStyle(fontWeight: FontWeight.bold),),
+                const SizedBox(height: 20,),
+                Text("Régime fiscal:  ${widget.pdv.regimeFiscal ?? "Non indiqué" }", style: const TextStyle(fontWeight: FontWeight.bold),),
+                const SizedBox(height: 20,),
+                Text("Support de visibilité:  ${widget.pdv.supportDeVisibiliteChevaletPotenceAutocollant ?? "Non indiqué" }", style: const TextStyle(fontWeight: FontWeight.bold),),
+                const SizedBox(height: 20,),
+                Text("Etat de la visibilité:  ${widget.pdv.etatDuSupportDeVisibiliteBonMauvais ?? "Non indiqué" }", style: const TextStyle(fontWeight: FontWeight.bold),),
+                const SizedBox(height: 20,),
+
 
               ],
             ),
@@ -223,7 +224,7 @@ class _PageDetailsPdvState extends State<PageDetailsPdv> {
             children: [
 
               TextButton(
-                child: Text("Réessayer", style: TextStyle(color: Colors.green),), onPressed: () {
+                child: const Text("Réessayer", style: TextStyle(color: Colors.green),), onPressed: () {
                 setState(() {
                   listCA.clear();
                   getCA();
@@ -233,7 +234,7 @@ class _PageDetailsPdvState extends State<PageDetailsPdv> {
           ),
         );
       }
-    return Text("${_ca() ?? 0} CFA", style: TextStyle(fontWeight: FontWeight.bold),);
+    return Text("${_ca() ?? 0} CFA", style: const TextStyle(fontWeight: FontWeight.bold),);
   }
 
 }

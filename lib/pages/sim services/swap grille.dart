@@ -14,11 +14,10 @@ class SwappGrille extends StatefulWidget {
 }
 
 class _SwappGrilleState extends State<SwappGrille> {
-  TextEditingController _searchFieldController = TextEditingController();
-  TextEditingController _comments = TextEditingController();
-  List<PointDeVente>? _searchList;
+  final TextEditingController _searchFieldController = TextEditingController();
+   List<PointDeVente>? _searchList;
   List<PointDeVente> swapPending = [];
-  List<PointDeVente> _checkedList = [];
+  final List<PointDeVente> _checkedList = [];
 
 
   @override
@@ -28,8 +27,8 @@ class _SwappGrilleState extends State<SwappGrille> {
       floatingActionButton: _checkedList.isNotEmpty ? Align(
         alignment: Alignment.bottomCenter,
         child: ElevatedButton(
-          style:  ElevatedButton.styleFrom(backgroundColor: philMainColor, padding: EdgeInsets.symmetric(horizontal: 100)),
-          child: Text("Envoyer le swapp", style: TextStyle(color: Colors.white),),
+          style:  ElevatedButton.styleFrom(backgroundColor: philMainColor, padding: const EdgeInsets.symmetric(horizontal: 100)),
+          child: const Text("Envoyer le swapp", style: TextStyle(color: Colors.white),),
           onPressed: (){
           _confirmationSheet(context);
           },
@@ -40,7 +39,7 @@ class _SwappGrilleState extends State<SwappGrille> {
           children: [
             Container(
               padding: const EdgeInsets.only(left: 21.0, right: 21, top: 45, bottom: 10),
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.only(bottomRight: Radius.circular(20), bottomLeft: Radius.circular(20))
               ),
@@ -50,7 +49,7 @@ class _SwappGrilleState extends State<SwappGrille> {
                   const Text("Signaler le dysfonctionnement ou la perte/vol d'une carte SIM", textAlign: TextAlign.center,style: TextStyle(fontSize: 20),),
                   const SizedBox(height: 10,),
                   Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 30.0, vertical: 10),
+                    padding: const EdgeInsets.symmetric(horizontal: 30.0, vertical: 10),
                     child: TextField(
                       onChanged: _search,
                       controller: _searchFieldController,
@@ -68,7 +67,7 @@ class _SwappGrilleState extends State<SwappGrille> {
                                 _searchList = null;
                               });
                             },
-                            icon: Icon(Icons.close),
+                            icon: const Icon(Icons.close),
                           ) : null,
                           enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10),
@@ -80,7 +79,7 @@ class _SwappGrilleState extends State<SwappGrille> {
                           ),
                           fillColor: hexToColor('#FFFFFF'),
                           border: OutlineInputBorder(
-                              borderSide: BorderSide(color: Colors.transparent),
+                              borderSide: const BorderSide(color: Colors.transparent),
                               borderRadius: BorderRadius.circular(10)
                           )
                       ),
@@ -176,7 +175,7 @@ class _SwappGrilleState extends State<SwappGrille> {
 
   _confirmationSheet(context) {
     showModalBottomSheet(
-      shape: RoundedRectangleBorder(
+      shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(
           top: Radius.circular(25.0),
         ),
@@ -199,29 +198,29 @@ class _SwappGrilleState extends State<SwappGrille> {
                           title: Text(_checkedList[index].nomDuPoint!),
                           subtitle: Text(_checkedList[index].numeroFlooz!.toString()),
                           trailing: IconButton(
-                            icon: Icon(Icons.message),
+                            icon: const Icon(Icons.message),
                             onPressed: () {
                               showDialog(
                                 context: context,
                                 builder: (context) {
-                                  String? holder = _checkedList[index].comment?.text;
+                                  String? holder = _checkedList[index].comment.text;
                                   TextEditingController commentController =
                                   TextEditingController(text: holder);
                                   return AlertDialog(
-                                    title: Text('Ajouter un Commentaire'),
+                                    title: const Text('Ajouter un Commentaire'),
                                     content: TextField(
                                       controller: commentController,
-                                      decoration: InputDecoration(hintText: "Commentaires"),
+                                      decoration: const InputDecoration(hintText: "Commentaires"),
                                     ),
                                     actions: <Widget>[
                                       TextButton(
-                                        child: Text('Annuler'),
+                                        child: const Text('Annuler'),
                                         onPressed: () {
                                           Navigator.of(context).pop();
                                         },
                                       ),
                                       TextButton(
-                                        child: Text('Valider'),
+                                        child: const Text('Valider'),
                                         onPressed: () {
                                           setState(() {
                                             holder = commentController.text;
@@ -249,13 +248,13 @@ class _SwappGrilleState extends State<SwappGrille> {
               alignment: Alignment.bottomCenter,
               child: Container(
                 width: 100,
-                margin: EdgeInsets.only(bottom: 16.0),
+                margin: const EdgeInsets.only(bottom: 16.0),
                 child: FloatingActionButton(
                   backgroundColor: philMainColor,
                   onPressed: () {
                     // Add functionality for the FloatingActionButton
                   },
-                  child: Text("ENVOYER", style: TextStyle(color: Colors.white),),
+                  child: const Text("ENVOYER", style: TextStyle(color: Colors.white),),
                 ),
               ),
             ),
@@ -270,16 +269,16 @@ class _SwappGrilleState extends State<SwappGrille> {
         context: context,
         builder: (BuildContext bc){
           return Container(
-            child: new Wrap(
+            child: Wrap(
               children: <Widget>[
-                new ListTile(
-                    leading: new Icon(Icons.music_note),
-                    title: new Text('Music'),
+                ListTile(
+                    leading: const Icon(Icons.music_note),
+                    title: const Text('Music'),
                     onTap: () => {}
                 ),
-                new ListTile(
-                  leading: new Icon(Icons.videocam),
-                  title: new Text('Video'),
+                ListTile(
+                  leading: const Icon(Icons.videocam),
+                  title: const Text('Video'),
                   onTap: () => {},
                 ),
               ],

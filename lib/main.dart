@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:hive/hive.dart';
+import 'package:flutter/services.dart';
 import 'package:phil_mobile/models/users.dart';
 import 'package:phil_mobile/pages/accueil/accueil.dart';
 import 'package:phil_mobile/pages/login/login.dart';
@@ -35,7 +35,7 @@ class _MyAppState extends State<MyApp> {
     _initGenos();
     _checkLoggedIn();
   }
-  Widget _initialContent = MyLoadingScreen();
+  Widget _initialContent = const MyLoadingScreen();
 
   Future<void> _checkLoggedIn() async {
     final box = await Hive.openBox('commsBox');
@@ -51,6 +51,10 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
     if (!_genosInit) {
       return MaterialApp(
         debugShowCheckedModeBanner: false,
@@ -58,7 +62,7 @@ class _MyAppState extends State<MyApp> {
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
           useMaterial3: true,
         ),
-        home: MyLoadingScreen(),
+        home: const MyLoadingScreen(),
       );
     }
 
@@ -78,7 +82,7 @@ class _MyAppState extends State<MyApp> {
       appWsSignature: '91a2dbf0-292d-11ed-91f1-4f98460f464c',
       appPrivateDirectory: '.',
       encryptionKey: '91a2dbf0-292d-11ed-91f1-4f98460d',
-      host: '192.168.0.110',
+      host: '192.168.1.66',
       port: '8080',
       unsecurePort: '80',
       dbms: DBMS.postgres,
@@ -102,18 +106,20 @@ class _MyAppState extends State<MyApp> {
 }
 
 class MyLoadingScreen extends StatelessWidget {
+  const MyLoadingScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return const Scaffold(
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             CircularProgressIndicator(
-              valueColor: const AlwaysStoppedAnimation<Color>(Colors.green),
+              valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
             ),
-            const SizedBox(height: 20),
-            const Text(
+            SizedBox(height: 20),
+            Text(
               'Chargement',
               style: TextStyle(fontSize: 20),
             ),

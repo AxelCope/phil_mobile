@@ -12,7 +12,6 @@ import 'package:phil_mobile/pages/login/login.dart';
 import 'package:phil_mobile/pages/performances/inactifs.dart';
 import 'package:phil_mobile/pages/performances/tabs.dart';
 import 'package:phil_mobile/pages/performances/page_givecom.dart';
-import 'package:phil_mobile/pages/sim%20services/swap%20grille.dart';
 import 'package:phil_mobile/provider/queries_provider.dart';
 
 
@@ -25,7 +24,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  TextEditingController _searchFieldController = TextEditingController();
+  final TextEditingController _searchFieldController = TextEditingController();
   List<PointDeVente> listPdvs = [];
   List<ChiffreAffaire> objectifComm = [];
   List<ChiffreAffaire> commCagnt = [];
@@ -95,42 +94,42 @@ class _HomePageState extends State<HomePage> {
                     },
                   ),
               
-                  ExpansionTile(title: const Text("Services SIM"),
-                  children: [
-                    ListTile(
-                      leading: Image.asset('assets/creation.png'),
-                      title: const Text('Créer un nouveau pdv'),
-                      onTap: () {
-                        // Update the state of the app.
-                        // ...
-                      },
-                    ),
-                    const SizedBox(height: 20,),
-                    ListTile(
-                      leading: Image.asset('assets/sim swap.png'),
-                      title: const Text('Swapp pour redéploiement'),
-                      onTap: () {
-                      },
-                    ),
-                    const SizedBox(height: 20,),
-                    ListTile(
-                      leading: Image.asset('assets/sim broken.png'),
-                      title: const Text('Swapp pour SIM grillé ou perdu'),
-                      onTap: () {
-                        nextPage(context, SwappGrille(pdvs: listPdvs,));
-                      },
-                    ),
-                    const SizedBox(height: 20,),
-                    ListTile(
-                      leading: Image.asset('assets/update.png'),
-                      title: const Text('Update pdv'),
-                      onTap: () {
-                        // Update the state of the app.
-                        // ...
-                      },
-                    ),
-              
-                  ],),
+                  // ExpansionTile(title: const Text("Services SIM"),
+                  // children: [
+                  //   // ListTile(
+                  //   //   leading: Image.asset('assets/creation.png'),
+                  //   //   title: const Text('Créer un nouveau pdv'),
+                  //   //   onTap: () {
+                  //   //     // Update the state of the app.
+                  //   //     // ...
+                  //   //   },
+                  //   // ),
+                  //   // const SizedBox(height: 20,),
+                  //   // ListTile(
+                  //   //   leading: Image.asset('assets/sim swap.png'),
+                  //   //   title: const Text('Swapp pour redéploiement'),
+                  //   //   onTap: () {
+                  //   //   },
+                  //   // ),
+                  //   const SizedBox(height: 20,),
+                  //   ListTile(
+                  //     leading: Image.asset('assets/sim broken.png'),
+                  //     title: const Text('Swapp pour SIM grillé ou perdu'),
+                  //     onTap: () {
+                  //       nextPage(context, SwappGrille(pdvs: listPdvs,));
+                  //     },
+                  //   ),
+                  //   const SizedBox(height: 20,),
+                  //   // ListTile(
+                  //   //   leading: Image.asset('assets/update.png'),
+                  //   //   title: const Text('Update pdv'),
+                  //   //   onTap: () {
+                  //   //     // Update the state of the app.
+                  //   //     // ...
+                  //   //   },
+                  //   // ),
+                  //
+                  // ],),
                 ],
               ),
             ),
@@ -138,7 +137,7 @@ class _HomePageState extends State<HomePage> {
               padding: const EdgeInsets.symmetric(horizontal: 16.0, ),
               child:  ListTile(
                 leading: const Icon(Icons.settings),
-                title: Text(
+                title: const Text(
                   'Paramètres',
                   style: TextStyle(fontSize: 16.0),
                 ),
@@ -149,7 +148,7 @@ class _HomePageState extends State<HomePage> {
               padding: const EdgeInsets.symmetric(horizontal: 16.0, ),
               child:  ListTile(
                   leading: const Icon(Icons.logout),
-                  title: Text(
+                  title: const Text(
                     'Se déconnecter',
                     style: TextStyle(fontSize: 16.0),
                   ),
@@ -212,6 +211,11 @@ class _HomePageState extends State<HomePage> {
 
   _pdvs(PointDeVente pdvs)
   {
+    var colorsStyle = Colors.black;
+    if(pdvs.dotee == 0)
+      {
+        colorsStyle = Colors.red;
+      }
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Container(
@@ -225,7 +229,8 @@ class _HomePageState extends State<HomePage> {
           },
           child: ListTile(
             title: Text("${pdvs.nomDuPoint} "),
-            subtitle: Text("${pdvs.numeroFlooz}\nNombre de dotations dans le mois: ${pdvs.dotee ?? "0"} "),
+            subtitle: Text("${pdvs.numeroFlooz}\nNombre de dotations dans le mois: ${pdvs.dotee}",
+              style: TextStyle(color: colorsStyle),),
           ),
         ),
       ),

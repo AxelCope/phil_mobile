@@ -37,8 +37,9 @@ class ReconversionProvider {
         onSuccess: (Result result) {
           List<Rec> l = [];
           for (var element in result.data) {
-            if(element['reconversion'] != null)
+            if(element['reconversion'] != null) {
               l.add(Rec.MapComm(element));
+            }
           }
           onSuccess(l);
         },

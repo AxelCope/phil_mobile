@@ -79,7 +79,7 @@ class _DetailsDotationsState extends State<DetailsDotations> with AutomaticKeepA
           dataSource: ListDotations,
           xValueMapper: (Dotations rt, _) => myDate(rt.dates),
           yValueMapper: (Dotations rt, _) => rt.dotations,
-          markerSettings: MarkerSettings(isVisible: true)
+          markerSettings: const MarkerSettings(isVisible: true)
       ),
     ];
   }
@@ -90,7 +90,7 @@ class _DetailsDotationsState extends State<DetailsDotations> with AutomaticKeepA
     {
       return const Center(
         child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 200.0),
+          padding: EdgeInsets.symmetric(vertical: 200.0),
           child: SizedBox(
             height: 30,
             width: 30,
@@ -143,16 +143,16 @@ class _DetailsDotationsState extends State<DetailsDotations> with AutomaticKeepA
                 ),
               ),
               tooltipBehavior: TooltipBehavior(enable: true),
-              legend: Legend(
+              legend: const Legend(
                 isVisible: false,
                 toggleSeriesVisibility: true,
-                textStyle: const TextStyle(
+                textStyle: TextStyle(
                   fontSize: 12,
                 ),
               ),
               primaryXAxis: CategoryAxis(
-                majorGridLines: MajorGridLines(width: 0),
-                minorGridLines: MinorGridLines(width: 0),
+                majorGridLines: const MajorGridLines(width: 0),
+                minorGridLines: const MinorGridLines(width: 0),
                 axisBorderType: AxisBorderType.withoutTopAndBottom,
                 labelStyle: const TextStyle(
                   fontSize: 10, // Augmenter la taille de la police des labels
@@ -183,37 +183,83 @@ class _DetailsDotationsState extends State<DetailsDotations> with AutomaticKeepA
     average = (somme == 0 ? 0 : somme / ListDotations.length).toInt();
 
     return  Card(
-      elevation: 5, // Ajoute une ombre à la carte
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(15), // Coins arrondis
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(10.0), // Espacement intérieur
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              "Moyenne de Dotations de ${widget.comms.nomCommerciaux}",
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.blue), // Police plus grande et en gras
+      elevation: 5,
+      child: ClipPath(
+        child: Container(
+          decoration: BoxDecoration(
+            border: Border(
+              bottom: BorderSide(color: Colors.blue, width: 5),
             ),
-            SizedBox(height: 10),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(10), // Ajoute une marge intérieure pour un espacement équilibré
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Text(
-                  "${average}/jours",
-                  style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.green), // Police plus grande, en gras et en couleur
-                ),
-                Icon(
-                  Icons.star,
-                  color: Colors.orange, // Couleur de l'icône étoile
-                ),
-              ],
+                const SizedBox(height: 10),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Moyenne de Dotations de ${widget.comms.nomCommerciaux}",
+                      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold), // Police plus grande et en gras
+                    ),
+                    const SizedBox(height: 10),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          "$average/jours",
+                          style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold), // Police plus grande, en gras et en couleur
+                        ),
+                        const Icon(
+                          Icons.star,
+                          color: Colors.orange, // Couleur de l'icône étoile
+                        ),
+                      ],
+                    ),
+                  ],
+                ),],
             ),
-          ],
+          ),
         ),
       ),
     );
+
+
+    //   Card(
+    //   elevation: 5, // Ajoute une ombre à la carte
+    //   shape: RoundedRectangleBorder(
+    //     borderRadius: BorderRadius.circular(15), // Coins arrondis
+    //   ),
+    //   child: Padding(
+    //     padding: const EdgeInsets.all(10.0), // Espacement intérieur
+    //     child: Column(
+    //       crossAxisAlignment: CrossAxisAlignment.start,
+    //       children: [
+    //         Text(
+    //           "Moyenne de Dotations de ${widget.comms.nomCommerciaux}",
+    //           style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.blue), // Police plus grande et en gras
+    //         ),
+    //         const SizedBox(height: 10),
+    //         Row(
+    //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    //           children: [
+    //             Text(
+    //               "$average/jours",
+    //               style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.green), // Police plus grande, en gras et en couleur
+    //             ),
+    //             const Icon(
+    //               Icons.star,
+    //               color: Colors.orange, // Couleur de l'icône étoile
+    //             ),
+    //           ],
+    //         ),
+    //       ],
+    //     ),
+    //   ),
+    // );
 
   }
 
@@ -238,38 +284,83 @@ class _DetailsDotationsState extends State<DetailsDotations> with AutomaticKeepA
       }
     }
 
-    return  Card(
-      elevation: 5, // Ajoute une ombre à la carte
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(15), // Coins arrondis
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(10.0), // Espacement intérieur
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              "Plus haute Dotation de ${widget.comms.nomCommerciaux}",
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.blue), // Police plus grande et en gras
+    return
+      Card(
+        elevation: 5,
+        child: ClipPath(
+          child: Container(
+            decoration: BoxDecoration(
+              border: Border(
+                bottom: BorderSide(color: Colors.blue, width: 5),
+              ),
             ),
-            SizedBox(height: 10),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  "${max}",
-                  style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.green), // Police plus grande, en gras et en couleur
-                ),
-                Icon(
-                  Icons.trending_up,
-                  color: Colors.green, // Couleur de l'icône flèche vers le haut
-                ),
-              ],
+            child: Padding(
+              padding: const EdgeInsets.all(10), // Ajoute une marge intérieure pour un espacement équilibré
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const SizedBox(height: 10),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                                  "Plus haute Dotation de ${widget.comms.nomCommerciaux}",
+                                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold), // Police plus grande et en gras
+                                ),
+                                const SizedBox(height: 10),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      "$max",
+                                      style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold), // Police plus grande, en gras et en couleur
+                                    ),
+                                    const Icon(
+                                      Icons.trending_up,
+                                      color: Colors.green, // Couleur de l'icône flèche vers le haut
+                                    ),
+                        ],
+                      ),
+                    ],
+                  ),],
+              ),
             ),
-          ],
+          ),
         ),
-      ),
-    );
+      );
+    //   Card(
+    //   elevation: 5, // Ajoute une ombre à la carte
+    //   shape: RoundedRectangleBorder(
+    //     borderRadius: BorderRadius.circular(15), // Coins arrondis
+    //   ),
+    //   child: Padding(
+    //     padding: const EdgeInsets.all(10.0), // Espacement intérieur
+    //     child: Column(
+    //       crossAxisAlignment: CrossAxisAlignment.start,
+    //       children: [
+    //         Text(
+    //           "Plus haute Dotation de ${widget.comms.nomCommerciaux}",
+    //           style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.blue), // Police plus grande et en gras
+    //         ),
+    //         const SizedBox(height: 10),
+    //         Row(
+    //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    //           children: [
+    //             Text(
+    //               "$max",
+    //               style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.green), // Police plus grande, en gras et en couleur
+    //             ),
+    //             const Icon(
+    //               Icons.trending_up,
+    //               color: Colors.green, // Couleur de l'icône flèche vers le haut
+    //             ),
+    //           ],
+    //         ),
+    //       ],
+    //     ),
+    //   ),
+    // );
 
   }
 
@@ -280,7 +371,7 @@ class _DetailsDotationsState extends State<DetailsDotations> with AutomaticKeepA
       child: Wrap(
         children: [
           averageDotationCard(),
-          SizedBox(width: 20,),
+          const SizedBox(width: 20,),
           maxDotation(),
         ],
       ),
@@ -298,7 +389,7 @@ class _DetailsDotationsState extends State<DetailsDotations> with AutomaticKeepA
           onPressed: () {
             datePicker();
           },
-          child: Text('Selectionner la plage de dates'),
+          child: const Text('Selectionner la plage de dates'),
         ),
       ],
     );
@@ -306,7 +397,7 @@ class _DetailsDotationsState extends State<DetailsDotations> with AutomaticKeepA
 
 
   datePicker() async{
-    List<DateTime> _dates = [DateTime.now(),  ];
+    List<DateTime> dates = [DateTime.now(),  ];
     var results = await showCalendarDatePicker2Dialog(
       context: context,
       config: CalendarDatePicker2WithActionButtonsConfig(
@@ -314,7 +405,7 @@ class _DetailsDotationsState extends State<DetailsDotations> with AutomaticKeepA
 
       ),
       dialogSize: const Size(325, 400),
-      value: _dates,
+      value: dates,
       borderRadius: BorderRadius.circular(15),
     );
     setState(() {
