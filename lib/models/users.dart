@@ -38,6 +38,12 @@ class Comms {
   @HiveField(10)
   bool checked;
 
+  @HiveField(11)
+  DateTime? startDateTimeT;
+
+  @HiveField(12)
+  DateTime? endDateTimeT;
+
   Comms({
     this.nomCommerciaux,
     this.id,
@@ -45,6 +51,8 @@ class Comms {
     this.endDateTime,
     this.startDateTimeR,
     this.endDateTimeR,
+    this.startDateTimeT,
+    this.endDateTimeT,
     this.mail,
     this.password,
     this.nicknameCommerciaux,
@@ -64,6 +72,8 @@ class Comms {
       endDateTime: DateTime.now(),
       startDateTimeR: DateTime.now().subtract(const Duration(days: 7)),
       endDateTimeR: DateTime.now(),
+      startDateTimeT: DateTime.now().subtract(const Duration(days: 7)),
+      endDateTimeT: DateTime.now(),
     );
   }
 }

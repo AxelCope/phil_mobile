@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:map_launcher/map_launcher.dart';
 import 'package:phil_mobile/methods/methods.dart';
-import 'package:phil_mobile/models/caPdv.dart';
-import 'package:phil_mobile/models/pdvs.dart';
+import 'package:phil_mobile/models/model_chiffre_daffaire.dart';
+import 'package:phil_mobile/models/model_point_de_ventes.dart';
 import 'package:phil_mobile/pages/consts.dart';
 import 'package:phil_mobile/provider/queries_provider.dart';
+import 'package:share_plus/share_plus.dart';
 
 class PageDetailsPdv extends StatefulWidget {
   const PageDetailsPdv({super.key, required this.pdv});
@@ -44,6 +45,14 @@ class _PageDetailsPdvState extends State<PageDetailsPdv> {
               previousPage(context);
             }
         ),
+        actions: [
+          IconButton(
+              icon: const Icon(Icons.share),
+              onPressed: () {
+                sharePoint();
+              }
+          ),
+        ],
         title: const Text("Détails du point"),
         centerTitle: true,
         scrolledUnderElevation: 0,
@@ -73,7 +82,7 @@ class _PageDetailsPdvState extends State<PageDetailsPdv> {
               children: [
                 Row(
                   children: [
-                     Image.asset("assets/income.png", width: 30, color: philMainColor,),
+                     Image.asset("assets/page infos pdvs/income.png", width: 30, color: philMainColor,),
                     const SizedBox(width: 10,),
                     _getCa()
 
@@ -172,7 +181,7 @@ class _PageDetailsPdvState extends State<PageDetailsPdv> {
     await _provider.getCA(
       secure: false,
       pdv: widget.pdv.numeroFlooz,
-      month: month.month-2,
+      month: month.month,
       onSuccess: (r) {
         setState(() {
           for(var element in r)
@@ -235,6 +244,19 @@ class _PageDetailsPdvState extends State<PageDetailsPdv> {
         );
       }
     return Text("${_ca() ?? 0} CFA", style: const TextStyle(fontWeight: FontWeight.bold),);
+  }
+
+  void sharePoint()
+  async{
+    await Share.share(
+        "Numéro: ${widget.pdv.numeroFlooz}\n\n"
+            "Nom: ${widget.pdv.nomDuPoint}\n\n"
+            "Numéro propriétaire: ${widget.pdv.numeroProprietaireDuPdv}\n\n"
+            "Quartier: ${widget.pdv.quartier}\n\n"
+            "Localisation: ${widget.pdv.localisation}\n\n"
+            "Commercial: ${widget.pdv.commercial}\n\n",
+      subject: "Informations du point"
+    );
   }
 
 }

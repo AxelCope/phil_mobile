@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:phil_mobile/methods/methods.dart';
-import 'package:phil_mobile/models/pdvs.dart';
+import 'package:phil_mobile/models/model_point_de_ventes.dart';
 import 'package:phil_mobile/pages/consts.dart';
 
 class SwappGrille extends StatefulWidget {

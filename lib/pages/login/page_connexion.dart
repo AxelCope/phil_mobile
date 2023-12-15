@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hive/hive.dart';
 import 'package:phil_mobile/methods/methods.dart';
-import 'package:phil_mobile/pages/accueil/accueil.dart';
+import 'package:phil_mobile/pages/accueil/page_acceuil.dart';
 import 'package:phil_mobile/pages/consts.dart';
 import 'package:phil_mobile/provider/queries_provider.dart';
 import 'package:phil_mobile/models/users.dart';
@@ -47,6 +48,9 @@ class _LoginPageState extends State<LoginPage> {
             Center(child: Image.asset(philLogo, scale: 2,)),
             const SizedBox(height: 40,),
             TextField(
+              inputFormatters: [
+                FilteringTextInputFormatter(RegExp(r'^\d+\.?\d{0,2}'), allow: true),
+              ],
               controller: userId,
               keyboardType: TextInputType.number,
               decoration: InputDecoration(
@@ -117,7 +121,8 @@ class _LoginPageState extends State<LoginPage> {
         if (int.parse(userId.text) == check.id && password.text == check.password) {
           Comms user = check;
           _setPreferences(user);
-          nextPage(context, HomePage(comm: user));
+          Navigator.pop(context);
+           nextPage(context, HomePage(comm: user));
           userExists = true;
           break;
         }
@@ -161,8 +166,6 @@ class _LoginPageState extends State<LoginPage> {
             {
               listUsers.add(Comms.MapCommercial(element));
             }
-          // userId.text = listUsers[0].id.toString();
-          // password.text = listUsers[0].password!;
           previousPage(context);
           checkCredentials();
         });
@@ -171,6 +174,7 @@ class _LoginPageState extends State<LoginPage> {
         setState(() {
           previousPage(context);
           _internetConnectionFailedDialog();
+          print(e);
         });
       },
     );
@@ -256,9 +260,6 @@ class _LoginPageState extends State<LoginPage> {
       },
     );
   }
-
-
-
   Future<void> _setPreferences(Comms comms) async {
     try {
       final box = await Hive.openBox('commsBox');

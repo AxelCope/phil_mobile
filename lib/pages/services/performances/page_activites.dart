@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
- import 'package:phil_mobile/models/caPdv.dart';
-import 'package:phil_mobile/models/segmentation.dart';
+ import 'package:phil_mobile/models/model_chiffre_daffaire.dart';
+import 'package:phil_mobile/models/model_segmentation.dart';
  import 'package:phil_mobile/models/users.dart';
+import 'package:phil_mobile/pages/consts.dart';
 import 'package:phil_mobile/provider/queries_provider.dart';
 import 'package:phil_mobile/widget/card.dart';
 import 'package:syncfusion_flutter_gauges/gauges.dart';
@@ -34,7 +35,6 @@ class _ProgressionObjectifState extends State<ProgressionObjectif> with Automati
   List allZone = [];
   late var allList = [zoneA, zoneB, zoneC, zoneD, zoneE, allZone];
 
-
   @override
   void initState() {
     super.initState();
@@ -46,11 +46,12 @@ class _ProgressionObjectifState extends State<ProgressionObjectif> with Automati
     objectifsComm();
     getCommission();
     segmentation();
+    print(_getMonthName(date.month));
+
   }
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    Size screenSize = MediaQuery.of(context).size;
     return Scaffold(
       body: RefreshIndicator(
         onRefresh: _refresh,
@@ -72,7 +73,6 @@ class _ProgressionObjectifState extends State<ProgressionObjectif> with Automati
   ],
   );
   }
-
   _getCa()
   {
 
@@ -83,11 +83,13 @@ class _ProgressionObjectifState extends State<ProgressionObjectif> with Automati
     {
       return const Center(
         child: Padding(
-          padding: EdgeInsets.symmetric(vertical: 200.0),
+          padding: EdgeInsets.symmetric(vertical: 100.0),
           child: SizedBox(
             height: 30,
             width: 30,
-            child: CircularProgressIndicator(),
+            child: CircularProgressIndicator(
+              color: Colors.green,
+            ),
           ),
         ),
       );
@@ -106,7 +108,7 @@ class _ProgressionObjectifState extends State<ProgressionObjectif> with Automati
           padding: const EdgeInsets.all(15.0),
           child: Column(
             children: [
-              const Text("Ma progreesion sur l'objectif du mois", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),),
+              const Text("Ma progresion sur l'objectif du mois", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),),
               const SizedBox(
                 width: 70,
                   child: Divider()),
@@ -120,9 +122,9 @@ class _ProgressionObjectifState extends State<ProgressionObjectif> with Automati
                        startAngle: 270,
                        endAngle: 270,
                        //radiusFactor: model.isWebFullView ? 0.7 : 0.8,
-                       axisLineStyle: const AxisLineStyle(
+                       axisLineStyle: AxisLineStyle(
                          thickness: 1,
-                         color: Color.fromARGB(255, 0, 169, 181),
+                         color: philMainColor,
                          thicknessUnit: GaugeSizeUnit.factor,
                        ),
                        pointers: <GaugePointer>[
@@ -190,7 +192,7 @@ class _ProgressionObjectifState extends State<ProgressionObjectif> with Automati
     await _provider.objectifsbyComm(
       secure: false,
       id: widget.comms.id,
-      date: 'NOVEMBER',
+      date: _getMonthName(date.month),
       onSuccess: (r) {
         setState(() {
           for(var element in r)
@@ -456,7 +458,7 @@ setState(() {
 });
     await _provider.SegmentationParComm(
       cmId: widget.comms.id,
-      date: DateTime.now().month - 2,
+      date: DateTime.now().month,
       secure: false,
       onSuccess: (cms) {
         for (var element in cms) {
@@ -490,6 +492,14 @@ setState(() {
         });
       },
     );
+  }
+
+  String _getMonthName(int monthNumber) {
+    const monthNames = [
+      "January", "February", "March", "April", "May", "June",
+      "July", "August", "September", "October", "November", "December"
+    ];
+    return monthNames[monthNumber - 1].toUpperCase();
   }
 
   @override

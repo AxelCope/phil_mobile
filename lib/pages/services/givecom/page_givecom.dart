@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:phil_mobile/models/givecom.dart';
+import 'package:phil_mobile/models/model_givecom.dart';
 import 'package:phil_mobile/models/users.dart';
 import 'package:phil_mobile/provider/queries_provider.dart';
 
@@ -37,48 +37,56 @@ class _PageGiveComsState extends State<PageGiveComs> {
       appBar: AppBar(
         title: Text("GIVECOMS du mois de ${date.month}"),
       ),
-      body: SingleChildScrollView(
-        scrollDirection: Axis.vertical,
-        child: SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: givecomTable(),
-        ),
+      body: ListView(
+        children: [
+          givecomTable(),
+        ],
       ),
 
     );
   }
 
   givecomTable() {
-    if (gettingGivecom) {
+    if(gettingGivecom) {
       return const Center(
         child: Padding(
           padding: EdgeInsets.symmetric(vertical: 200.0),
           child: SizedBox(
             height: 30,
             width: 30,
-            child: CircularProgressIndicator(color: Colors.green),
+            child: CircularProgressIndicator(
+              color: Colors.green,
+            ),
           ),
         ),
       );
     }
     if (gotGivecomError) {
-      return Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Text("Nous n'avons pas pu contacter le serveur"),
-          TextButton(
-            child: const Text(
-              "Veuillez réessayer",
-              style: TextStyle(color: Colors.green),
+      return SingleChildScrollView(
+        scrollDirection: Axis.vertical,
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text("Nous n'avons pas pu contacter le serveur"),
+                TextButton(
+                  child: const Text(
+                    "Veuillez réessayer",
+                    style: TextStyle(color: Colors.green),
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      listGivecom.clear();
+                      getGiveCom();
+                    });
+                  },
+                ),
+              ],
             ),
-            onPressed: () {
-              setState(() {
-                listGivecom.clear();
-                getGiveCom();
-              });
-            },
           ),
-        ],
+        ),
       );
     }
     return Container(
@@ -108,6 +116,7 @@ class _PageGiveComsState extends State<PageGiveComs> {
         ),
         columns: const [
           DataColumn(label: Text("Montants", textAlign: TextAlign.center)),
+          DataColumn(label: Text("Frais", textAlign: TextAlign.center)),
           DataColumn(label: Text("Nom pdvs", textAlign: TextAlign.center)),
         ],
         rows: listGivecom.map((data) {
@@ -115,6 +124,16 @@ class _PageGiveComsState extends State<PageGiveComs> {
             DataCell(
               Text(
                 NumberFormat("#,###,###,#### CFA").format(data.montant),
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  color: Colors.red, // Couleur rouge pour les frais
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            DataCell(
+              Text(
+                NumberFormat("-#,###,###,#### CFA").format(data.montant! * 0.01),
                 textAlign: TextAlign.center,
                 style: const TextStyle(
                   color: Colors.red, // Couleur rouge pour les frais
@@ -145,7 +164,7 @@ class _PageGiveComsState extends State<PageGiveComs> {
     await _provider.giveCOmDistinct(
       secure: false,
       commId: widget.comms.id,
-      date: date.month - 1,
+      date: date.month,
       onSuccess: (r) {
         setState(() {
           for (var element in r) {
@@ -157,6 +176,7 @@ class _PageGiveComsState extends State<PageGiveComs> {
       },
       onError: (e) {
         setState(() {
+          print(e);
           gotGivecomError = true;
           gettingGivecom = false;
         });

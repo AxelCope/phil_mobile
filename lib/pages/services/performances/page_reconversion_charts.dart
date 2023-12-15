@@ -1,8 +1,9 @@
 import 'package:calendar_date_picker2/calendar_date_picker2.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-  import 'package:phil_mobile/models/Rec.dart';
+  import 'package:phil_mobile/models/model_reconversion.dart';
  import 'package:phil_mobile/models/users.dart';
+import 'package:phil_mobile/pages/consts.dart';
  import 'package:phil_mobile/provider/ReconversionProvider.dart';
  import 'package:syncfusion_flutter_charts/charts.dart';
 
@@ -65,7 +66,6 @@ class _DetailsReconversionState extends State<DetailsReconversion> with Automati
             gotData = false;
             getDataError = true;
           });
-          print(e);
         });
   }
 
@@ -114,47 +114,45 @@ class _DetailsReconversionState extends State<DetailsReconversion> with Automati
       );
     }
 
-    return Container(
-      child: Card(
-        child: Column(
-          children: [
-            //DatePickers(),
-            SfCartesianChart(
-              title: ChartTitle(
-                text: "Reconversion journalière de ${widget.comms.nomCommerciaux}",
-                textStyle: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
+    return Card(
+      child: Column(
+        children: [
+          //DatePickers(),
+          SfCartesianChart(
+            title: ChartTitle(
+              text: "Reconversion journalière de ${widget.comms.nomCommerciaux}",
+              textStyle: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
               ),
-              tooltipBehavior: TooltipBehavior(enable: true),
-              legend: const Legend(
-                isVisible: false,
-                toggleSeriesVisibility: true,
-                textStyle: TextStyle(
-                  fontSize: 12,
-                ),
-              ),
-              primaryXAxis: CategoryAxis(
-
-                majorGridLines: const MajorGridLines(width: 0),
-                minorGridLines: const MinorGridLines(width: 0),
-                axisBorderType: AxisBorderType.withoutTopAndBottom,
-                labelStyle: const TextStyle(
-                  fontSize: 10,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              primaryYAxis: NumericAxis(
-                numberFormat: NumberFormat("#,###,### CFA"),
-                labelStyle: const TextStyle(
-                  fontSize: 12,
-                ),
-              ),
-              series: gotCHarts(),
             ),
-          ],
-        ),
+            tooltipBehavior: TooltipBehavior(enable: true),
+            legend: const Legend(
+              isVisible: false,
+              toggleSeriesVisibility: true,
+              textStyle: TextStyle(
+                fontSize: 12,
+              ),
+            ),
+            primaryXAxis: CategoryAxis(
+
+              majorGridLines: const MajorGridLines(width: 0),
+              minorGridLines: const MinorGridLines(width: 0),
+              axisBorderType: AxisBorderType.withoutTopAndBottom,
+              labelStyle: const TextStyle(
+                fontSize: 10,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            primaryYAxis: NumericAxis(
+              numberFormat: NumberFormat("#,###,### CFA"),
+              labelStyle: const TextStyle(
+                fontSize: 12,
+              ),
+            ),
+            series: gotCHarts(),
+          ),
+        ],
       ),
     );
   }
@@ -167,17 +165,20 @@ class _DetailsReconversionState extends State<DetailsReconversion> with Automati
         headerCard(),
         chart(),
         ElevatedButton(
+          style: ElevatedButton.styleFrom(
+              backgroundColor: philMainColor
+          ),
           onPressed: () {
             datePicker();
           },
-          child: const Text('Selectionner la plage de daes'),
+          child: const Text('Selectionner la plage de daes', style: TextStyle(color: Colors.white)),
         ),
       ],
     );
   }
 
   datePicker() async{
-    List<DateTime> dates = [DateTime.now(),  ];
+    List<DateTime> dates = [widget.comms.startDateTime!,  ];
     var results = await showCalendarDatePicker2Dialog(
       context: context,
       config: CalendarDatePicker2WithActionButtonsConfig(
@@ -199,6 +200,7 @@ class _DetailsReconversionState extends State<DetailsReconversion> with Automati
       }
     });
     _fetchDataRec();
+    reconversion.clear();
 
   }
 
@@ -238,7 +240,7 @@ class _DetailsReconversionState extends State<DetailsReconversion> with Automati
          child: Container(
            decoration: BoxDecoration(
              border: Border(
-               bottom: BorderSide(color: Colors.blue, width: 5),
+               bottom: BorderSide(color: philMainColor, width: 5),
              ),
            ),
            child: Padding(
@@ -316,7 +318,7 @@ class _DetailsReconversionState extends State<DetailsReconversion> with Automati
     double max = 0.0;
     if(reconversion.isNotEmpty)
     {
-      var max = reconversion[0].reconversion;
+       max = reconversion[0].reconversion!;
     }
     else {
       max = 0;
@@ -339,7 +341,7 @@ class _DetailsReconversionState extends State<DetailsReconversion> with Automati
           child: Container(
             decoration: BoxDecoration(
               border: Border(
-                bottom: BorderSide(color: Colors.blue, width: 5),
+                bottom: BorderSide(color: philMainColor, width: 5),
               ),
             ),
             child: Padding(

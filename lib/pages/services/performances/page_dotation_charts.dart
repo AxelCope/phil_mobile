@@ -1,7 +1,8 @@
 import 'package:calendar_date_picker2/calendar_date_picker2.dart';
 import 'package:flutter/material.dart';
-import 'package:phil_mobile/models/Dotations.dart';
+import 'package:phil_mobile/models/model_dotations.dart';
 import 'package:phil_mobile/models/users.dart';
+import 'package:phil_mobile/pages/consts.dart';
 import 'package:phil_mobile/provider/DotationProvider.dart';
 import 'package:phil_mobile/provider/queries_provider.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
@@ -28,9 +29,6 @@ class _DetailsDotationsState extends State<DetailsDotations> with AutomaticKeepA
   late final QueriesProvider _provider;
   late DotationProvider dv;
 
-  DateTime dt = DateTime.now().subtract(const Duration(days: 7));
-
-
   @override
   void initState() {
     super.initState();
@@ -41,7 +39,6 @@ class _DetailsDotationsState extends State<DetailsDotations> with AutomaticKeepA
     dv = await DotationProvider.instance;
     _provider = await QueriesProvider.instance;
     _fetchData();
-    //widget.comms.dispose();
   }
 
   @override
@@ -120,7 +117,7 @@ class _DetailsDotationsState extends State<DetailsDotations> with AutomaticKeepA
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: TextButton(
-                  style: ButtonStyle(backgroundColor:MaterialStateProperty.all(Colors.blue)),
+                  style: ButtonStyle(backgroundColor:MaterialStateProperty.all(philMainColor)),
                   child: const Text("Actualiser la page", style: TextStyle(color: Colors.black)), onPressed: (){_fetchData();}),
             )
 
@@ -188,7 +185,7 @@ class _DetailsDotationsState extends State<DetailsDotations> with AutomaticKeepA
         child: Container(
           decoration: BoxDecoration(
             border: Border(
-              bottom: BorderSide(color: Colors.blue, width: 5),
+              bottom: BorderSide(color: philMainColor, width: 5),
             ),
           ),
           child: Padding(
@@ -291,7 +288,7 @@ class _DetailsDotationsState extends State<DetailsDotations> with AutomaticKeepA
           child: Container(
             decoration: BoxDecoration(
               border: Border(
-                bottom: BorderSide(color: Colors.blue, width: 5),
+                bottom: BorderSide(color: philMainColor, width: 5),
               ),
             ),
             child: Padding(
@@ -329,39 +326,6 @@ class _DetailsDotationsState extends State<DetailsDotations> with AutomaticKeepA
           ),
         ),
       );
-    //   Card(
-    //   elevation: 5, // Ajoute une ombre à la carte
-    //   shape: RoundedRectangleBorder(
-    //     borderRadius: BorderRadius.circular(15), // Coins arrondis
-    //   ),
-    //   child: Padding(
-    //     padding: const EdgeInsets.all(10.0), // Espacement intérieur
-    //     child: Column(
-    //       crossAxisAlignment: CrossAxisAlignment.start,
-    //       children: [
-    //         Text(
-    //           "Plus haute Dotation de ${widget.comms.nomCommerciaux}",
-    //           style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.blue), // Police plus grande et en gras
-    //         ),
-    //         const SizedBox(height: 10),
-    //         Row(
-    //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    //           children: [
-    //             Text(
-    //               "$max",
-    //               style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.green), // Police plus grande, en gras et en couleur
-    //             ),
-    //             const Icon(
-    //               Icons.trending_up,
-    //               color: Colors.green, // Couleur de l'icône flèche vers le haut
-    //             ),
-    //           ],
-    //         ),
-    //       ],
-    //     ),
-    //   ),
-    // );
-
   }
 
   Widget headerCard()
@@ -386,10 +350,13 @@ class _DetailsDotationsState extends State<DetailsDotations> with AutomaticKeepA
         headerCard(),
         Chart(),
         ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: philMainColor
+          ),
           onPressed: () {
             datePicker();
           },
-          child: const Text('Selectionner la plage de dates'),
+          child: const Text('Selectionner la plage de dates', style: TextStyle(color: Colors.white),),
         ),
       ],
     );
@@ -397,7 +364,7 @@ class _DetailsDotationsState extends State<DetailsDotations> with AutomaticKeepA
 
 
   datePicker() async{
-    List<DateTime> dates = [DateTime.now(),  ];
+    List<DateTime> dates = [widget.comms.startDateTime!,  ];
     var results = await showCalendarDatePicker2Dialog(
       context: context,
       config: CalendarDatePicker2WithActionButtonsConfig(
@@ -419,6 +386,7 @@ class _DetailsDotationsState extends State<DetailsDotations> with AutomaticKeepA
       }
     });
     _fetchData();
+    ListDotations.clear();
 
   }
 

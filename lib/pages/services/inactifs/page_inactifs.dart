@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:phil_mobile/methods/methods.dart';
-import 'package:phil_mobile/models/pdvs.dart';
+import 'package:phil_mobile/models/model_point_de_ventes.dart';
 import 'package:phil_mobile/models/users.dart';
-import 'package:phil_mobile/pages/accueil/details_point.dart';
+import 'package:phil_mobile/pages/accueil/page_detail_pdvs.dart';
+import 'package:phil_mobile/pages/consts.dart';
 import 'package:phil_mobile/provider/queries_provider.dart';
 
 class PageInactifs extends StatefulWidget {
@@ -35,9 +36,15 @@ class _PageInactifsState extends State<PageInactifs> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+            icon: const Icon(Icons.arrow_back_ios),
+            onPressed: () {
+              previousPage(context);
+            }
+        ),
         scrolledUnderElevation: 0,
         centerTitle: true,
-        backgroundColor: Colors.blueGrey,
+        backgroundColor: philMainColor,
         title: const Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -156,7 +163,7 @@ class _PageInactifsState extends State<PageInactifs> {
     });
     await _provider.fetchInactifsZone(
       cmId: widget.comms.id,
-      startDate: DateTime.now().month - 2,
+      startDate: DateTime.now().month,
       secure: false,
       onSuccess: (cms) {
         setState(() {

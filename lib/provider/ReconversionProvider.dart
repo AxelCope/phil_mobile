@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:genos_dart/genos_dart.dart';
-import 'package:phil_mobile/models/Rec.dart';
+import 'package:phil_mobile/models/model_reconversion.dart';
 
 
 class ReconversionProvider {

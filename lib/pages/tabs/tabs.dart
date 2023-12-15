@@ -1,12 +1,13 @@
  import 'package:flutter/material.dart';
 import 'package:phil_mobile/methods/methods.dart';
 import 'package:phil_mobile/models/users.dart';
-import 'package:phil_mobile/pages/performances/dotation_charts.dart';
-import 'package:phil_mobile/pages/performances/performances.dart';
-import 'package:phil_mobile/pages/performances/reconversion_charts.dart';
+import 'package:phil_mobile/pages/consts.dart';
+import 'package:phil_mobile/pages/services/performances/page_dotation_charts.dart';
+import 'package:phil_mobile/pages/services/performances/page_activites.dart';
+import 'package:phil_mobile/pages/services/performances/page_reconversion_charts.dart';
 
-class Performances extends StatefulWidget {
-  const Performances({
+class Tabs extends StatefulWidget {
+  const Tabs({
     Key? key,
     required this.comms
   }) : super(key: key);
@@ -14,10 +15,10 @@ class Performances extends StatefulWidget {
   final Comms comms;
 
   @override
-  State<Performances> createState() => _PerformancesState();
+  State<Tabs> createState() => _TabsState();
 }
 
-class _PerformancesState extends State<Performances> {
+class _TabsState extends State<Tabs> {
   bool gotObjectif = false;
 
   @override
@@ -32,8 +33,10 @@ class _PerformancesState extends State<Performances> {
                 }
             ),
             title: const Text('Performances'),
-            bottom: const TabBar(
-              tabs: [
+            bottom: TabBar(
+              labelColor: Colors.black,
+             indicatorColor: philMainColor,
+              tabs: const [
                 Tab(text: 'Dotations'),
                 Tab(text: 'Reconversions'),
                 Tab(text: 'Progression'),

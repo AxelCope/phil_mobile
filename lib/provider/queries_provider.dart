@@ -80,12 +80,12 @@ class QueriesProvider {
             "( "
             "SELECT SUM(POS_COMMISSION) AS fr_amount, frmsisdn, DATE(TIMESTAMP) AS jours "
             "FROM pso "
-            "WHERE TYPE = 'CSIN'  AND frmsisdn = $pdv AND EXTRACT(MONTH FROM TIMESTAMP) = $month "
+            "WHERE TYPE = 'CSIN'  AND frmsisdn = $pdv AND EXTRACT(MONTH FROM TIMESTAMP) = $month AND EXTRACT(YEAR FROM TIMESTAMP) = EXTRACT(YEAR FROM CURRENT_DATE) "
             " GROUP BY frmsisdn, jours "
             " UNION ALL "
             "SELECT SUM(POS_COMMISSION) AS to_amount, tomsisdn, DATE(TIMESTAMP) AS jours "
             "FROM pso "
-            "WHERE TYPE = 'AGNT'  AND tomsisdn = $pdv  AND EXTRACT(MONTH FROM TIMESTAMP) = $month "
+            "WHERE TYPE = 'AGNT'  AND tomsisdn = $pdv  AND EXTRACT(MONTH FROM TIMESTAMP) = $month AND EXTRACT(YEAR FROM TIMESTAMP) = EXTRACT(YEAR FROM CURRENT_DATE) "
             "GROUP BY tomsisdn, jours "
             ") tbl; "
     ).exec(
@@ -98,8 +98,8 @@ class QueriesProvider {
   }
 
   Future<void> objectifsbyComm({
-    required date ,
-    required id ,
+    required date,
+    required id,
     required Function(List<Map<String, dynamic>>) onSuccess,
     required Function(RequestError) onError,
     bool secure = true
@@ -159,14 +159,14 @@ class QueriesProvider {
             "from pso "
             "where (toprofile = 'BNKAGNT') "
             "AND (frmsisdn in (select numero_flooz from univers where numero_cagnt = $commId)) "
-            "AND EXTRACT(MONTH FROM TIMESTAMP) = $date "
+            "AND EXTRACT(MONTH FROM TIMESTAMP) = $date AND EXTRACT(YEAR FROM TIMESTAMP) = EXTRACT(YEAR FROM CURRENT_DATE) "
             "group by frmsisdn, fr_pos_name "
             "union all "
             "select sum(amount) as  to_client_amount,to_pos_name, tomsisdn "
             "from pso "
             "where (frprofile = 'BNKAGNT') "
             "AND (tomsisdn in (select numero_flooz from univers where numero_cagnt = $commId)) "
-            "AND EXTRACT(MONTH FROM TIMESTAMP) = $date "
+            "AND EXTRACT(MONTH FROM TIMESTAMP) = $date AND EXTRACT(YEAR FROM TIMESTAMP) = EXTRACT(YEAR FROM CURRENT_DATE) "
             "group by tomsisdn, to_pos_name "
             ") tbl "
             "group by fr_pos_name, frmsisdn; "
@@ -227,6 +227,50 @@ class QueriesProvider {
           "WHERE (NUMERO_FLOOZ NOT IN (SELECT frmsisdn FROM pso WHERE EXTRACT(MONTH FROM TIMESTAMP) = $startDate AND EXTRACT(YEAR FROM TIMESTAMP) = EXTRACT(YEAR FROM CURRENT_DATE)) AND NUMERO_FLOOZ NOT IN (SELECT tomsisdn FROM pso WHERE EXTRACT(MONTH FROM TIMESTAMP) = $startDate AND EXTRACT(YEAR FROM TIMESTAMP) = EXTRACT(YEAR FROM CURRENT_DATE))) "
           "AND numero_cagnt =  $cmId; "
       ,
+    ).exec(
+        secure: secure,
+        onSuccess: (Result result) {
+          onSuccess(result.data);
+        },
+        onError: onError
+    );
+  }
+
+
+  Future<void> changerMdpUsers({
+    required username,
+    required newPassword,
+    required Function(List<Map<String, dynamic>>) onSuccess,
+    required Function(RequestError) onError,
+    bool secure = true
+  }) async {
+    GDirectRequest.select(
+        sql:
+        "update commercial "
+            "set password = '$newPassword' "
+            "where pos_msidsn = '$username' "
+    ).exec(
+        secure: secure,
+        onSuccess: (Result result) {
+          onSuccess(result.data);
+        },
+        onError: onError
+    );
+  }
+ Future<void> transaction({
+    required id,
+    required Sdate,
+    required Edate,
+    required Function(List<Map<String, dynamic>>) onSuccess,
+    required Function(RequestError) onError,
+    bool secure = true
+  }) async {
+    GDirectRequest.select(
+        sql:
+        "select * from pso "
+        "where (frmsisdn = $id or tomsisdn = $id) "
+        "and (DATE(timestamp) >= '$Sdate' and DATE(timestamp) <= '$Edate') "
+            "ORDER BY timestamp "
     ).exec(
         secure: secure,
         onSuccess: (Result result) {

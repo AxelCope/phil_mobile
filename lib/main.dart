@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:phil_mobile/models/users.dart';
-import 'package:phil_mobile/pages/accueil/accueil.dart';
-import 'package:phil_mobile/pages/login/login.dart';
+import 'package:phil_mobile/pages/accueil/page_acceuil.dart';
+import 'package:phil_mobile/pages/login/page_connexion.dart';
 import 'package:genos_dart/genos_dart.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:provider/provider.dart';
@@ -82,7 +82,7 @@ class _MyAppState extends State<MyApp> {
       appWsSignature: '91a2dbf0-292d-11ed-91f1-4f98460f464c',
       appPrivateDirectory: '.',
       encryptionKey: '91a2dbf0-292d-11ed-91f1-4f98460d',
-      host: '192.168.1.66',
+      host: '57.129.6.235',
       port: '8080',
       unsecurePort: '80',
       dbms: DBMS.postgres,

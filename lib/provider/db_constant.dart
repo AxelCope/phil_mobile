@@ -46,5 +46,17 @@ const String dbetatDuSupportDeVisibiliteBonMauvais = "etat_du_support_de_visibil
 const String dbnumeroCagnt = "numero_cagnt";
 const String dbcommercial = "commercial";
 
-
+const String dbType = "type";
+const String dbFrms = "frmsisdn";
+const String dbToms = "tomsisdn";
+const String dbAmount = "amount";
+const String dbTime = "timestamp";
+const String dbBef = "pos_balance_before";
+const String dbAft = "pos_balance_after";
+const String dbFrname = "fr_pos_name";
+const String dbToname = "to_pos_name";
+const String dbFrprofile = "frprofile";
+const String dbToprofile = "toprofile";
+const String dbDcom = "dealer_commission";
+const String dbPoscom = "pos_commission";
 

@@ -3,15 +3,17 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hive/hive.dart';
 import 'package:phil_mobile/methods/methods.dart';
-import 'package:phil_mobile/models/caPdv.dart';
-import 'package:phil_mobile/models/pdvs.dart';
-import 'package:phil_mobile/pages/accueil/details_point.dart';
+import 'package:phil_mobile/models/model_chiffre_daffaire.dart';
+import 'package:phil_mobile/models/model_point_de_ventes.dart';
+import 'package:phil_mobile/pages/accueil/page_detail_pdvs.dart';
 import 'package:phil_mobile/pages/consts.dart';
 import 'package:phil_mobile/models/users.dart';
-import 'package:phil_mobile/pages/login/login.dart';
-import 'package:phil_mobile/pages/performances/inactifs.dart';
-import 'package:phil_mobile/pages/performances/tabs.dart';
-import 'package:phil_mobile/pages/performances/page_givecom.dart';
+import 'package:phil_mobile/pages/login/page_connexion.dart';
+import 'package:phil_mobile/pages/services/inactifs/page_inactifs.dart';
+import 'package:phil_mobile/pages/services/givecom/page_givecom.dart';
+import 'package:phil_mobile/pages/accueil/settings.dart';
+import 'package:phil_mobile/pages/tabs/tabs.dart';
+import 'package:phil_mobile/pages/services/transactions/page_transactions.dart';
 import 'package:phil_mobile/provider/queries_provider.dart';
 
 
@@ -76,7 +78,7 @@ class _HomePageState extends State<HomePage> {
                     title: const Text("Mes performances"),
                     leading: const Icon(Icons.swap_horiz),
                     onTap: (){
-                      nextPage(context, Performances(comms: widget.comm));
+                      nextPage(context, Tabs(comms: widget.comm));
                     },
                   ),
                   ListTile(
@@ -84,16 +86,23 @@ class _HomePageState extends State<HomePage> {
                     onTap: (){
                       nextPage(context, PageInactifs(comms: widget.comm));
                     },
-                    leading: Image.asset('assets/inactifs.png', width: 30,),
+                    leading: Image.asset('assets/page des inactifs/inactifs.png', width: 30,),
                   ),
                   ListTile(
                     title: const Text("Points qui vont en banque"),
-                    leading: SvgPicture.asset('assets/givecom.svg', width: 30,),
+                    leading: SvgPicture.asset('assets/page givecom/givecom.svg', width: 30,),
                     onTap: (){
                       nextPage(context, PageGiveComs(comms: widget.comm));
                     },
                   ),
-              
+               ListTile(
+                    title: const Text("Mes transactions"),
+                    leading: SvgPicture.asset('assets/services/transactions.svg', width: 35,),
+                    onTap: (){
+                      nextPage(context, PageTransactions(comms: widget.comm));
+                    },
+                  ),
+
                   // ExpansionTile(title: const Text("Services SIM"),
                   // children: [
                   //   // ListTile(
@@ -141,7 +150,13 @@ class _HomePageState extends State<HomePage> {
                   'Paramètres',
                   style: TextStyle(fontSize: 16.0),
                 ),
-                onTap: () => (),
+                onTap: () {
+                  Navigator.pop(context);
+
+                  nextPage(context, PageSettings(comm: widget.comm,));
+
+                }
+
               ),
             ),
             Container(
@@ -305,7 +320,7 @@ class _HomePageState extends State<HomePage> {
     await _provider.fetchPdvs(
       secure: false,
       id: widget.comm.id,
-      month: date.month - 1,
+      month: date.month,
       onSuccess: (r) {
         setState(() {
           for(var element in r)
@@ -321,6 +336,7 @@ class _HomePageState extends State<HomePage> {
         setState(() {
           gotPdvs = false;
           gotPdvsError = true;
+          print(e);
         });
       },
     );
@@ -395,17 +411,10 @@ class _HomePageState extends State<HomePage> {
             );
           },
         );
-
-        // Simulate logout process with a delay
         await Future.delayed(const Duration(seconds: 2));
-
-        // Close the loading dialog
         Navigator.of(context).pop();
-
-        // Clear user preferences
         final box = await Hive.openBox('commsBox');
         await box.clear();
-
          Navigator.pushReplacement(context, MaterialPageRoute(builder:
          (BuildContext context) => const LoginPage())); // Example for navigation
       }
