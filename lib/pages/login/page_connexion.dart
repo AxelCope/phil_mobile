@@ -174,7 +174,6 @@ class _LoginPageState extends State<LoginPage> {
         setState(() {
           previousPage(context);
           _internetConnectionFailedDialog();
-          print(e);
         });
       },
     );

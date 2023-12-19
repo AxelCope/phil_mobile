@@ -131,7 +131,7 @@ class QueriesProvider {
         sql:
         "SELECT COALESCE(SUM(DEALER_COMMISSION), 0 ) as somme "
             "FROM pso "
-            "WHERE EXTRACT(MONTH FROM TIMESTAMP) = 10   AND EXTRACT(YEAR FROM TIMESTAMP) = EXTRACT(YEAR FROM CURRENT_DATE) AND "
+            "WHERE EXTRACT(MONTH FROM TIMESTAMP) = $date AND EXTRACT(YEAR FROM TIMESTAMP) = EXTRACT(YEAR FROM CURRENT_DATE) AND "
             "(TOMSISDN IN (SELECT NUMERO_FLOOZ FROM univers WHERE NUMERO_CAGNT = $cmId) OR FRMSISDN IN (SELECT NUMERO_FLOOZ FROM univers WHERE NUMERO_CAGNT = $cmId));  "
 
 
@@ -246,7 +246,7 @@ class QueriesProvider {
   }) async {
     GDirectRequest.select(
         sql:
-        "update commercial "
+            "update commercial "
             "set password = '$newPassword' "
             "where pos_msidsn = '$username' "
     ).exec(
@@ -257,6 +257,8 @@ class QueriesProvider {
         onError: onError
     );
   }
+
+
  Future<void> transaction({
     required id,
     required Sdate,

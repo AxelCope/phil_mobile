@@ -10,7 +10,7 @@ class PageSettings extends StatefulWidget {
 
   final Comms comm ;
   @override
-  _PageSettingsState createState() => _PageSettingsState();
+  State<PageSettings> createState() => _PageSettingsState();
 }
 
 class _PageSettingsState extends State<PageSettings> {
@@ -51,13 +51,7 @@ class _PageSettingsState extends State<PageSettings> {
               ),
             ),
             const SizedBox(height: 16.0),
-            // TextField(
-            //   controller: currentPasswordController,
-            //   obscureText: true,
-            //   decoration: const InputDecoration(
-            //     labelText: 'Mot de passe actuel',
-            //   ),
-            // ),
+
             const SizedBox(height: 16.0),
             TextField(
               controller: newPasswordController,
@@ -109,9 +103,6 @@ class _PageSettingsState extends State<PageSettings> {
   }
 
   Future<void> _checkLoggedIn() async {
-    final box = await Hive.openBox('commsBox');
-    Comms? storedComms = box.get('user') as Comms?;
-
     if (
         newPasswordController.text.isNotEmpty &&
         confirmNewPasswordController.text.isNotEmpty) {
@@ -155,10 +146,8 @@ class _PageSettingsState extends State<PageSettings> {
         onSuccess: (cms) {
           //previousPage(context);
           showMessage(context, 'Changement du mdp réussi');
-          print('Avant la navigation');
           Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => const LoginPage()), (route) => false);
           _setPreferences(context);
-          print('Après la navigation');
           newPasswordController.clear();
           confirmNewPasswordController.clear();
 

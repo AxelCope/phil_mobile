@@ -6,6 +6,7 @@ import 'package:phil_mobile/models/model_point_de_ventes.dart';
 import 'package:phil_mobile/pages/consts.dart';
 import 'package:phil_mobile/provider/queries_provider.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class PageDetailsPdv extends StatefulWidget {
   const PageDetailsPdv({super.key, required this.pdv});
@@ -92,8 +93,9 @@ class _PageDetailsPdvState extends State<PageDetailsPdv> {
                 Text("Profile: ${widget.pdv.profil}", style: const TextStyle(fontWeight: FontWeight.bold),),
                 const SizedBox(height: 20,),
                 Text("Numero du propirétaire: ${widget.pdv.numeroProprietaireDuPdv} ( ${widget.pdv.sexeDuGerant})", style: const TextStyle(fontWeight: FontWeight.bold),),
+                const SizedBox(height: 5,),
+               _callPdv(widget.pdv.numeroProprietaireDuPdv!),
                 const SizedBox(height: 20,),
-
                 Text("Type d'activité: ${widget.pdv.typeDactivite}", style: const TextStyle(fontWeight: FontWeight.bold),),
                 const SizedBox(height: 20,),
                 Container(
@@ -126,14 +128,10 @@ class _PageDetailsPdvState extends State<PageDetailsPdv> {
                         onTap: ()async{
                             double dl = double.parse(widget.pdv.longitude!);
                             double dL = double.parse(widget.pdv.latitude!);
-
                             final availableMaps = await MapLauncher.installedMaps;
-                            print(availableMaps);
-
                             await availableMaps.first.showDirections(
                               destination: Coords(dL, dl),
                             );
-
                         },
                         child: Card(
                           shape: RoundedRectangleBorder(
@@ -165,7 +163,6 @@ class _PageDetailsPdvState extends State<PageDetailsPdv> {
                 Text("Etat de la visibilité:  ${widget.pdv.etatDuSupportDeVisibiliteBonMauvais ?? "Non indiqué" }", style: const TextStyle(fontWeight: FontWeight.bold),),
                 const SizedBox(height: 20,),
 
-
               ],
             ),
           ),
@@ -173,6 +170,7 @@ class _PageDetailsPdvState extends State<PageDetailsPdv> {
       ),
     );
   }
+
   Future<void>  getCA() async {
     setState(() {
       gotCaError = false;
@@ -196,7 +194,6 @@ class _PageDetailsPdvState extends State<PageDetailsPdv> {
         setState(() {
           gotCaError = true;
           gotCa = true;
-          print(e);
         });
       },
     );
@@ -259,4 +256,37 @@ class _PageDetailsPdvState extends State<PageDetailsPdv> {
     );
   }
 
+  Widget _callPdv(String phoneNumber)
+  {
+    return ElevatedButton.icon(
+      style: ElevatedButton.styleFrom(
+
+      ),
+      icon: Icon(Icons.call, color: philMainColor),
+      label: const Text("Composer le numéro propriétaire"),
+      onPressed: ()
+     async  {
+        final Uri phoneLaunchUri = Uri(
+          scheme: 'tel',
+          path: phoneNumber,
+        );
+      if (await canLaunchUrl(phoneLaunchUri)) {
+        showErrorMessage(context, "Une erreur est survenues, veuillez réessayer");
+        } else {
+         await launchUrl(phoneLaunchUri);
+
+      }
+      },
+    );
+  }
+
+
+  void showErrorMessage(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.red, // Couleur de fond du SnackBar
+      ),
+    );
+  }
 }
