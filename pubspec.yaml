@@ -36,16 +36,30 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
   provider: ^6.0.5
+  google_fonts: ^4.0.4
+  map_launcher: ^2.5.0+1
+  maps_launcher: ^2.2.0
+  syncfusion_flutter_charts: ^23.1.41
+  syncfusion_flutter_datepicker: ^23.1.41
+  calendar_date_picker2: ^0.5.3
+  flutter_svg: ^2.0.9
+  shared_preferences: ^2.2.2
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
+  build_runner: ^2.4.6
+  hive_generator: ^2.0.1
+  syncfusion_flutter_gauges: ^23.2.4
+  share_plus: "^7.2.1"
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-
-
   genos_dart:
     git:
       url: https://github.com/stMerlHin/genos_dart.git
       ref: phil-postgres
+
+
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
@@ -67,6 +81,11 @@ flutter:
 
   assets:
     - assets/
+    - assets/logo/
+    - assets/page des inactifs/
+    - assets/page givecom/
+    - assets/page infos pdvs/
+    - assets/services/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
