@@ -37,9 +37,14 @@ class _PageGiveComsState extends State<PageGiveComs> {
       appBar: AppBar(
         title: Text("GIVECOMS du mois de ${date.month}"),
       ),
-      body: ListView(
+      body:
+      ListView(
         children: [
-          givecomTable(),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: givecomTable(),
+          )
+           ,
         ],
       ),
 
@@ -62,30 +67,24 @@ class _PageGiveComsState extends State<PageGiveComs> {
       );
     }
     if (gotGivecomError) {
-      return SingleChildScrollView(
-        scrollDirection: Axis.vertical,
-        child: SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Text("Nous n'avons pas pu contacter le serveur"),
-                TextButton(
-                  child: const Text(
-                    "Veuillez réessayer",
-                    style: TextStyle(color: Colors.green),
-                  ),
-                  onPressed: () {
-                    setState(() {
-                      listGivecom.clear();
-                      getGiveCom();
-                    });
-                  },
-                ),
-              ],
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text("Nous n'avons pas pu contacter le serveur"),
+            TextButton(
+              child: const Text(
+                "Veuillez réessayer",
+                style: TextStyle(color: Colors.green),
+              ),
+              onPressed: () {
+                setState(() {
+                  listGivecom.clear();
+                  getGiveCom();
+                });
+              },
             ),
-          ),
+          ],
         ),
       );
     }
