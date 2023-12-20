@@ -113,7 +113,7 @@ class _PageInactifsState extends State<PageInactifs> {
     return ListView.builder(
       shrinkWrap: true,
       itemCount: inactivite.length,
-      itemBuilder: (BuildContext, index) {
+      itemBuilder: (context, index) {
         return _pdvs(inactivite[index]);
       },
     );

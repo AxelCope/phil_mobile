@@ -305,7 +305,7 @@ class _HomePageState extends State<HomePage> {
       child: ListView.builder(
         shrinkWrap: true,
         itemCount: listPdvs.length,
-          itemBuilder: (BuildContext, index)
+          itemBuilder: (context, index)
       {
         return _pdvs(listPdvs[index]);
       }),
@@ -335,9 +335,7 @@ class _HomePageState extends State<HomePage> {
       onError: (e) {
         setState(() {
           gotPdvs = false;
-          gotPdvsError = true;
-          print(e);
-        });
+          gotPdvsError = true;});
       },
     );
   }
@@ -395,22 +393,7 @@ class _HomePageState extends State<HomePage> {
       // If the user confirms the logout, proceed with the logout process
       if (confirmed == true) {
         // Show a loading dialog while simulating the logout process
-        showDialog(
-          context: context,
-          barrierDismissible: false, // Prevent user from dismissing the dialog
-          builder: (BuildContext context) {
-            return const AlertDialog(
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  CircularProgressIndicator(),
-                  SizedBox(height: 16),
-                  Text('Logging out...'),
-                ],
-              ),
-            );
-          },
-        );
+        _loginOutDialog();
         await Future.delayed(const Duration(seconds: 2));
         Navigator.of(context).pop();
         final box = await Hive.openBox('commsBox');
@@ -420,6 +403,26 @@ class _HomePageState extends State<HomePage> {
       }
     } catch (e) {
     }
+  }
+
+  _loginOutDialog()
+  {
+    showDialog(
+      context: context,
+      barrierDismissible: false, // Prevent user from dismissing the dialog
+      builder: (context) {
+        return const AlertDialog(
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CircularProgressIndicator(),
+              SizedBox(height: 16),
+              Text('Logging out...'),
+            ],
+          ),
+        );
+      },
+    );
   }
 
 }

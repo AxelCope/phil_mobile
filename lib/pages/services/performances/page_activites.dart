@@ -46,8 +46,6 @@ class _ProgressionObjectifState extends State<ProgressionObjectif> with Automati
     objectifsComm();
     getCommission();
     segmentation();
-    print(_getMonthName(date.month));
-
   }
   @override
   Widget build(BuildContext context) {

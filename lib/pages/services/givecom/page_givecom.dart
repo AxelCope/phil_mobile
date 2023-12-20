@@ -175,7 +175,6 @@ class _PageGiveComsState extends State<PageGiveComs> {
       },
       onError: (e) {
         setState(() {
-          print(e);
           gotGivecomError = true;
           gettingGivecom = false;
         });

@@ -4,7 +4,6 @@ import 'package:phil_mobile/models/model_dotations.dart';
 import 'package:phil_mobile/models/users.dart';
 import 'package:phil_mobile/pages/consts.dart';
 import 'package:phil_mobile/provider/DotationProvider.dart';
-import 'package:phil_mobile/provider/queries_provider.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
 class DetailsDotations extends StatefulWidget {
@@ -22,11 +21,10 @@ class DetailsDotations extends StatefulWidget {
 class _DetailsDotationsState extends State<DetailsDotations> with AutomaticKeepAliveClientMixin{
 
 
-  List<Dotations> ListDotations = [];
+  List<Dotations> listDotations = [];
   List<String> labels = ["Courbes de dotations", "Courbe de reconversions"];
   bool gotData = true;
   bool getDataError = false;
-  late final QueriesProvider _provider;
   late DotationProvider dv;
 
   @override
@@ -37,7 +35,6 @@ class _DetailsDotationsState extends State<DetailsDotations> with AutomaticKeepA
 
   Future<void> _initProvider() async {
     dv = await DotationProvider.instance;
-    _provider = await QueriesProvider.instance;
     _fetchData();
   }
 
@@ -73,7 +70,7 @@ class _DetailsDotationsState extends State<DetailsDotations> with AutomaticKeepA
               color: Colors.black
           ),
           name: 'Dotations journalières',
-          dataSource: ListDotations,
+          dataSource: listDotations,
           xValueMapper: (Dotations rt, _) => myDate(rt.dates),
           yValueMapper: (Dotations rt, _) => rt.dotations,
           markerSettings: const MarkerSettings(isVisible: true)
@@ -81,7 +78,7 @@ class _DetailsDotationsState extends State<DetailsDotations> with AutomaticKeepA
     ];
   }
 
-  Widget Chart()
+  Widget chart()
   {
     if(gotData)
     {
@@ -126,45 +123,43 @@ class _DetailsDotationsState extends State<DetailsDotations> with AutomaticKeepA
       );
     }
 
-    return Container(
-      child: Card(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            SfCartesianChart(
-              title: ChartTitle(
-                //text: "Dotation journalière de ${widget.comms.nomCommerciaux}",
-                textStyle: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
+    return Card(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          SfCartesianChart(
+            title: ChartTitle(
+              //text: "Dotation journalière de ${widget.comms.nomCommerciaux}",
+              textStyle: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
               ),
-              tooltipBehavior: TooltipBehavior(enable: true),
-              legend: const Legend(
-                isVisible: false,
-                toggleSeriesVisibility: true,
-                textStyle: TextStyle(
-                  fontSize: 12,
-                ),
-              ),
-              primaryXAxis: CategoryAxis(
-                majorGridLines: const MajorGridLines(width: 0),
-                minorGridLines: const MinorGridLines(width: 0),
-                axisBorderType: AxisBorderType.withoutTopAndBottom,
-                labelStyle: const TextStyle(
-                  fontSize: 10, // Augmenter la taille de la police des labels
-                  fontWeight: FontWeight.bold, // Rendre la police en gras si nécessaire
-                ),
-              ),
-              primaryYAxis: NumericAxis(
-                labelStyle: const TextStyle(
-                  fontSize: 12,
-                ),
-              ),
-              series: gotCHarts(),
             ),
-          ],
-        ),
+            tooltipBehavior: TooltipBehavior(enable: true),
+            legend: const Legend(
+              isVisible: false,
+              toggleSeriesVisibility: true,
+              textStyle: TextStyle(
+                fontSize: 12,
+              ),
+            ),
+            primaryXAxis: CategoryAxis(
+              majorGridLines: const MajorGridLines(width: 0),
+              minorGridLines: const MinorGridLines(width: 0),
+              axisBorderType: AxisBorderType.withoutTopAndBottom,
+              labelStyle: const TextStyle(
+                fontSize: 10, // Augmenter la taille de la police des labels
+                fontWeight: FontWeight.bold, // Rendre la police en gras si nécessaire
+              ),
+            ),
+            primaryYAxis: NumericAxis(
+              labelStyle: const TextStyle(
+                fontSize: 12,
+              ),
+            ),
+            series: gotCHarts(),
+          ),
+        ],
       ),
     );
   }
@@ -173,11 +168,11 @@ class _DetailsDotationsState extends State<DetailsDotations> with AutomaticKeepA
   {
     var somme = 0.0 ;
     var average = 0;
-    for(var i = 0; i < ListDotations.length; i++)
+    for(var i = 0; i < listDotations.length; i++)
     {
-      somme += ListDotations[i].dotations!;
+      somme += listDotations[i].dotations!;
     }
-    average = (somme == 0 ? 0 : somme / ListDotations.length).toInt();
+    average = (somme == 0 ? 0 : somme / listDotations.length).toInt();
 
     return  Card(
       elevation: 5,
@@ -225,56 +220,23 @@ class _DetailsDotationsState extends State<DetailsDotations> with AutomaticKeepA
     );
 
 
-    //   Card(
-    //   elevation: 5, // Ajoute une ombre à la carte
-    //   shape: RoundedRectangleBorder(
-    //     borderRadius: BorderRadius.circular(15), // Coins arrondis
-    //   ),
-    //   child: Padding(
-    //     padding: const EdgeInsets.all(10.0), // Espacement intérieur
-    //     child: Column(
-    //       crossAxisAlignment: CrossAxisAlignment.start,
-    //       children: [
-    //         Text(
-    //           "Moyenne de Dotations de ${widget.comms.nomCommerciaux}",
-    //           style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.blue), // Police plus grande et en gras
-    //         ),
-    //         const SizedBox(height: 10),
-    //         Row(
-    //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    //           children: [
-    //             Text(
-    //               "$average/jours",
-    //               style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.green), // Police plus grande, en gras et en couleur
-    //             ),
-    //             const Icon(
-    //               Icons.star,
-    //               color: Colors.orange, // Couleur de l'icône étoile
-    //             ),
-    //           ],
-    //         ),
-    //       ],
-    //     ),
-    //   ),
-    // );
-
   }
 
   Widget maxDotation()
   {
     int max = 0;
-    if(ListDotations.isNotEmpty)
+    if(listDotations.isNotEmpty)
     {
-      var max = ListDotations[0].dotations;
+      var max = listDotations[0].dotations;
     }
     else {
       max = 0;
     }
-    for(var i = 0; i < ListDotations.length; i++)
+    for(var i = 0; i < listDotations.length; i++)
     {
-      if( ListDotations[i].dotations! > max)
+      if( listDotations[i].dotations! > max)
       {
-        max = ListDotations[i].dotations!;
+        max = listDotations[i].dotations!;
       }
       else{
         max = max;
@@ -348,7 +310,7 @@ class _DetailsDotationsState extends State<DetailsDotations> with AutomaticKeepA
       //shrinkWrap: true,
       children: [
         headerCard(),
-        Chart(),
+        chart(),
         ElevatedButton(
           style: ElevatedButton.styleFrom(
             backgroundColor: philMainColor
@@ -386,7 +348,7 @@ class _DetailsDotationsState extends State<DetailsDotations> with AutomaticKeepA
       }
     });
     _fetchData();
-    ListDotations.clear();
+    listDotations.clear();
 
   }
 
@@ -403,7 +365,7 @@ class _DetailsDotationsState extends State<DetailsDotations> with AutomaticKeepA
         secure: false,
         onSuccess: (r) {
           setState(() {
-            ListDotations = r;
+            listDotations = r;
           });
           setState(() {
             gotData = false;
@@ -415,7 +377,6 @@ class _DetailsDotationsState extends State<DetailsDotations> with AutomaticKeepA
             gotData = false;
             getDataError = true;
           });
-          print(e);
         });
   }
   @override

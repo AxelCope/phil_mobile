@@ -114,7 +114,6 @@ class _PageTransactionsState extends State<PageTransactions> {
         },
         onError: (e) {
           setState(() {
-            print(e);
             gotData = false;
             getDataError = true;
           });
