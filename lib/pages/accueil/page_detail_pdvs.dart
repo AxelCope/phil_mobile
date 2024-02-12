@@ -18,10 +18,16 @@ class PageDetailsPdv extends StatefulWidget {
 
 class _PageDetailsPdvState extends State<PageDetailsPdv> {
 
-  DateTime month = DateTime.now();
+  DateTime date = DateTime.now();
   List<ChiffreAffaire> listCA = [];
+  List<ChiffreAffaire> listSolde = [];
   bool gotCa = false;
   bool gotCaError = true;
+  bool gotSolde = false;
+  bool gotSoldeError = true;
+
+
+
 
   late final QueriesProvider _provider;
 
@@ -34,6 +40,7 @@ class _PageDetailsPdvState extends State<PageDetailsPdv> {
   void _initProvider() async{
     _provider = await QueriesProvider.instance;
     getCA();
+    getSolde();
   }
 
   @override
@@ -86,7 +93,16 @@ class _PageDetailsPdvState extends State<PageDetailsPdv> {
                      Image.asset("assets/page infos pdvs/income.png", width: 30, color: philMainColor,),
                     const SizedBox(width: 10,),
                     _getCa()
-
+                  ],
+                ),
+                const SizedBox(height: 15,),
+                Row(
+                  children: [
+                     Image.asset("assets/page infos pdvs/wallet.png", width: 30),
+                    const SizedBox(width: 10,),
+                    _getSolde(),
+                    const SizedBox(width: 8,),
+                    Text("(Solde du ${date.year}-${date.month}-${date.day} à 5h)" )
                   ],
                 ),
                 const SizedBox(height: 30,),
@@ -179,7 +195,7 @@ class _PageDetailsPdvState extends State<PageDetailsPdv> {
     await _provider.getCA(
       secure: false,
       pdv: widget.pdv.numeroFlooz,
-      month: month.month,
+      month: date.month,
       onSuccess: (r) {
         setState(() {
           for(var element in r)
@@ -199,6 +215,36 @@ class _PageDetailsPdvState extends State<PageDetailsPdv> {
     );
   }
 
+  Future<void>  getSolde() async {
+    setState(() {
+      gotCaError = false;
+      gotCa = false;
+    });
+    await _provider.solde(
+      secure: false,
+      id: widget.pdv.numeroFlooz,
+      date: '${date.year}-${date.month}-${date.day}',
+      onSuccess: (r) {
+        setState(() {
+          for(var element in r)
+          {
+            listSolde.add(ChiffreAffaire.MapSolde(element));
+          }
+          gotSolde = true;
+          gotSoldeError = false;
+        });
+      },
+      onError: (e) {
+        setState(() {
+          print('${date.year}-${date.month}-${date.day}');
+          print(e);
+          gotSoldeError = true;
+          gotSolde = true;
+        });
+      },
+    );
+  }
+
   _ca()
   {
      double ca = 0;
@@ -209,6 +255,18 @@ class _PageDetailsPdvState extends State<PageDetailsPdv> {
       }
     return ca;
   }
+
+  _solde()
+  {
+     int sl = 0;
+    if(listSolde.isNotEmpty)
+      {
+        sl = listSolde[0].solde!;
+        return sl;
+      }
+    return sl;
+  }
+
 
   _getCa()
   {
@@ -241,6 +299,38 @@ class _PageDetailsPdvState extends State<PageDetailsPdv> {
         );
       }
     return Text("${_ca() ?? 0} CFA", style: const TextStyle(fontWeight: FontWeight.bold),);
+  }
+
+  _getSolde()
+  {
+    if(!gotSolde)
+    {
+      return const SizedBox(
+        width: 10,
+        height: 10,
+        child: CircularProgressIndicator(
+          strokeAlign: 1,
+          valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
+        ),
+      );
+    }
+    if(gotSoldeError)
+      {
+        return Center(
+          child: Column(
+            children: [
+              TextButton(
+                child: const Text("Réessayer", style: TextStyle(color: Colors.green),), onPressed: () {
+                setState(() {
+                  listSolde.clear();
+                  getSolde();
+                });
+              },),
+            ],
+          ),
+        );
+      }
+    return Text("${_solde() ?? 0} CFA", style: const TextStyle(fontWeight: FontWeight.bold),);
   }
 
   void sharePoint()

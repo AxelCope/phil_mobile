@@ -65,7 +65,10 @@ class _ProgressionObjectifState extends State<ProgressionObjectif> with Automati
   children: [
   _getCa(),
     const SizedBox(height: 10,),
-    const Text("Mes segments", style: TextStyle(fontSize: 21),),
+    Padding(
+      padding: const EdgeInsets.only(left: 10.0),
+      child: const Text("Mes segments", style: TextStyle(fontSize: 21),),
+    ),
     allSegments(),
     const SizedBox(height: 10,),
   ],

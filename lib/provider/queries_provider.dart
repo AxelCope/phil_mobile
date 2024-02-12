@@ -281,5 +281,25 @@ class QueriesProvider {
         onError: onError
     );
   }
+ Future<void> solde({
+    required id,
+    required date,
+    required Function(List<Map<String, dynamic>>) onSuccess,
+    required Function(RequestError) onError,
+    bool secure = true
+  }) async {
+    GDirectRequest.select(
+        sql:
+        "select pos_solde as solde "
+            "from solde_pdvs "
+            "where date(date_execution) = '$date' and pos_msisdn = $id; "
+    ).exec(
+        secure: secure,
+        onSuccess: (Result result) {
+          onSuccess(result.data);
+        },
+        onError: onError
+    );
+  }
 
 }

@@ -20,6 +20,7 @@ const String dbStatus = 'admin';
 
 const String dbStatusCompteComm = 'status';
 const String dbSomme = 'somme';
+const String dbSolde = 'solde';
 const String dbObj = 'objectifs';
 const String dbSommeDotes = 'sommedotes';
 
