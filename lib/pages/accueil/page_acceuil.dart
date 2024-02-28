@@ -249,7 +249,7 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
       ),
-    );
+    )
   }
   _buildPdvs()
   {
