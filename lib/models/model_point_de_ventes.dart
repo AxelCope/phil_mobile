@@ -24,6 +24,7 @@ class PointDeVente {
    int? numeroCagnt;
    String? commercial;
    int? dotee;
+   bool? status;
    bool checked;
    TextEditingController comment;
 
@@ -49,6 +50,7 @@ class PointDeVente {
      this.etatDuSupportDeVisibiliteBonMauvais,
      this.numeroCagnt,
      this.commercial,
+     this.status,
      this.dotee,
      this.checked = false,
   }): comment = TextEditingController();
@@ -77,7 +79,8 @@ class PointDeVente {
          etatDuSupportDeVisibiliteBonMauvais: map[dbetatDuSupportDeVisibiliteBonMauvais],
          numeroCagnt: map[dbnumeroCagnt],
          commercial: map[dbcommercial],
-        dotee: map[dbRegContent]
+        dotee: map[dbRegContent],
+         status: map[dbRetired]
      );
    }
 

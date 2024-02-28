@@ -227,6 +227,11 @@ class _HomePageState extends State<HomePage> {
   _pdvs(PointDeVente pdvs)
   {
     var colorsStyle = Colors.black;
+    var status = hexToColor('#f5f5f5');
+    if(pdvs.status == true)
+      {
+        status = hexToColor('#39FF14');
+      }
     if(pdvs.dotee == 0)
       {
         colorsStyle = Colors.red;
@@ -236,7 +241,7 @@ class _HomePageState extends State<HomePage> {
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20),
-          color: hexToColor('#f5f5f5'),
+          color: status,
         ),
         child: GestureDetector(
           onTap: (){

@@ -13,6 +13,7 @@ const String dbactifs = 'actifs';
 const String dbinactifs = 'inactifs';
 const String dbUnivers = 'pdvs';
 const String dbnumero = 'numero';
+const String dbRetired = 'status';
 
 const String dbUser = 'username';
 const String dbPass = 'password';
