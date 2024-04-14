@@ -132,7 +132,7 @@ class _PageGiveComsState extends State<PageGiveComs> {
             ),
             DataCell(
               Text(
-                NumberFormat("-#,###,###,#### CFA").format(data.montant! * 0.01),
+                NumberFormat("-#,###,###,#### CFA").format(data.montant! * 0.001),
                 textAlign: TextAlign.center,
                 style: const TextStyle(
                   color: Colors.red, // Couleur rouge pour les frais

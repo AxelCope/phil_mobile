@@ -27,7 +27,7 @@ class ReconversionProvider {
   }) async {
     await GDirectRequest.select(
         sql: "SELECT SUM(AMOUNT) as reconversion, DATE(TIMESTAMP) AS jours "
-            "FROM pso "
+            "FROM give "
             "WHERE "
             "DATE(TIMESTAMP) >= '$startDate' AND DATE(TIMESTAMP) <= '$endDate' "
             "AND (FRMSISDN IN (SELECT NUMERO_FLOOZ FROM univers WHERE NUMERO_CAGNT = $commId) AND TOMSISDN = $commId) "

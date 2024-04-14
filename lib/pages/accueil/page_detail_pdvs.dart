@@ -141,13 +141,19 @@ class _PageDetailsPdvState extends State<PageDetailsPdv> {
                         ),
                       ),
                       GestureDetector(
-                        onTap: ()async{
+                        onTap: () async{
+                          if(widget.pdv.longitude != null && widget.pdv.latitude != null) {
                             double dl = double.parse(widget.pdv.longitude!);
                             double dL = double.parse(widget.pdv.latitude!);
-                            final availableMaps = await MapLauncher.installedMaps;
+                            final availableMaps =
+                                await MapLauncher.installedMaps;
                             await availableMaps.first.showDirections(
                               destination: Coords(dL, dl),
                             );
+                          }
+                          else{
+                            showErrorMessage(context, "Emplacement non renseigné");
+                          }
                         },
                         child: Card(
                           shape: RoundedRectangleBorder(
@@ -356,16 +362,10 @@ class _PageDetailsPdvState extends State<PageDetailsPdv> {
       label: const Text("Composer le numéro propriétaire"),
       onPressed: ()
      async  {
-        final Uri phoneLaunchUri = Uri(
-          scheme: 'tel',
-          path: phoneNumber,
-        );
-      if (await canLaunchUrl(phoneLaunchUri)) {
-        showErrorMessage(context, "Une erreur est survenues, veuillez réessayer");
-        } else {
-         await launchUrl(phoneLaunchUri);
+       List<String> numero = phoneNumber.split('/');
 
-      }
+       _chooseNumber(numero);
+
       },
     );
   }
@@ -379,4 +379,63 @@ class _PageDetailsPdvState extends State<PageDetailsPdv> {
       ),
     );
   }
+
+  Future<void> _chooseNumber(List<String> numbers) async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Sélectioneer le numéro à composer"),
+          content:  Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: SizedBox(
+              width: 100,
+              child: ListView.builder(
+                shrinkWrap: true,
+                itemCount: numbers.length,
+                itemBuilder: (context, index)
+                {
+                  return ElevatedButton(
+                    onPressed: () async{
+                      final Uri phoneLaunchUri = Uri(
+                        scheme: 'tel',
+                        path: numbers[index],
+                      );
+                      if (await canLaunchUrl(phoneLaunchUri)) {
+                      showErrorMessage(context, "Une erreur est survenues, veuillez réessayer");
+                      } else {
+                      await launchUrl(phoneLaunchUri);
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(50.0),
+                      ),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(numbers[index]),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Annuler'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+
+
+
 }

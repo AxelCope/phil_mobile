@@ -6,7 +6,7 @@ class ChiffreAffaire
    double? chiffreAffaire;
    int? solde;
    int? obj;
-   int? comm;
+   String? comm;
 
    ChiffreAffaire({
    this.chiffreAffaire,

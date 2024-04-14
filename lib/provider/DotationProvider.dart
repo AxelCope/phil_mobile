@@ -27,8 +27,8 @@ class DotationProvider {
     print('dotation provider ${DateTime.now()}');
     await GDirectRequest.select(
 
-        sql: "SELECT COUNT(DISTINCT TO_POS_NAME) AS dotreg, DATE(TIMESTAMP) AS jours "
-            "FROM pso "
+        sql: "SELECT COUNT(DISTINCT tomsisdn) AS dotreg, DATE(TIMESTAMP) AS jours "
+            "FROM give "
         "WHERE DATE(TIMESTAMP) >= '$startDate' AND DATE(TIMESTAMP) <= '$endDate' AND FRMSISDN = $commId "
         "AND TOMSISDN IN (SELECT NUMERO_FLOOZ FROM univers) "
         "GROUP BY jours;",

@@ -3,8 +3,8 @@ import 'package:phil_mobile/provider/db_constant.dart';
 
 class Transactions{
   String?  type;
-  int?  frmsisdn;
-  int?  tomsisdn;
+  String?  frmsisdn;
+  String?  tomsisdn;
   int?  amount;
   String?  timestamp;
   int?  pos_balance_before;
@@ -42,8 +42,8 @@ class Transactions{
         timestamp: map[dbTime],
         pos_balance_before: map[dbBef],
         pos_balance_after: map[dbAmount],
-        fr_pos_name: map[dbFrname],
-        to_pos_name: map[dbToname],
+        fr_pos_name: map[dbGiveFrname],
+        to_pos_name: map[dbGiveToname],
         frprofile: map[dbFrprofile],
         toprofile: map[dbToprofile],
         dealer_commission: map[dbDcom],

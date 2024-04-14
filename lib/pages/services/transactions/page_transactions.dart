@@ -114,6 +114,7 @@ class _PageTransactionsState extends State<PageTransactions> {
         },
         onError: (e) {
           setState(() {
+            print(e);
             gotData = false;
             getDataError = true;
           });
@@ -170,15 +171,15 @@ class _PageTransactionsState extends State<PageTransactions> {
   {
 
     Color bandColor = Colors.blue;
-    if(tr.frmsisdn == widget.comms.id)
+    if(int.parse(tr.frmsisdn!) == widget.comms.id)
       {
        bandColor = philMainColor;
       }
-    else if(tr.frmsisdn == 22897391919)
+    else if(int.parse(tr.frmsisdn!) == 22897391919)
       {
         bandColor = Colors.red;
       }
-    else if(tr.frmsisdn != 22897391919 && tr.frmsisdn != widget.comms.id)
+    else if(int.parse(tr.frmsisdn!) != 22897391919 && int.parse(tr.frmsisdn!) != widget.comms.id)
       {
         bandColor = Colors.grey;
       }

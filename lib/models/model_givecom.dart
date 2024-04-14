@@ -3,7 +3,7 @@ import 'package:phil_mobile/provider/db_constant.dart';
 class GiveCom
 {
   double? montant;
-  int? numero;
+  String? numero;
   String? pdvs;
 
   GiveCom({

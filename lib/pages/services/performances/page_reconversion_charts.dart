@@ -278,38 +278,6 @@ class _DetailsReconversionState extends State<DetailsReconversion> with Automati
          ),
        ),
      );
-    // Card(
-    //   elevation: 5, // Ajoute une ombre à la carte
-    //   shape: RoundedRectangleBorder(
-    //     borderRadius: BorderRadius.circular(15), // Coins arrondis
-    //   ),
-    //   child: Padding(
-    //     padding: const EdgeInsets.all(10.0), // Espacement intérieur
-    //     child: Column(
-    //       crossAxisAlignment: CrossAxisAlignment.start,
-    //       children: [
-    //         Text(
-    //           "Moyenne de Reconversion de ${widget.comms.nomCommerciaux}",
-    //           style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.blue), // Police plus grande et en gras
-    //         ),
-    //         const SizedBox(height: 10),
-    //         Row(
-    //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    //           children: [
-    //             Text(
-    //               "${NumberFormat("#,###,### CFA").format(average)}/jours",
-    //               style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.green), // Police plus grande, en gras et en couleur
-    //             ),
-    //             const Icon(
-    //               Icons.star,
-    //               color: Colors.orange, // Couleur de l'icône étoile
-    //             ),
-    //           ],
-    //         ),
-    //       ],
-    //     ),
-    //   ),
-    // );
 
   }
 
@@ -354,8 +322,7 @@ class _DetailsReconversionState extends State<DetailsReconversion> with Automati
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                                  "Plus haute Reconversion de ${widget.comms.nomCommerciaux}",
+                      Text("Plus haute Reconversion de ${widget.comms.nomCommerciaux}",
                                   style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold), // Police plus grande et en gras
                                 ),
                                 const SizedBox(height: 10),
@@ -379,38 +346,6 @@ class _DetailsReconversionState extends State<DetailsReconversion> with Automati
           ),
         ),
       );
-    //   Card(
-    //   elevation: 5, // Ajoute une ombre à la carte
-    //   shape: RoundedRectangleBorder(
-    //     borderRadius: BorderRadius.circular(15), // Coins arrondis
-    //   ),
-    //   child: Padding(
-    //     padding: const EdgeInsets.all(10.0), // Espacement intérieur
-    //     child: Column(
-    //       crossAxisAlignment: CrossAxisAlignment.start,
-    //       children: [
-    //         Text(
-    //           "Plus haute Reconversion de ${widget.comms.nomCommerciaux}",
-    //           style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.blue), // Police plus grande et en gras
-    //         ),
-    //         const SizedBox(height: 10),
-    //         Row(
-    //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    //           children: [
-    //             Text(
-    //               NumberFormat("#,###,### CFA").format(max),
-    //               style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.green), // Police plus grande, en gras et en couleur
-    //             ),
-    //             const Icon(
-    //               Icons.trending_up,
-    //               color: Colors.green, // Couleur de l'icône flèche vers le haut
-    //             ),
-    //           ],
-    //         ),
-    //       ],
-    //     ),
-    //   ),
-    // );
 
   }
 

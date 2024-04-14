@@ -233,6 +233,7 @@ class _LoginPageState extends State<LoginPage> {
       },
     );
   }
+
   Future<void> _remplirTousLeschamps() async {
     return showDialog<void>(
       context: context,

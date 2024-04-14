@@ -98,7 +98,7 @@ class _ProgressionObjectifState extends State<ProgressionObjectif> with Automati
     if(objectifComm.isNotEmpty && commCagnt.isNotEmpty)
     {
       obj = objectifComm[0].obj!;
-      comm = commCagnt[0].comm!;
+      comm = int.parse(commCagnt[0].comm!);
       rep1 = ((comm / obj) * 100).round();
     }
     return Padding(
@@ -230,6 +230,7 @@ class _ProgressionObjectifState extends State<ProgressionObjectif> with Automati
       },
       onError: (e) {
         setState(() {
+          print(e);
           gotComm = false;
         });
       },

@@ -227,10 +227,11 @@ class _HomePageState extends State<HomePage> {
   _pdvs(PointDeVente pdvs)
   {
     var colorsStyle = Colors.black;
+    var decoration = TextDecoration.none;
     var status = hexToColor('#f5f5f5');
-    if(pdvs.status == true)
+    if(pdvs.status == false)
       {
-        status = hexToColor('#39FF14');
+        decoration = TextDecoration.lineThrough;
       }
     if(pdvs.dotee == 0)
       {
@@ -248,13 +249,13 @@ class _HomePageState extends State<HomePage> {
            nextPage(context, PageDetailsPdv(pdv: pdvs));
           },
           child: ListTile(
-            title: Text("${pdvs.nomDuPoint} "),
+            title: Text("${pdvs.nomDuPoint}", style: TextStyle(decoration: decoration, fontWeight: FontWeight.bold),),
             subtitle: Text("${pdvs.numeroFlooz}\nNombre de dotations dans le mois: ${pdvs.dotee}",
               style: TextStyle(color: colorsStyle),),
           ),
         ),
       ),
-    )
+    );
   }
   _buildPdvs()
   {
