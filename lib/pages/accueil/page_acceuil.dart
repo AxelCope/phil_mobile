@@ -103,42 +103,6 @@ class _HomePageState extends State<HomePage> {
                     },
                   ),
 
-                  // ExpansionTile(title: const Text("Services SIM"),
-                  // children: [
-                  //   // ListTile(
-                  //   //   leading: Image.asset('assets/creation.png'),
-                  //   //   title: const Text('Créer un nouveau pdv'),
-                  //   //   onTap: () {
-                  //   //     // Update the state of the app.
-                  //   //     // ...
-                  //   //   },
-                  //   // ),
-                  //   // const SizedBox(height: 20,),
-                  //   // ListTile(
-                  //   //   leading: Image.asset('assets/sim swap.png'),
-                  //   //   title: const Text('Swapp pour redéploiement'),
-                  //   //   onTap: () {
-                  //   //   },
-                  //   // ),
-                  //   const SizedBox(height: 20,),
-                  //   ListTile(
-                  //     leading: Image.asset('assets/sim broken.png'),
-                  //     title: const Text('Swapp pour SIM grillé ou perdu'),
-                  //     onTap: () {
-                  //       nextPage(context, SwappGrille(pdvs: listPdvs,));
-                  //     },
-                  //   ),
-                  //   const SizedBox(height: 20,),
-                  //   // ListTile(
-                  //   //   leading: Image.asset('assets/update.png'),
-                  //   //   title: const Text('Update pdv'),
-                  //   //   onTap: () {
-                  //   //     // Update the state of the app.
-                  //   //     // ...
-                  //   //   },
-                  //   // ),
-                  //
-                  // ],),
                 ],
               ),
             ),
@@ -325,8 +289,6 @@ class _HomePageState extends State<HomePage> {
     });
     await _provider.fetchPdvs(
       secure: false,
-      id: widget.comm.id,
-      month: date.month,
       onSuccess: (r) {
         setState(() {
           for(var element in r)

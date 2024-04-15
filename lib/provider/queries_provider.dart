@@ -31,8 +31,6 @@ class QueriesProvider {
   }
 
   Future<void> fetchPdvs({
-    required id,
-    required month,
     required Function(List<Map<String, dynamic>>) onSuccess,
     required Function(RequestError) onError,
     bool secure = false
@@ -42,15 +40,12 @@ class QueriesProvider {
         " WITH doted AS ( "
         "SELECT * "
             "FROM univers "
-            "WHERE numero_cagnt = $id "
             "), "
             "dotation AS ( "
             "SELECT COUNT(tomsisdn) AS dotreg, tomsisdn "
             "FROM give "
-            "WHERE EXTRACT(MONTH FROM TIMESTAMP) = $month "
-            "AND EXTRACT(YEAR FROM TIMESTAMP) = EXTRACT(YEAR FROM CURRENT_DATE) "
-            "AND FRMSISDN = $id "
-            "AND TOMSISDN IN (SELECT NUMERO_FLOOZ FROM univers where numero_cagnt = ${id}) "
+            "WHERE EXTRACT(YEAR FROM TIMESTAMP) = EXTRACT(YEAR FROM CURRENT_DATE) "
+            "AND TOMSISDN IN (SELECT NUMERO_FLOOZ FROM univers ) "
             "GROUP BY tomsisdn "
             ") "
             "SELECT doted.*, COALESCE(dotation.dotreg, 0) AS dotreg "
@@ -294,4 +289,106 @@ class QueriesProvider {
     );
   }
 
+ Future<void> commission({
+    required Function(List<Map<String, dynamic>>) onSuccess,
+    required Function(RequestError) onError,
+    bool secure = true
+  }) async {
+    GDirectRequest.select(
+        sql:
+        "select SUM(dealer_commission) as commission "
+            "from transactions "
+            "where EXTRACT(MONTH from timestamp) = EXTRACT(MONTH FROM CURRENT_DATE) AND EXTRACT(YEAR FROM TIMESTAMP) = EXTRACT(YEAR FROM CURRENT_DATE); "
+    ).exec(
+        secure: secure,
+        onSuccess: (Result result) {
+          onSuccess(result.data);
+        },
+        onError: onError
+    );
+  }
+
 }
+
+ Future<void> givecom_total({
+    required Function(List<Map<String, dynamic>>) onSuccess,
+    required Function(RequestError) onError,
+    bool secure = true
+  }) async {
+    GDirectRequest.select(
+        sql:
+        "select SUM(GIVECOM_DEBIT_AMOUNT) as commission "
+        "from give "
+        "where EXTRACT(MONTH from timestamp) = EXTRACT(MONTH FROM CURRENT_DATE) AND EXTRACT(YEAR FROM TIMESTAMP) = EXTRACT(YEAR FROM CURRENT_DATE); "
+
+   ).exec(
+        secure: secure,
+        onSuccess: (Result result) {
+          onSuccess(result.data);
+        },
+        onError: onError
+    );
+  }
+
+ Future<void> pdvs_actifs({
+    required Function(List<Map<String, dynamic>>) onSuccess,
+    required Function(RequestError) onError,
+    bool secure = true
+  }) async {
+    GDirectRequest.select(
+        sql:
+        "SELECT COUNT(*) AS nombre_de_points "
+        "FROM ( "
+        "SELECT COUNT(id) "
+        "FROM ( "
+        "SELECT SUM(amount) AS fr_amount, frmsisdn as id "
+        "FROM transactions "
+        "WHERE TYPE = 'CSIN' "
+        "AND frmsisdn IN (SELECT numero_flooz FROM univers) "
+        "AND EXTRACT(MONTH from timestamp) = EXTRACT(MONTH FROM CURRENT_DATE) "
+        "AND EXTRACT(YEAR FROM TIMESTAMP) = EXTRACT(YEAR FROM CURRENT_DATE) "
+        "group by frmsisdn "
+        "UNION ALL "
+        "SELECT SUM(amount) AS to_amount, tomsisdn "
+        "FROM transactions "
+        "WHERE TYPE = 'AGNT' "
+        "AND tomsisdn IN (SELECT numero_flooz FROM univers) "
+        "AND EXTRACT(MONTH from timestamp) = EXTRACT(MONTH FROM CURRENT_DATE) "
+            "AND EXTRACT(YEAR FROM TIMESTAMP) = EXTRACT(YEAR FROM CURRENT_DATE) "
+    "group by tomsisdn "
+    ") AS tbl "
+    "GROUP BY id "
+    ") AS points_avec_10_transactions; "
+   ).exec(
+        secure: secure,
+        onSuccess: (Result result) {
+          onSuccess(result.data);
+        },
+        onError: onError
+    );
+  }
+
+
+ Future<void> commerciaux({
+    required Function(List<Map<String, dynamic>>) onSuccess,
+    required Function(RequestError) onError,
+    bool secure = true
+  }) async {
+    GDirectRequest.select(
+        sql:
+        "select numero_cagnt, commercial "
+        "from univers "
+        "where numero_cagnt IS NOT NULL "
+        "group by numero_cagnt, commercial "
+        "order by commercial; "
+   ).exec(
+        secure: secure,
+        onSuccess: (Result result) {
+          onSuccess(result.data);
+        },
+        onError: onError
+    );
+  }
+
+
+

@@ -112,6 +112,8 @@ class _PageDetailsPdvState extends State<PageDetailsPdv> {
                 const SizedBox(height: 5,),
                _callPdv(widget.pdv.numeroProprietaireDuPdv!),
                 const SizedBox(height: 20,),
+                Text("Commercial en charge: ${widget.pdv.commercial} ( ${widget.pdv.numeroCagnt})", style: const TextStyle(fontWeight: FontWeight.bold),),
+                const SizedBox(height: 5,),
                 Text("Type d'activité: ${widget.pdv.typeDactivite}", style: const TextStyle(fontWeight: FontWeight.bold),),
                 const SizedBox(height: 20,),
                 Container(

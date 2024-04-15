@@ -5,6 +5,7 @@ import 'package:phil_mobile/pages/accueil/page_acceuil.dart';
 import 'package:phil_mobile/pages/login/page_connexion.dart';
 import 'package:genos_dart/genos_dart.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:phil_mobile/pages/tabs/tabs_admin.dart';
 import 'package:provider/provider.dart';
 
 void main() async {
@@ -33,21 +34,9 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
     _initGenos();
-    _checkLoggedIn();
   }
-  Widget _initialContent = const MyLoadingScreen();
+  Widget _initialContent =  TabsAdmin();
 
-  Future<void> _checkLoggedIn() async {
-    final box = await Hive.openBox('commsBox');
-    Comms? storedComms = box.get('user') as Comms?;
-
-    setState(() {
-      _initialContent = storedComms != null
-          ? HomePage(comm: storedComms)
-          : const LoginPage();
-    });
-
-  }
 
   @override
   Widget build(BuildContext context) {
