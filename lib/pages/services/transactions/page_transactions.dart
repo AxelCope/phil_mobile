@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'package:calendar_date_picker2/calendar_date_picker2.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -17,6 +19,7 @@ class PageTransactions extends StatefulWidget  {
 
 class _PageTransactionsState extends State<PageTransactions> {
   late final QueriesProvider _provider;
+  final ScrollController _scrollController = ScrollController();
   bool gotData = true;
   bool getDataError = false;
   List<Transactions> listTransaction = [];
@@ -158,13 +161,18 @@ class _PageTransactionsState extends State<PageTransactions> {
           ),
         );
       }
-    return ListView.builder(
-      shrinkWrap: true,
-      itemCount: listTransaction.length,
-        itemBuilder: (context, index)
-            {
-              return transaction(listTransaction[index]);
-            }
+    return Scrollbar(
+      trackVisibility: true,
+      controller: _scrollController,
+      child: ListView.builder(
+        controller: _scrollController,
+        shrinkWrap: true,
+        itemCount: listTransaction.length,
+          itemBuilder: (context, index)
+              {
+                return transaction(listTransaction[index]);
+              }
+      ),
     );
   }
   Widget transaction(Transactions tr)

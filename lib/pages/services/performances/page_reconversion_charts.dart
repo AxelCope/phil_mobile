@@ -171,7 +171,7 @@ class _DetailsReconversionState extends State<DetailsReconversion> with Automati
           onPressed: () {
             datePicker();
           },
-          child: const Text('Selectionner la plage de daes', style: TextStyle(color: Colors.white)),
+          child: const Text('Selectionner la plage de dates', style: TextStyle(color: Colors.white)),
         ),
       ],
     );

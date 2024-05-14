@@ -7,6 +7,8 @@ import 'package:phil_mobile/pages/consts.dart';
 import 'package:phil_mobile/provider/queries_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:intl/intl.dart';
+
 
 class PageDetailsPdv extends StatefulWidget {
   const PageDetailsPdv({super.key, required this.pdv});
@@ -20,7 +22,8 @@ class _PageDetailsPdvState extends State<PageDetailsPdv> {
 
   DateTime date = DateTime.now();
   List<ChiffreAffaire> listCA = [];
-  List<ChiffreAffaire> listSolde = [];
+  List<ChiffreAffaire> soldeList = [];
+  List test = [];
   bool gotCa = false;
   bool gotCaError = true;
   bool gotSolde = false;
@@ -234,16 +237,15 @@ class _PageDetailsPdvState extends State<PageDetailsPdv> {
         setState(() {
           for(var element in r)
           {
-            listSolde.add(ChiffreAffaire.MapSolde(element));
+            test.add(element);
           }
+
           gotSolde = true;
           gotSoldeError = false;
         });
       },
       onError: (e) {
         setState(() {
-          print('${date.year}-${date.month}-${date.day}');
-          print(e);
           gotSoldeError = true;
           gotSolde = true;
         });
@@ -262,14 +264,12 @@ class _PageDetailsPdvState extends State<PageDetailsPdv> {
     return ca;
   }
 
-  _solde()
-  {
-     int sl = 0;
-    if(listSolde.isNotEmpty)
-      {
-        sl = listSolde[0].solde!;
-        return sl;
-      }
+
+  int _solde() {
+    int sl = 0;
+    if (test.isNotEmpty) {
+      sl = test[0]['solde'];
+    }
     return sl;
   }
 
@@ -304,7 +304,7 @@ class _PageDetailsPdvState extends State<PageDetailsPdv> {
           ),
         );
       }
-    return Text("${_ca() ?? 0} CFA", style: const TextStyle(fontWeight: FontWeight.bold),);
+    return Text("${NumberFormat("#,###,###,### CFA").format(_ca())}", style: const TextStyle(fontWeight: FontWeight.bold),);
   }
 
   _getSolde()
@@ -328,7 +328,7 @@ class _PageDetailsPdvState extends State<PageDetailsPdv> {
               TextButton(
                 child: const Text("Réessayer", style: TextStyle(color: Colors.green),), onPressed: () {
                 setState(() {
-                  listSolde.clear();
+                  soldeList.clear();
                   getSolde();
                 });
               },),
@@ -336,7 +336,7 @@ class _PageDetailsPdvState extends State<PageDetailsPdv> {
           ),
         );
       }
-    return Text("${_solde() ?? 0} CFA", style: const TextStyle(fontWeight: FontWeight.bold),);
+    return Text("${NumberFormat("#,###,###,### CFA").format(_solde())?? 0}", style: const TextStyle(fontWeight: FontWeight.bold),);
   }
 
   void sharePoint()

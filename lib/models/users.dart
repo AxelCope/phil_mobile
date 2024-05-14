@@ -1,3 +1,5 @@
+// ignore_for_file: non_constant_identifier_names
+
 import 'package:hive/hive.dart';
 import 'package:phil_mobile/provider/db_constant.dart';
 part 'users.g.dart';

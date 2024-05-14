@@ -35,14 +35,16 @@ class _PageGiveComsState extends State<PageGiveComs> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("GIVECOMS du mois de ${date.month}"),
+        title: Text("GIVECOMS du mois"),
       ),
       body:
       ListView(
         children: [
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: givecomTable(),
+          Center(
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: givecomTable(),
+            ),
           )
            ,
         ],
@@ -53,15 +55,13 @@ class _PageGiveComsState extends State<PageGiveComs> {
 
   givecomTable() {
     if(gettingGivecom) {
-      return const Center(
-        child: Padding(
-          padding: EdgeInsets.symmetric(vertical: 200.0),
-          child: SizedBox(
-            height: 30,
-            width: 30,
-            child: CircularProgressIndicator(
-              color: Colors.green,
-            ),
+      return const Padding(
+        padding: EdgeInsets.only(top:200.0),
+        child: SizedBox(
+          height: 30,
+          width: 30,
+          child: CircularProgressIndicator(
+            color: Colors.green,
           ),
         ),
       );
@@ -88,6 +88,15 @@ class _PageGiveComsState extends State<PageGiveComs> {
         ),
       );
     }
+    if(!listGivecom.isEmpty)
+      {
+        return Padding(
+          padding: EdgeInsets.only(top:200.0),
+          child: Center(
+            child: Text("Vous n'avez aucun givecom pour ce mois"),
+          ),
+        );
+      }
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -122,7 +131,7 @@ class _PageGiveComsState extends State<PageGiveComs> {
           return DataRow(cells: [
             DataCell(
               Text(
-                NumberFormat("#,###,###,#### CFA").format(data.montant),
+                NumberFormat("#,###,###,### CFA").format(data.montant),
                 textAlign: TextAlign.center,
                 style: const TextStyle(
                   color: Colors.red, // Couleur rouge pour les frais
@@ -154,6 +163,7 @@ class _PageGiveComsState extends State<PageGiveComs> {
       ),
     );
   }
+
 
   Future<void> getGiveCom() async {
     setState(() {

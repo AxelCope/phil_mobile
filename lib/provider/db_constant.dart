@@ -21,7 +21,7 @@ const String dbStatus = 'admin';
 
 const String dbStatusCompteComm = 'status';
 const String dbSomme = 'somme';
-const String dbSolde = 'solde';
+const String dbSolde = 'pos_solde_principal';
 const String dbObj = 'objectifs';
 const String dbSommeDotes = 'sommedotes';
 
@@ -64,3 +64,4 @@ const String dbToprofile = "toprofile";
 const String dbDcom = "dealer_commission";
 const String dbPoscom = "pos_commission";
 
+const String dbVersion = 'version';

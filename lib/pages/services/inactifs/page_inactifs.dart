@@ -110,6 +110,15 @@ class _PageInactifsState extends State<PageInactifs> {
         ],
       );
     }
+    if(inactivite.isEmpty)
+      {
+        print("emptu");
+        return Center(
+          child: Text("Vous n'avez pas d'inactifs pour ce mois", style: TextStyle(color: Colors.black),),
+        );
+      }
+    print(inactivite);
+
     return ListView.builder(
       shrinkWrap: true,
       itemCount: inactivite.length,
@@ -169,6 +178,7 @@ class _PageInactifsState extends State<PageInactifs> {
         setState(() {
           for (var element in cms) {
             inactivite.add(PointDeVente.MapPdvs(element));
+            print(element);
           }
           gotInactifsError = false;
           gettingInactifs = false;

@@ -227,7 +227,6 @@ class _SwappGrilleState extends State<SwappGrille> {
                                             _checkedList[index].comment =
                                                 TextEditingController(text: holder);
                                             Navigator.of(context).pop();
-                                            print(holder);
                                           });
                                         },
                                       ),

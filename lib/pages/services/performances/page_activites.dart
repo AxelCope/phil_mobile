@@ -230,7 +230,6 @@ class _ProgressionObjectifState extends State<ProgressionObjectif> with Automati
       },
       onError: (e) {
         setState(() {
-          print(e);
           gotComm = false;
         });
       },

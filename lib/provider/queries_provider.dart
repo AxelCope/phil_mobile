@@ -282,9 +282,27 @@ class QueriesProvider {
   }) async {
     GDirectRequest.select(
         sql:
-        "select pos_solde as solde "
+        "select pos_solde_principal as solde "
             "from solde_pdvs "
             "where date(date_execution) = '$date' and pos_msisdn = $id; "
+    ).exec(
+        secure: secure,
+        onSuccess: (Result result) {
+          onSuccess(result.data);
+        },
+        onError: onError
+    );
+  }
+
+  Future<void> version({
+    required Function(List<Map<String, dynamic>>) onSuccess,
+    required Function(RequestError) onError,
+    bool secure = true
+  }) async {
+    GDirectRequest.select(
+        sql:
+        "select version "
+            "from versioning "
     ).exec(
         secure: secure,
         onSuccess: (Result result) {

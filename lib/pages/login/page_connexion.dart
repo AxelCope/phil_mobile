@@ -121,7 +121,7 @@ class _LoginPageState extends State<LoginPage> {
         if (int.parse(userId.text) == check.id && password.text == check.password) {
           Comms user = check;
           _setPreferences(user);
-          Navigator.pop(context);
+          Navigator.pop(context); 
            nextPage(context, HomePage(comm: user));
           userExists = true;
           break;

@@ -1,10 +1,14 @@
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+import 'package:phil_mobile/models/model_version.dart';
 import 'package:phil_mobile/models/users.dart';
 import 'package:phil_mobile/pages/accueil/page_acceuil.dart';
 import 'package:phil_mobile/pages/login/page_connexion.dart';
 import 'package:genos_dart/genos_dart.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:phil_mobile/provider/queries_provider.dart';
 import 'package:provider/provider.dart';
 
 void main() async {
@@ -28,14 +32,13 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   bool _genosInit = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _initGenos();
-    _checkLoggedIn();
-  }
+  bool _sameVers = true;
+  bool connected = true;
+  bool _checkingComplete = false;
+  List<Versioning> version = [];
+  late final QueriesProvider _provider;
   Widget _initialContent = const MyLoadingScreen();
+
 
   Future<void> _checkLoggedIn() async {
     final box = await Hive.openBox('commsBox');
@@ -47,7 +50,25 @@ class _MyAppState extends State<MyApp> {
           : const LoginPage();
     });
 
+    if(storedComms != null)
+    {
+      checkInternetConnection(context);
+    }
   }
+
+
+
+  @override
+  void initState() {
+    super.initState();
+    _initGenos();
+    _checkLoggedIn();
+  }
+
+  void _initProvider() async {
+    _provider = await QueriesProvider.instance;
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -55,15 +76,27 @@ class _MyAppState extends State<MyApp> {
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
     ]);
-    if (!_genosInit) {
+
+    if (connected == false) {
       return MaterialApp(
         debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-          useMaterial3: true,
+        home: Scaffold(
+          body: AlertDialog(
+            title: const Text('Connexion Internet non disponible'),
+            content: const Text('Vérifiez votre connexion internet et réessayez.'),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text('OK'),
+              ),
+            ],
+          ),
         ),
-        home: const MyLoadingScreen(),
       );
+    } else if (!_sameVers && _checkingComplete && connected == true) {
+      return const VersionDialog();
     }
 
     return MaterialApp(
@@ -90,19 +123,75 @@ class _MyAppState extends State<MyApp> {
         setState(() {
           _genosInit = true;
         });
+        _initProvider();
       },
     );
   }
 
-  void showErrorDialog() async {
-    showDialog<String>(
-      context: context,
-      builder: (context) => const AlertDialog(
-        title: Text("Erreur de connexion"),
-        content: Text("Ressayez de vous connecter"),
-      ),
+
+  Future<void> checkInternetConnection(BuildContext context) async {
+    final List<ConnectivityResult> connectivityResult = await Connectivity().checkConnectivity();
+
+
+    if(connectivityResult[0] == ConnectivityResult.none) {
+      connected = false;
+    } else{
+      connected = true;
+    }
+    _checkVersion();
+  }
+
+  Future<void> _checkVersion() async {
+    await _provider.version(
+      secure: false,
+      onSuccess: (cms) {
+        setState(() {
+          for (var element in cms) {
+            version.add(Versioning.MapVersion(element));
+          }
+          checkingVersion();
+        });
+      },
+      onError: (error) {
+        setState(() {
+        });
+      },
     );
   }
+
+  Future<void> checkingVersion() async {
+    final packageInfo = await PackageInfo.fromPlatform();
+    final localVersion = packageInfo.version;
+    final fetchedVersion = version.isNotEmpty ? version[0].version : '';
+
+    if(version.isNotEmpty)
+    {
+      if (localVersion != fetchedVersion) {
+        _sameVers = false;
+      }
+    }else{
+      setState(() {
+        AlertDialog(
+          title: const Text('Connexion Internet non disponible'),
+          content: const Text('Vérifiez votre connexion internet et réessayez.'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                version.clear();
+                _checkVersion();
+              },
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      });
+    }
+
+    _checkingComplete = true;
+    setState(() {});
+  }
+
+
 }
 
 class MyLoadingScreen extends StatelessWidget {
@@ -129,3 +218,29 @@ class MyLoadingScreen extends StatelessWidget {
     );
   }
 }
+
+class VersionDialog extends StatelessWidget {
+  const VersionDialog({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return const MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: Scaffold(
+        body: AlertDialog(
+          title: Text('Nouvelle version disponible'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text('Une nouvelle version de l\'application est disponible.'),
+              SizedBox(height: 10),
+              Text(
+                  'Veuillez installer la nouvelle version pour continuer à utiliser l\'application.'),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+

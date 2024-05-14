@@ -24,7 +24,6 @@ class DotationProvider {
     required ValueChanged<RequestError> onError,
     bool secure = true,
   }) async {
-    print('dotation provider ${DateTime.now()}');
     await GDirectRequest.select(
 
         sql: "SELECT COUNT(DISTINCT tomsisdn) AS dotreg, DATE(TIMESTAMP) AS jours "
