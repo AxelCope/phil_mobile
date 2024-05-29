@@ -175,7 +175,8 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
       appBar: AppBar(
-        scrolledUnderElevation: 0,
+        scrolledUnderElevation: 2.0,
+        elevation: 0,
         centerTitle: true,
         title: Text(" Mon univers (${listPdvs.length} pdvs)"),
       ),
@@ -183,6 +184,7 @@ class _HomePageState extends State<HomePage> {
         padding: const EdgeInsets.symmetric(horizontal: 20.0),
         child: Column(
           children: [
+            const SizedBox(height: 20,),
           TextField(
             onChanged: _search,
           controller: _searchFieldController,

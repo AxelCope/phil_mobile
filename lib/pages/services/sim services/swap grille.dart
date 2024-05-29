@@ -267,21 +267,19 @@ class _SwappGrilleState extends State<SwappGrille> {
     showModalBottomSheet(
         context: context,
         builder: (BuildContext bc){
-          return Container(
-            child: Wrap(
-              children: <Widget>[
-                ListTile(
-                    leading: const Icon(Icons.music_note),
-                    title: const Text('Music'),
-                    onTap: () => {}
-                ),
-                ListTile(
-                  leading: const Icon(Icons.videocam),
-                  title: const Text('Video'),
-                  onTap: () => {},
-                ),
-              ],
-            ),
+          return Wrap(
+            children: <Widget>[
+              ListTile(
+                  leading: const Icon(Icons.music_note),
+                  title: const Text('Music'),
+                  onTap: () => {}
+              ),
+              ListTile(
+                leading: const Icon(Icons.videocam),
+                title: const Text('Video'),
+                onTap: () => {},
+              ),
+            ],
           );
         }
     );

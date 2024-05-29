@@ -23,9 +23,12 @@ class _PageDetailsPdvState extends State<PageDetailsPdv> {
   DateTime date = DateTime.now();
   List<ChiffreAffaire> listCA = [];
   List<ChiffreAffaire> soldeList = [];
+  List<ChiffreAffaire> commMonth = [];
   List test = [];
   bool gotCa = false;
   bool gotCaError = true;
+  bool gotComMonth = false;
+  bool gotComMonthError = true;
   bool gotSolde = false;
   bool gotSoldeError = true;
 
@@ -67,6 +70,7 @@ class _PageDetailsPdvState extends State<PageDetailsPdv> {
         title: const Text("Détails du point"),
         centerTitle: true,
         scrolledUnderElevation: 0,
+        elevation: 0,
       ),
       body: ListView(
         children: [
@@ -102,20 +106,20 @@ class _PageDetailsPdvState extends State<PageDetailsPdv> {
                 Row(
                   children: [
                      Image.asset("assets/page infos pdvs/wallet.png", width: 30),
-                    const SizedBox(width: 10,),
+                    const SizedBox(width: 16,),
                     _getSolde(),
                     const SizedBox(width: 8,),
                     Text("(Solde du ${date.year}-${date.month}-${date.day} à 5h)" )
                   ],
                 ),
                 const SizedBox(height: 30,),
-                Text("Profile: ${widget.pdv.profil}", style: const TextStyle(fontWeight: FontWeight.bold),),
+                Text("Profile: ${widget.pdv.profil ?? '(Non renseigné)'}", style: const TextStyle(fontWeight: FontWeight.bold),),
                 const SizedBox(height: 20,),
-                Text("Numero du propirétaire: ${widget.pdv.numeroProprietaireDuPdv} ( ${widget.pdv.sexeDuGerant})", style: const TextStyle(fontWeight: FontWeight.bold),),
+                Text("Numero du propirétaire: ${widget.pdv.numeroProprietaireDuPdv ?? '(Non renseigné)'} ( ${widget.pdv.sexeDuGerant ?? '(Non renseigné)'})", style: const TextStyle(fontWeight: FontWeight.bold),),
                 const SizedBox(height: 5,),
-               _callPdv(widget.pdv.numeroProprietaireDuPdv!),
+               _callPdv(widget.pdv.numeroProprietaireDuPdv),
                 const SizedBox(height: 20,),
-                Text("Type d'activité: ${widget.pdv.typeDactivite}", style: const TextStyle(fontWeight: FontWeight.bold),),
+                Text("Type d'activité: ${widget.pdv.typeDactivite ?? '(Non renseigné)'}", style: const TextStyle(fontWeight: FontWeight.bold),),
                 const SizedBox(height: 20,),
                 Container(
                   padding: const EdgeInsets.all(20.0),
@@ -131,15 +135,15 @@ class _PageDetailsPdvState extends State<PageDetailsPdv> {
                           mainAxisSize: MainAxisSize.max,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text("Region: ${widget.pdv.region}", style: const TextStyle(fontWeight: FontWeight.bold),),
+                            Text("Region: ${widget.pdv.region ?? '(Non renseigné)'}", style: const TextStyle(fontWeight: FontWeight.bold),),
                             const SizedBox(height: 20,),
-                            Text("Prefecture: ${widget.pdv.prefecture}", style: const TextStyle(fontWeight: FontWeight.bold),),
+                            Text("Prefecture: ${widget.pdv.prefecture ?? '(Non renseigné)'}", style: const TextStyle(fontWeight: FontWeight.bold),),
                             const SizedBox(height: 20,),
-                            Text("Commune: ${widget.pdv.commune}", style: const TextStyle(fontWeight: FontWeight.bold),),
+                            Text("Commune: ${widget.pdv.commune ?? '(Non renseigné)'}", style: const TextStyle(fontWeight: FontWeight.bold),),
                             const SizedBox(height: 20,),
-                            Text("Canton: ${widget.pdv.canton}", style: const TextStyle(fontWeight: FontWeight.bold),),
+                            Text("Canton: ${widget.pdv.canton ?? '(Non renseigné)'}", style: const TextStyle(fontWeight: FontWeight.bold),),
                             const SizedBox(height: 20,),
-                            Text("Quartier: ${widget.pdv.quartier}", style: const TextStyle(fontWeight: FontWeight.bold),),
+                            Text("Quartier: ${widget.pdv.quartier ?? '(Non renseigné)'}", style: const TextStyle(fontWeight: FontWeight.bold),),
                           ],
                         ),
                       ),
@@ -177,7 +181,7 @@ class _PageDetailsPdvState extends State<PageDetailsPdv> {
                   ),
                 ),
                 const SizedBox(height: 20,),
-                Text("Localisation:  ${widget.pdv.localisation}", style: const TextStyle(fontWeight: FontWeight.bold),),
+                Text("Localisation:  ${widget.pdv.localisation ?? '(Non renseigné)'}", style: const TextStyle(fontWeight: FontWeight.bold),),
                 const SizedBox(height: 20,),
                 Text("NIF:  ${widget.pdv.nif ?? "Non indiqué" }", style: const TextStyle(fontWeight: FontWeight.bold),),
                 const SizedBox(height: 20,),
@@ -253,6 +257,43 @@ class _PageDetailsPdvState extends State<PageDetailsPdv> {
     );
   }
 
+
+  Future<void>  getmoisCom() async {
+    setState(() {
+      gotComMonthError = false;
+      gotComMonth = false;
+    });
+    await _provider.mois_precedents(
+      secure: false,
+      pdv: widget.pdv.numeroFlooz!,
+      onSuccess: (r) {
+        setState(() {
+          for(var element in r)
+          {
+            commMonth.add(ChiffreAffaire.MapCommbyMonth(element));
+          }
+
+          setState(() {
+            gotComMonthError = false;
+            gotComMonth = true;
+          });
+
+          if(gotComMonth && commMonth.isNotEmpty ) {
+            _seeCommMonth();
+          }
+          else if(gotComMonth && commMonth.isEmpty) {
+            _nothing();
+          }
+        });
+      },
+      onError: (e) {
+        setState(() {
+          _error();
+        });
+      },
+    );
+  }
+
   _ca()
   {
      double ca = 0;
@@ -304,7 +345,11 @@ class _PageDetailsPdvState extends State<PageDetailsPdv> {
           ),
         );
       }
-    return Text("${NumberFormat("#,###,###,### CFA").format(_ca())}", style: const TextStyle(fontWeight: FontWeight.bold),);
+    return TextButton(
+        onPressed: (){
+          getmoisCom();
+        },
+        child: Text(NumberFormat("#,###,###,### CFA").format(_ca()), style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black),));
   }
 
   _getSolde()
@@ -336,37 +381,40 @@ class _PageDetailsPdvState extends State<PageDetailsPdv> {
           ),
         );
       }
-    return Text("${NumberFormat("#,###,###,### CFA").format(_solde())?? 0}", style: const TextStyle(fontWeight: FontWeight.bold),);
+    return Text(NumberFormat("#,###,###,### CFA").format(_solde()), style: const TextStyle(fontWeight: FontWeight.bold),);
   }
 
   void sharePoint()
   async{
     await Share.share(
-        "Numéro: ${widget.pdv.numeroFlooz}\n\n"
-            "Nom: ${widget.pdv.nomDuPoint}\n\n"
-            "Numéro propriétaire: ${widget.pdv.numeroProprietaireDuPdv}\n\n"
-            "Quartier: ${widget.pdv.quartier}\n\n"
-            "Localisation: ${widget.pdv.localisation}\n\n"
-            "Commercial: ${widget.pdv.commercial}\n\n",
+        "Numéro: ${widget.pdv.numeroFlooz ?? 'Non renseigné'}\n\n"
+            "Nom: ${widget.pdv.nomDuPoint ?? 'Non renseigné'}\n\n"
+            "Numéro propriétaire: ${widget.pdv.numeroProprietaireDuPdv ?? 'Non renseigné'}\n\n"
+            "Quartier: ${widget.pdv.quartier ?? 'Non renseigné'}\n\n"
+            "Localisation: ${widget.pdv.localisation ?? 'Non renseigné'}\n\n"
+            "Commercial: ${widget.pdv.commercial ?? 'Non renseigné'}\n\n",
       subject: "Informations du point"
     );
   }
 
-  Widget _callPdv(String phoneNumber)
-  {
+  Widget _callPdv(String? phoneNumber) {
+    if (phoneNumber != null && phoneNumber.isNotEmpty) {
+      return ElevatedButton.icon(
+        style: ElevatedButton.styleFrom(),
+        icon: Icon(Icons.call, color: philMainColor),
+        onPressed: () async {
+          List<String> numero = phoneNumber.split('/');
+          _chooseNumber(numero);
+        },
+        label: const Text("Composer le numéro propriétaire"),
+      );
+    }
     return ElevatedButton.icon(
-      style: ElevatedButton.styleFrom(
-
-      ),
+      style: ElevatedButton.styleFrom(),
       icon: Icon(Icons.call, color: philMainColor),
-      label: const Text("Composer le numéro propriétaire"),
-      onPressed: ()
-     async  {
-       List<String> numero = phoneNumber.split('/');
-
-       _chooseNumber(numero);
-
+      onPressed: () async {
       },
+      label: const Text("Numero non renseigné"),
     );
   }
 
@@ -435,7 +483,150 @@ class _PageDetailsPdvState extends State<PageDetailsPdv> {
     );
   }
 
+  Future<void> _seeCommMonth() async {
 
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return PopScope(
+          canPop: false,
+          onPopInvoked: (bool poped) {
+            if (!poped) {
+              setState(() {
+                commMonth.clear();
+              });
+            }
+          },
+          child: AlertDialog(
+            title: Text(
+              "Les commissions de ${widget.pdv.nomDuPoint}",
+              style: const TextStyle(fontSize: 17),
+            ),
+            content: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: SizedBox(
+                width: 100,
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: commMonth.length,
+                  itemBuilder: (context, index) {
+                    return commByMonth(commMonth[index]);
+                  },
+                ),
+              ),
+            ),
+            actions: <Widget>[
+              TextButton(
+                child: const Text('OK'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  setState(() {
+                    commMonth.clear();
+                  });
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+  Future<void> _nothing() async {
+
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return PopScope(
+          canPop: false,
+          onPopInvoked: (bool poped) {
+            if (!poped) {
+              setState(() {
+                commMonth.clear();
+              });
+            }
+          },
+          child: AlertDialog(
+            title: Text(
+              "Les commissions de ${widget.pdv.nomDuPoint}",
+              style: const TextStyle(fontSize: 17),
+            ),
+            content: const Text("Aucune commission pour l'année en cours"),
+            actions: <Widget>[
+              TextButton(
+                child: const Text('OK'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  setState(() {
+                    commMonth.clear();
+                  });
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+  Future<void> _error() async {
+
+    return showDialog<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return PopScope(
+          canPop: false,
+          onPopInvoked: (bool poped) {
+            if (!poped) {
+              setState(() {
+                commMonth.clear();
+              });
+            }
+          },
+          child: AlertDialog(
+            title: Text(
+              "Les commissions de ${widget.pdv.nomDuPoint}",
+              style: const TextStyle(fontSize: 17),
+            ),
+            content: const Text("Erreur, veuillez réessayer"),
+            actions: <Widget>[
+              TextButton(
+                child: const Text('Réessayer'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  getmoisCom();
+                },
+              ),
+              TextButton(
+                child: const Text('Annuler'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+
+  Widget commByMonth(ChiffreAffaire cbm)
+  {
+            return Text(
+                "${_getMonthName(int.parse(cbm.date?? '-'))} : ${NumberFormat("#,###,###,### CFA").format(cbm.chiffreAffaire)}",
+                    style: const TextStyle(fontSize: 15),
+            );
+  }
+
+  String _getMonthName(int monthNumber) {
+    const monthNames = [
+      "Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
+      "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"
+    ];
+    return monthNames[monthNumber - 1];
+  }
 
 
 }

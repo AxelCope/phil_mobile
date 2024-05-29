@@ -35,7 +35,7 @@ class _PageGiveComsState extends State<PageGiveComs> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("GIVECOMS du mois"),
+        title: const Text("GIVECOMS du mois"),
       ),
       body:
       ListView(
@@ -88,9 +88,9 @@ class _PageGiveComsState extends State<PageGiveComs> {
         ),
       );
     }
-    if(!listGivecom.isEmpty)
+    if(listGivecom.isEmpty)
       {
-        return Padding(
+        return const Padding(
           padding: EdgeInsets.only(top:200.0),
           child: Center(
             child: Text("Vous n'avez aucun givecom pour ce mois"),

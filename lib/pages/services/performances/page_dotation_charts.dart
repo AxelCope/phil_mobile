@@ -129,7 +129,6 @@ class _DetailsDotationsState extends State<DetailsDotations> with AutomaticKeepA
         children: [
           SfCartesianChart(
             title: ChartTitle(
-              //text: "Dotation journalière de ${widget.comms.nomCommerciaux}",
               textStyle: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,

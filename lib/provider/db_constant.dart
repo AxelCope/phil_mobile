@@ -64,4 +64,6 @@ const String dbToprofile = "toprofile";
 const String dbDcom = "dealer_commission";
 const String dbPoscom = "pos_commission";
 
+const String dbMonth = "mois";
+
 const String dbVersion = 'version';

@@ -50,7 +50,7 @@ class QueriesProvider {
             "WHERE EXTRACT(MONTH FROM TIMESTAMP) = $month "
             "AND EXTRACT(YEAR FROM TIMESTAMP) = EXTRACT(YEAR FROM CURRENT_DATE) "
             "AND FRMSISDN = $id "
-            "AND TOMSISDN IN (SELECT NUMERO_FLOOZ FROM univers where numero_cagnt = ${id}) "
+            "AND TOMSISDN IN (SELECT NUMERO_FLOOZ FROM univers where numero_cagnt = $id) "
             "GROUP BY tomsisdn "
             ") "
             "SELECT doted.*, COALESCE(dotation.dotreg, 0) AS dotreg "
@@ -311,5 +311,29 @@ class QueriesProvider {
         onError: onError
     );
   }
+
+  Future<void> mois_precedents({
+    required Function(List<Map<String, dynamic>>) onSuccess,
+    required Function(RequestError) onError,
+    required int pdv,
+    bool secure = true
+  }) async {
+    GDirectRequest.select(
+        sql:
+        "select sum(pos_commission) as somme, EXTRACT(MONTH FROM timestamp) as mois "
+        "from transactions "
+         "where (tomsisdn = $pdv or frmsisdn = $pdv ) "
+    "AND EXTRACT(YEAR FROM timestamp) = EXTRACT(YEAR FROM CURRENT_DATE) "
+    "group by mois; "
+    ).exec(
+        secure: secure,
+        onSuccess: (Result result) {
+          onSuccess(result.data);
+        },
+        onError: onError
+    );
+  }
+
+
 
 }

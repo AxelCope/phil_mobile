@@ -99,12 +99,9 @@ class _MyAppState extends State<MyApp> {
       return const VersionDialog();
     }
 
+
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
       home: _initialContent,
     );
   }
