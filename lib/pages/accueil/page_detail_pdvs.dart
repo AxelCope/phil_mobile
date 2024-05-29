@@ -230,8 +230,8 @@ class _PageDetailsPdvState extends State<PageDetailsPdv> {
 
   Future<void>  getSolde() async {
     setState(() {
-      gotCaError = false;
-      gotCa = false;
+      gotSolde = false;
+      gotSoldeError = false;
     });
     await _provider.solde(
       secure: false,
