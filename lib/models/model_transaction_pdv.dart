@@ -1,11 +1,10 @@
 
-
 import 'package:phil_mobile/provider/db_constant.dart';
 
-class Transactions{
+class TransactionsPdv{
   String?  type;
-  String?  frmsisdn;
-  String?  tomsisdn;
+  int?  frmsisdn;
+  int?  tomsisdn;
   int?  amount;
   String?  timestamp;
   int?  pos_balance_before;
@@ -17,7 +16,7 @@ class Transactions{
   int?  dealer_commission;
   int?  pos_commission;
 
-  Transactions({
+  TransactionsPdv({
     this.amount,
     this.dealer_commission,
     this.fr_pos_name,
@@ -33,9 +32,9 @@ class Transactions{
     this.type
   });
 
-  factory Transactions.MapTransact(Map<String, dynamic> map)
+  factory TransactionsPdv.MapTransact(Map<String, dynamic> map)
   {
-    return Transactions(
+    return TransactionsPdv(
         type: map[dbType],
         frmsisdn: map[dbFrms],
         tomsisdn: map[dbToms],

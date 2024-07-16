@@ -1,5 +1,3 @@
-// ignore_for_file: avoid_print
-
 import 'package:calendar_date_picker2/calendar_date_picker2.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -117,7 +115,6 @@ class _PageTransactionsState extends State<PageTransactions> {
         },
         onError: (e) {
           setState(() {
-            print(e);
             gotData = false;
             getDataError = true;
           });
@@ -193,23 +190,54 @@ class _PageTransactionsState extends State<PageTransactions> {
       }
 
     return
-    Card(
-      elevation: 5,
-      child: ClipPath(
-        child: Container(
-          decoration: BoxDecoration(
-            border: Border(
-              left: BorderSide(color: bandColor, width: 5),
+      Card(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(15.0),
+        ),
+        elevation: 8,
+        shadowColor: Colors.grey.withOpacity(0.5), // Ombre plus subtile
+        child: ClipPath(
+          clipper: ShapeBorderClipper(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(15.0), // Coins arrondis pour le ClipPath
             ),
           ),
-          child: ListTile(
-            title: Text(
-              "Montant: ${NumberFormat("#,###,### CFA").format(tr.amount)}",),
-            subtitle: Text("De ${tr.fr_pos_name.toString() == widget.comms.nicknameCommerciaux ? "MOI" : tr.fr_pos_name} à ${ tr.to_pos_name.toString() == widget.comms.nicknameCommerciaux ? "MOI" : tr.to_pos_name} \n\nDate: ${myDate(tr.timestamp)}"),
+          child: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Colors.white, Colors.blue.shade50], // Dégradé de fond
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              border: Border(
+                left: BorderSide(color: bandColor, width: 5), // Bande colorée
+              ),
+            ),
+            padding: const EdgeInsets.all(10.0), // Ajoutez du padding interne
+            child: ListTile(
+              title: Text(
+                "Montant: ${NumberFormat("#,###,### CFA").format(tr.amount)}",
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold, // Texte en gras pour le titre
+                  color: Colors.black87,
+                  fontSize: 16.0, // Taille de police pour le titre
+                ),
+              ),
+              subtitle: Padding(
+                padding: const EdgeInsets.only(top: 8.0), // Espacement entre le titre et le sous-titre
+                child: Text(
+                  "De ${tr.fr_pos_name.toString() == widget.comms.nicknameCommerciaux ? "MOI" : tr.fr_pos_name} à ${ tr.to_pos_name.toString() == widget.comms.nicknameCommerciaux ? "MOI" : tr.to_pos_name}\n\nDate: ${myDate(tr.timestamp)}",
+                  style: const TextStyle(
+                    color: Colors.black54, // Couleur de texte plus douce pour le sous-titre
+                    fontSize: 14.0, // Taille de police pour le sous-titre
+                  ),
+                ),
+              ),
+            ),
           ),
         ),
-      ),
-    );
+      );
+
 
   }
 

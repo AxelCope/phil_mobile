@@ -7,6 +7,7 @@ class ChiffreAffaire
    int? solde;
    int? obj;
    String? comm;
+   int? numero;
    String? date;
 
    ChiffreAffaire({
@@ -14,7 +15,8 @@ class ChiffreAffaire
      this.solde,
    this.obj,
    this.comm,
-     this.date
+     this.date,
+     this.numero
 });
 
    factory ChiffreAffaire.MapChiffresaffaire(Map<String, dynamic> map) {
@@ -49,5 +51,14 @@ class ChiffreAffaire
        comm: map[dbSomme],
      );
    }
+
+   factory ChiffreAffaire.MapRanking(Map<String, dynamic> map) {
+     return ChiffreAffaire(
+       comm: map[dbcommercial],
+       numero: map[dbnumeroFlooz],
+       chiffreAffaire: double.parse(map[dbSomme]),
+     );
+   }
+
 
 }

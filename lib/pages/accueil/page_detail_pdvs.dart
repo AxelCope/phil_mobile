@@ -4,6 +4,7 @@ import 'package:phil_mobile/methods/methods.dart';
 import 'package:phil_mobile/models/model_chiffre_daffaire.dart';
 import 'package:phil_mobile/models/model_point_de_ventes.dart';
 import 'package:phil_mobile/pages/consts.dart';
+import 'package:phil_mobile/pages/services/transactions/pdv_page_transactions.dart';
 import 'package:phil_mobile/provider/queries_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -96,10 +97,14 @@ class _PageDetailsPdvState extends State<PageDetailsPdv> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                     Image.asset("assets/page infos pdvs/income.png", width: 30, color: philMainColor,),
-                    const SizedBox(width: 10,),
-                    _getCa()
+
+                    _getCa(),
+
+                    TextButton(onPressed: (){
+                      nextPage(context, PagePdvTransactions(pdv: widget.pdv));
+                    }, child: const Text("Voir les transactions"))
                   ],
                 ),
                 const SizedBox(height: 15,),
@@ -345,11 +350,17 @@ class _PageDetailsPdvState extends State<PageDetailsPdv> {
           ),
         );
       }
-    return TextButton(
-        onPressed: (){
-          getmoisCom();
-        },
-        child: Text(NumberFormat("#,###,###,### CFA").format(_ca()), style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black),));
+    return Row(
+      children: [
+        Image.asset("assets/page infos pdvs/income.png", width: 30, color: philMainColor,),
+        const SizedBox(width: 10,),
+        TextButton(
+            onPressed: (){
+              getmoisCom();
+            },
+            child: Text(NumberFormat("#,###,###,### CFA").format(_ca()), style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black),)),
+      ],
+    );
   }
 
   _getSolde()

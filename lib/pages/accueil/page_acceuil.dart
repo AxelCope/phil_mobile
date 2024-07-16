@@ -12,8 +12,9 @@ import 'package:phil_mobile/pages/login/page_connexion.dart';
 import 'package:phil_mobile/pages/services/inactifs/page_inactifs.dart';
 import 'package:phil_mobile/pages/services/givecom/page_givecom.dart';
 import 'package:phil_mobile/pages/accueil/settings.dart';
+import 'package:phil_mobile/pages/services/ranking_comms/ranking.dart';
 import 'package:phil_mobile/pages/tabs/tabs.dart';
-import 'package:phil_mobile/pages/services/transactions/page_transactions.dart';
+import 'package:phil_mobile/pages/services/transactions/comm_page_transactions.dart';
 import 'package:phil_mobile/provider/queries_provider.dart';
 
 
@@ -100,6 +101,13 @@ class _HomePageState extends State<HomePage> {
                     leading: SvgPicture.asset('assets/services/transactions.svg', width: 35,),
                     onTap: (){
                       nextPage(context, PageTransactions(comms: widget.comm));
+                    },
+                  ),
+                  ListTile(
+                    title: const Text("Classement"),
+                    leading: SvgPicture.asset('assets/services/rank.svg', width: 35,),
+                    onTap: (){
+                      nextPage(context, RankingPage(widget.comm));
                     },
                   ),
 

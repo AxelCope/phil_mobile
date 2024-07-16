@@ -273,6 +273,33 @@ class QueriesProvider {
         onError: onError
     );
   }
+
+   Future<void> transaction_pdv({
+    required id,
+    required Sdate,
+    required Edate,
+    required Function(List<Map<String, dynamic>>) onSuccess,
+    required Function(RequestError) onError,
+    bool secure = true
+  }) async {
+    GDirectRequest.select(
+        sql:
+        "select * from transactions "
+        "where (frmsisdn = $id or tomsisdn = $id) "
+        "and (DATE(timestamp) >= '$Sdate' and DATE(timestamp) <= '$Edate') "
+            "ORDER BY timestamp "
+    ).exec(
+        secure: secure,
+        onSuccess: (Result result) {
+          onSuccess(result.data);
+        },
+        onError: onError
+    );
+  }
+
+
+
+
  Future<void> solde({
     required id,
     required date,
@@ -311,6 +338,32 @@ class QueriesProvider {
         onError: onError
     );
   }
+
+    Future<void> rankingCommerciaux({
+    required Function(List<Map<String, dynamic>>) onSuccess,
+    required Function(RequestError) onError,
+    bool secure = true
+  }) async {
+    GDirectRequest.select(
+        sql:
+        "SELECT t1.commercial as commercial, SUM(t2.dealer_commission) AS somme "
+            "FROM univers t1 "
+            "JOIN transactions t2 ON t1.numero_flooz = ANY (ARRAY [t2.frmsisdn, t2.tomsisdn]) "
+            "WHERE (EXTRACT(YEAR FROM t2.timestamp) = EXTRACT(YEAR FROM CURRENT_DATE) AND EXTRACT(MONTH FROM t2.timestamp) = EXTRACT(MONTH FROM CURRENT_DATE) ) "
+            "AND t1.commercial <> '#N/A' "
+            "GROUP BY t1.commercial "
+            "ORDER BY somme DESC; "
+    ).exec(
+        secure: secure,
+        onSuccess: (Result result) {
+          onSuccess(result.data);
+        },
+        onError: onError
+    );
+  }
+
+
+
 
   Future<void> mois_precedents({
     required Function(List<Map<String, dynamic>>) onSuccess,

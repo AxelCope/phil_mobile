@@ -26,7 +26,8 @@ class PointDeVente {
    int? dotee;
    bool? status;
    bool checked;
-   TextEditingController comment;
+   DateTime? startDateTimeT;
+   DateTime? endDateTimeT;
 
   PointDeVente({
      this.numeroFlooz,
@@ -53,7 +54,9 @@ class PointDeVente {
      this.status,
      this.dotee,
      this.checked = false,
-  }): comment = TextEditingController();
+     this.endDateTimeT,
+     this.startDateTimeT
+  });
 
 
    factory PointDeVente.MapPdvs(Map<String, dynamic> map) { 
@@ -80,7 +83,9 @@ class PointDeVente {
          numeroCagnt: map[dbnumeroCagnt],
          commercial: map[dbcommercial],
         dotee: map[dbRegContent],
-         status: map[dbRetired]
+         status: map[dbRetired],
+        startDateTimeT: DateTime.now().subtract(const Duration(days: 7)),
+        endDateTimeT: DateTime.now(),
      );
    }
 
