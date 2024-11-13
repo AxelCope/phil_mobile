@@ -582,6 +582,21 @@ void shareReversemnt(String rv)
         subject: "Reversement"
     );
   }
+void shareReinitialisation(String rv, String motif)
+  async{
+    await Share.share(
+        "Motif: *REINITIALISATION* \n\n"
+            "Numéro: ${widget.pdv.numeroFlooz ?? 'Non renseigné'}\n\n"
+            "Nom: ${widget.pdv.nomDuPoint ?? 'Non renseigné'}\n\n"
+            "Numéro privé: ${widget.pdv.numeroProprietaireDuPdv ?? 'Non renseigné'}\n\n"
+            "Nouvelle imsi: $rv\n\n"
+            "Motif réinitialisation: $motif\n\n"
+            "Commercial: ${widget.pdv.commercial ?? 'Non renseigné'}\n\n"
+            // "Date de demande: ${date.day}/${date.month}/${date.hour}, ${date.hour}:${date.minute}\n\n"
+        ,
+        subject: "Reversement"
+    );
+  }
 
   Widget _callPdv(String? phoneNumber) {
     if (phoneNumber != null && phoneNumber.isNotEmpty) {
@@ -823,6 +838,18 @@ void shareReversemnt(String rv)
               OutlinedButton(
                 onPressed: () {
                   Navigator.of(context).pop();
+                  showDialogReinitialisation(context, "Réinitialisation");
+                },
+                child: const Center(
+                  child: Text(
+                    "Réinitialisation",
+                    style: TextStyle(color: Colors.black),
+                  ),
+                ),
+              ),
+              OutlinedButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
                   showIMSIDialogFreecall(context, "Demande de FreeCall");
                 },
                 child: const Center(
@@ -1025,6 +1052,81 @@ void shareReversemnt(String rv)
       },
     );
   }
+  void showDialogReinitialisation(BuildContext context, String title) {
+    final TextEditingController imsiR = TextEditingController();
+    final TextEditingController motif = TextEditingController();
+
+    // Variable to track button state
+    bool isButtonEnabled = false;
+
+    void updateButtonState() {
+      isButtonEnabled = imsiR.text.isNotEmpty && motif.text.isNotEmpty;
+    }
+
+    // Initial check for button state
+    updateButtonState();
+
+    // Listen for changes in the text fields
+    imsiR.addListener(updateButtonState);
+    motif.addListener(updateButtonState);
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: Text(title),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    controller: imsiR,
+                    maxLength: 21,
+                    decoration: const InputDecoration(
+                      labelText: "Entrez l'imsi",
+                    ),
+                    keyboardType: TextInputType.number,
+                    onChanged: (_) {
+                      setState(() {
+                        updateButtonState();
+                      });
+                    },
+                  ),
+                  TextField(
+                    controller: motif,
+                    maxLines: 5,
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: "Renseignez le motif",
+                    ),
+                    keyboardType: TextInputType.text,
+                    onChanged: (_) {
+                      setState(() {
+                        updateButtonState();
+                      });
+                    },
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: isButtonEnabled
+                      ? () {
+                    Navigator.of(context).pop();
+                    shareReinitialisation(imsiR.text, motif.text);
+                  }
+                      : null, // Disable button if fields are empty
+                  child: const Text("Valider"),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
 
 
   Widget commByMonth(ChiffreAffaire cbm)

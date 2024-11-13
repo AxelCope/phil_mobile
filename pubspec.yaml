@@ -37,7 +37,6 @@ dependencies:
   cupertino_icons: ^1.0.2
   provider: ^6.0.5
   map_launcher: ^3.5.0
-  maps_launcher: ^2.2.0
   syncfusion_flutter_charts: ^23.1.41
   syncfusion_flutter_datepicker: ^23.1.41
   calendar_date_picker2: ^0.5.3
