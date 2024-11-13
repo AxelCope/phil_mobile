@@ -48,6 +48,7 @@ const String dbetatDuSupportDeVisibiliteBonMauvais = "etat_du_support_de_visibil
 const String dbnumeroCagnt = "numero_cagnt";
 const String dbcommercial = "commercial";
 
+const String dbIdTransactions = 'referenceid';
 const String dbType = "type";
 const String dbFrms = "frmsisdn";
 const String dbToms = "tomsisdn";

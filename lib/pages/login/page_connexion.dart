@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:hive/hive.dart';
 import 'package:phil_mobile/methods/methods.dart';
 import 'package:phil_mobile/pages/accueil/page_acceuil.dart';
@@ -100,7 +99,7 @@ class _LoginPageState extends State<LoginPage> {
                  },
                 child: Padding(
                   padding: const EdgeInsets.all(15.0),
-                  child: Text( "SE CONNETER", style: GoogleFonts.openSans(fontSize: 20, color: Colors.white, fontWeight: FontWeight.bold)),
+                  child: Text( "SE CONNETER", style: TextStyle(fontSize: 20, color: Colors.white, fontWeight: FontWeight.bold)),
                 )
             ),
             ],

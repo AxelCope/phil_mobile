@@ -4,6 +4,7 @@ import 'package:phil_mobile/provider/db_constant.dart';
 
 class Transactions{
   String?  type;
+  String?  id;
   String?  frmsisdn;
   String?  tomsisdn;
   int?  amount;
@@ -30,13 +31,15 @@ class Transactions{
     this.to_pos_name,
     this.tomsisdn,
     this.toprofile,
-    this.type
+    this.type,
+    this.id
   });
 
   factory Transactions.MapTransact(Map<String, dynamic> map)
   {
     return Transactions(
         type: map[dbType],
+        id: map[dbIdTransactions],
         frmsisdn: map[dbFrms],
         tomsisdn: map[dbToms],
         amount: map[dbAmount],

@@ -56,6 +56,7 @@ class QueriesProvider {
             "SELECT doted.*, COALESCE(dotation.dotreg, 0) AS dotreg "
             "FROM doted "
             "LEFT JOIN dotation ON doted.numero_flooz = dotation.tomsisdn "
+            "ORDER BY dotreg DESC "
     ).exec(
         secure: secure,
         onSuccess: (Result result) {
@@ -387,6 +388,28 @@ class QueriesProvider {
     );
   }
 
+  Future<void> getDealerCA({
+    required pdv,
+    required month,
+    required Function(List<Map<String, dynamic>>) onSuccess,
+    required Function(RequestError) onError,
+    bool secure = false
+  }) async {
+    GDirectRequest.select(
+        sql:
+        "select COALESCE(SUM(dealer_commission), 0) as somme "
+            "from transactions "
+            "where (frmsisdn = $pdv or tomsisdn = $pdv) AND "
+            " (EXTRACT(MONTH FROM TIMESTAMP) = EXTRACT(MONTH FROM CURRENT_DATE) "
+            "AND EXTRACT(YEAR FROM TIMESTAMP) = EXTRACT(YEAR FROM CURRENT_DATE));"
+    ).exec(
+        secure: secure,
+        onSuccess: (Result result) {
+          onSuccess(result.data);
+        },
+        onError: onError
+    );
+  }
 
 
 }

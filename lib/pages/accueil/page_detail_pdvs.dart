@@ -11,6 +11,8 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:intl/intl.dart';
 
 
+
+
 class PageDetailsPdv extends StatefulWidget {
   const PageDetailsPdv({super.key, required this.pdv});
 
@@ -22,7 +24,9 @@ class PageDetailsPdv extends StatefulWidget {
 class _PageDetailsPdvState extends State<PageDetailsPdv> {
 
   DateTime date = DateTime.now();
+  TextEditingController imsi = TextEditingController();
   List<ChiffreAffaire> listCA = [];
+  List<ChiffreAffaire> listDealerCA = [];
   List<ChiffreAffaire> soldeList = [];
   List<ChiffreAffaire> commMonth = [];
   List test = [];
@@ -47,6 +51,7 @@ class _PageDetailsPdvState extends State<PageDetailsPdv> {
   void _initProvider() async{
     _provider = await QueriesProvider.instance;
     getCA();
+    getDalerCA();
     getSolde();
   }
 
@@ -64,7 +69,7 @@ class _PageDetailsPdvState extends State<PageDetailsPdv> {
           IconButton(
               icon: const Icon(Icons.share),
               onPressed: () {
-                sharePoint();
+                shareInformations();
               }
           ),
         ],
@@ -78,15 +83,18 @@ class _PageDetailsPdvState extends State<PageDetailsPdv> {
           Container(
             padding: const EdgeInsets.only(left: 18.0, right: 18, top: 45, bottom: 40),
             decoration: BoxDecoration(
-              color: Colors.grey.shade100
+                color: Colors.grey.shade100
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(widget.pdv.nomDuPoint!, style: const TextStyle(fontSize: 25),),
+                Text(widget.pdv.nomDuPoint!, style: const TextStyle(fontSize: 25), textAlign: TextAlign.center,),
                 const SizedBox(height: 10,),
                 Text(widget.pdv.numeroFlooz!.toString(), style: const TextStyle(fontSize: 21),),
                 const SizedBox(height: 10,),
+                OutlinedButton(onPressed: (){
+                  nextPage(context, PagePdvTransactions(pdv: widget.pdv));
+                }, child: const Text("Voir les transactions"))
               ],
             ),
           ),
@@ -96,21 +104,32 @@ class _PageDetailsPdvState extends State<PageDetailsPdv> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
+                    _getDealerCa(),
+                    const SizedBox(width: 8,),
 
-                    _getCa(),
-
-                    TextButton(onPressed: (){
-                      nextPage(context, PagePdvTransactions(pdv: widget.pdv));
-                    }, child: const Text("Voir les transactions"))
+                    Text("(Commissions Dealer)" )
                   ],
                 ),
+
+                const SizedBox(height: 12,),
+
+
+                Row(
+                  children: [
+                    _getCa(),
+                    const SizedBox(width: 8,),
+
+                    Text("(Commissions PDV)" )
+                  ],
+                ),
+
                 const SizedBox(height: 15,),
                 Row(
                   children: [
-                     Image.asset("assets/page infos pdvs/wallet.png", width: 30),
+                    Image.asset("assets/page infos pdvs/wallet.png", width: 30),
                     const SizedBox(width: 16,),
                     _getSolde(),
                     const SizedBox(width: 8,),
@@ -119,11 +138,11 @@ class _PageDetailsPdvState extends State<PageDetailsPdv> {
                 ),
                 const SizedBox(height: 30,),
                 Text("Profile: ${widget.pdv.profil ?? '(Non renseigné)'}", style: const TextStyle(fontWeight: FontWeight.bold),),
-                const SizedBox(height: 20,),
+                const SizedBox(height: 25,),
                 Text("Numero du propirétaire: ${widget.pdv.numeroProprietaireDuPdv ?? '(Non renseigné)'} ( ${widget.pdv.sexeDuGerant ?? '(Non renseigné)'})", style: const TextStyle(fontWeight: FontWeight.bold),),
-                const SizedBox(height: 5,),
-               _callPdv(widget.pdv.numeroProprietaireDuPdv),
-                const SizedBox(height: 20,),
+                const SizedBox(height: 25,),
+                _callPdv(widget.pdv.numeroProprietaireDuPdv),
+                const SizedBox(height: 25,),
                 Text("Type d'activité: ${widget.pdv.typeDactivite ?? '(Non renseigné)'}", style: const TextStyle(fontWeight: FontWeight.bold),),
                 const SizedBox(height: 20,),
                 Container(
@@ -158,7 +177,7 @@ class _PageDetailsPdvState extends State<PageDetailsPdv> {
                             double dl = double.parse(widget.pdv.longitude!);
                             double dL = double.parse(widget.pdv.latitude!);
                             final availableMaps =
-                                await MapLauncher.installedMaps;
+                            await MapLauncher.installedMaps;
                             await availableMaps.first.showDirections(
                               destination: Coords(dL, dl),
                             );
@@ -169,7 +188,7 @@ class _PageDetailsPdvState extends State<PageDetailsPdv> {
                         },
                         child: Card(
                           shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(20)
+                              borderRadius: BorderRadius.circular(20)
                           ),
                           child: const Padding(
                             padding: EdgeInsets.all(13.0),
@@ -219,6 +238,34 @@ class _PageDetailsPdvState extends State<PageDetailsPdv> {
           for(var element in r)
           {
             listCA.add(ChiffreAffaire.MapChiffresaffaire(element));
+          }
+          gotCa = true;
+          gotCaError = false;
+        });
+      },
+      onError: (e) {
+        setState(() {
+          gotCaError = true;
+          gotCa = true;
+        });
+      },
+    );
+  }
+
+  Future<void>  getDalerCA() async {
+    setState(() {
+      gotCaError = false;
+      gotCa = false;
+    });
+    await _provider.getDealerCA(
+      secure: false,
+      pdv: widget.pdv.numeroFlooz,
+      month: date.month,
+      onSuccess: (r) {
+        setState(() {
+          for(var element in r)
+          {
+            listDealerCA.add(ChiffreAffaire.MapChiffresaffaire(element));
           }
           gotCa = true;
           gotCaError = false;
@@ -301,12 +348,23 @@ class _PageDetailsPdvState extends State<PageDetailsPdv> {
 
   _ca()
   {
-     double ca = 0;
+    double ca = 0;
     if(listCA.isNotEmpty)
-      {
-        ca = listCA[0].chiffreAffaire!;
-        return ca;
-      }
+    {
+      ca = listCA[0].chiffreAffaire!;
+      return ca;
+    }
+    return ca;
+  }
+
+  _dealerCa()
+  {
+    double ca = 0;
+    if(listDealerCA.isNotEmpty)
+    {
+      ca = listDealerCA[0].chiffreAffaire!;
+      return ca;
+    }
     return ca;
   }
 
@@ -334,31 +392,74 @@ class _PageDetailsPdvState extends State<PageDetailsPdv> {
       );
     }
     if(gotCaError)
-      {
-        return Center(
-          child: Column(
-            children: [
+    {
+      return Center(
+        child: Column(
+          children: [
 
-              TextButton(
-                child: const Text("Réessayer", style: TextStyle(color: Colors.green),), onPressed: () {
-                setState(() {
-                  listCA.clear();
-                  getCA();
-                });
-              },),
-            ],
-          ),
-        );
-      }
+            TextButton(
+              child: const Text("Réessayer", style: TextStyle(color: Colors.green),), onPressed: () {
+              setState(() {
+                listCA.clear();
+                getCA();
+              });
+            },),
+          ],
+        ),
+      );
+    }
     return Row(
       children: [
         Image.asset("assets/page infos pdvs/income.png", width: 30, color: philMainColor,),
-        const SizedBox(width: 10,),
+        const SizedBox(width: 3,),
         TextButton(
             onPressed: (){
               getmoisCom();
             },
             child: Text(NumberFormat("#,###,###,### CFA").format(_ca()), style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black),)),
+      ],
+    );
+  }
+
+  _getDealerCa()
+  {
+    if(!gotCa)
+    {
+      return const SizedBox(
+        width: 10,
+        height: 10,
+        child: CircularProgressIndicator(
+          strokeAlign: 1,
+          valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
+        ),
+      );
+    }
+    if(gotCaError)
+    {
+      return Center(
+        child: Column(
+          children: [
+
+            TextButton(
+              child: const Text("Réessayer", style: TextStyle(color: Colors.green),), onPressed: () {
+              setState(() {
+                listDealerCA.clear();
+                getCA();
+              });
+            },),
+          ],
+        ),
+      );
+    }
+    return Row(
+      children: [
+        Icon(Icons.home_work_outlined),
+        const SizedBox(width: 10,),
+        TextButton(
+            onPressed: (){
+              getmoisCom();
+            },
+            child: Text(NumberFormat("#,###,###,### CFA").format(_dealerCa()), style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black),)),
       ],
     );
   }
@@ -377,25 +478,30 @@ class _PageDetailsPdvState extends State<PageDetailsPdv> {
       );
     }
     if(gotSoldeError)
-      {
-        return Center(
-          child: Column(
-            children: [
-              TextButton(
-                child: const Text("Réessayer", style: TextStyle(color: Colors.green),), onPressed: () {
-                setState(() {
-                  soldeList.clear();
-                  getSolde();
-                });
-              },),
-            ],
-          ),
-        );
-      }
+    {
+      return Center(
+        child: Column(
+          children: [
+            TextButton(
+              child: const Text("Réessayer", style: TextStyle(color: Colors.green),), onPressed: () {
+              setState(() {
+                soldeList.clear();
+                getSolde();
+              });
+            },),
+          ],
+        ),
+      );
+    }
     return Text(NumberFormat("#,###,###,### CFA").format(_solde()), style: const TextStyle(fontWeight: FontWeight.bold),);
   }
 
-  void sharePoint()
+  void shareInformations()
+  async{
+    showOptionsDialog(context);
+  }
+
+  void sharePointInformations()
   async{
     await Share.share(
         "Numéro: ${widget.pdv.numeroFlooz ?? 'Non renseigné'}\n\n"
@@ -404,7 +510,76 @@ class _PageDetailsPdvState extends State<PageDetailsPdv> {
             "Quartier: ${widget.pdv.quartier ?? 'Non renseigné'}\n\n"
             "Localisation: ${widget.pdv.localisation ?? 'Non renseigné'}\n\n"
             "Commercial: ${widget.pdv.commercial ?? 'Non renseigné'}\n\n",
-      subject: "Informations du point"
+        subject: "Informations du point"
+    );
+  }
+
+  void shareFreecall(String imsi)
+  async{
+    await Share.share(
+            "Motif: *FREECALL + NOTIFICATIONS* \n\n"
+            "Numéro: ${widget.pdv.numeroFlooz ?? 'Non renseigné'}\n\n"
+                "IMSI: $imsi\n\n"
+                "Numéro privé: ${widget.pdv.numeroProprietaireDuPdv ?? 'Non renseigné'}\n\n"
+                "Nom: ${widget.pdv.nomDuPoint ?? 'Non renseigné'}\n\n"
+            "Commercial: ${widget.pdv.commercial ?? 'Non renseigné'}\n\n"
+                // "Date de demande: ${date.day}/${date.month}/${date.hour}, ${date.hour}:${date.minute}\n\n"
+        ,
+        subject: "Free Call"
+    );
+  }
+  void shareSwappGrille(String imsi)
+  async{
+    await Share.share(
+        "Motif: *SIM GRILLÉE* \n\n"
+        "Numéro: ${widget.pdv.numeroFlooz ?? 'Non renseigné'}\n\n"
+            "Nom: ${widget.pdv.nomDuPoint ?? 'Non renseigné'}\n\n"
+            "Numéro privé: ${widget.pdv.numeroProprietaireDuPdv ?? 'Non renseigné'}\n\n"
+            "Nouvelle imsi: $imsi\n\n"
+            "Région: ${widget.pdv.region}\n\n"
+            "Ville: ${widget.pdv.canton}\n\n"
+            "Quartier: ${widget.pdv.quartier ?? 'Non renseigné'}\n\n"
+            "Latitude: ${widget.pdv.latitude}\n\n"
+            "Longitude: ${widget.pdv.longitude}\n\n"
+            "Localisation: ${widget.pdv.localisation ?? 'Non renseigné'}\n\n"
+            "Commercial: ${widget.pdv.commercial ?? 'Non renseigné'}\n\n"
+            // "Date de demande: ${date.day}/${date.month}/${date.hour}, ${date.hour}:${date.minute}\n\n"
+        ,
+        subject: "SIM GRILLÉE"
+    );
+  }
+void shareSwappEgare(String imsi)
+  async{
+    await Share.share(
+        "Motif: *SIM ÉGARÉE* \n\n"
+            "Numéro: ${widget.pdv.numeroFlooz ?? 'Non renseigné'}\n\n"
+            "Nom: ${widget.pdv.nomDuPoint ?? 'Non renseigné'}\n\n"
+            "Numéro privé: ${widget.pdv.numeroProprietaireDuPdv ?? 'Non renseigné'}\n\n"
+            "Nouvelle imsi: $imsi\n\n"
+            "Région: ${widget.pdv.region}\n\n"
+            "Ville: ${widget.pdv.canton}\n\n"
+            "Quartier: ${widget.pdv.quartier ?? 'Non renseigné'}\n\n"
+            "Latitude: ${widget.pdv.latitude}\n\n"
+            "Longitude: ${widget.pdv.longitude}\n\n"
+            "Localisation: ${widget.pdv.localisation ?? 'Non renseigné'}\n\n"
+            "Commercial: ${widget.pdv.commercial ?? 'Non renseigné'}\n\n"
+            // "Date de demande: ${date.day}/${date.month}/${date.hour}, ${date.hour}:${date.minute}\n\n"
+        ,
+        subject: "SIM ÉGARÉE"
+    );
+  }
+void shareReversemnt(String rv)
+  async{
+    await Share.share(
+        "Motif: *Problèmes de reversement* \n\n"
+            "Numéro: ${widget.pdv.numeroFlooz ?? 'Non renseigné'}\n\n"
+            "Nom: ${widget.pdv.nomDuPoint ?? 'Non renseigné'}\n\n"
+            "Numéro privé: ${widget.pdv.numeroProprietaireDuPdv ?? 'Non renseigné'}\n\n"
+            "Nouveau numero de reversement: $rv\n\n"
+            "Commercial: ${widget.pdv.commercial ?? 'Non renseigné'}\n\n"
+            // "Date de demande: ${date.day}/${date.month}/${date.hour}, ${date.hour}:${date.minute}\n\n"
+        ,
+        subject: "Reversement"
     );
   }
 
@@ -462,9 +637,9 @@ class _PageDetailsPdvState extends State<PageDetailsPdv> {
                         path: numbers[index],
                       );
                       if (await canLaunchUrl(phoneLaunchUri)) {
-                      showErrorMessage(context, "Une erreur est survenues, veuillez réessayer");
+                        showErrorMessage(context, "Une erreur est survenues, veuillez réessayer");
                       } else {
-                      await launchUrl(phoneLaunchUri);
+                        await launchUrl(phoneLaunchUri);
                       }
                     },
                     style: ElevatedButton.styleFrom(
@@ -495,7 +670,6 @@ class _PageDetailsPdvState extends State<PageDetailsPdv> {
   }
 
   Future<void> _seeCommMonth() async {
-
     return showDialog<void>(
       context: context,
       barrierDismissible: false,
@@ -543,6 +717,7 @@ class _PageDetailsPdvState extends State<PageDetailsPdv> {
       },
     );
   }
+
   Future<void> _nothing() async {
 
     return showDialog<void>(
@@ -580,8 +755,8 @@ class _PageDetailsPdvState extends State<PageDetailsPdv> {
       },
     );
   }
-  Future<void> _error() async {
 
+  Future<void> _error() async {
     return showDialog<void>(
       context: context,
       builder: (BuildContext context) {
@@ -623,12 +798,241 @@ class _PageDetailsPdvState extends State<PageDetailsPdv> {
   }
 
 
+  void showOptionsDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Options"),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              OutlinedButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  sharePointInformations();
+                },
+                child: const Center(
+                  child: Text(
+                    "Envoyer les informations du point",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: Colors.black,),
+                  ),
+                ),
+              ),
+              OutlinedButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  showIMSIDialogFreecall(context, "Demande de FreeCall");
+                },
+                child: const Center(
+                  child: Text(
+                    "Demande de FreeCall",
+                    style: TextStyle(color: Colors.black),
+                  ),
+                ),
+              ),
+              OutlinedButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  showSwappDialog(context);
+                },
+                child: const Center(
+                  child: Text(
+                    "Swapps",
+                    style: TextStyle(color: Colors.black),
+                  ),
+                ),
+              ),
+              OutlinedButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  showDialogReversement(context, "Reversement");
+                },
+                child: const Center(
+                  child: Text(
+                    "Problème de reversement",
+                    style: TextStyle(color: Colors.black),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+
+  void showSwappDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Demande de Swapp"),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              OutlinedButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  // Appeler showIMSIDialogGrille avec le titre "Sim grillé"
+                  showIMSIDialogGrille(context, "Sim grillée");
+                },
+                child: const Center(
+                  child: Text(
+                    "Sim grillée",
+                    style: TextStyle(color: Colors.black),
+                  ),
+                ),
+              ),
+              OutlinedButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  // Appeler showIMSIDialogEgare avec le titre "Sim égaré"
+                  showIMSIDialogEgare(context, "Sim égarée");
+                },
+                child: const Center(
+                  child: Text(
+                    "Sim égarée",
+                    style: TextStyle(color: Colors.black),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void showIMSIDialogFreecall(BuildContext context, String title) {
+    final TextEditingController imsiController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(title),
+          content: TextField(
+            controller: imsiController,
+            maxLength: 21, // Limite à 12 caractères
+            decoration: const InputDecoration(
+              labelText: "Entrez le code IMSI",
+            ),
+            keyboardType: TextInputType.number,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                shareFreecall(imsiController.text);
+                print("Code IMSI saisi: ${imsiController.text}");
+              },
+              child: const Text("Valider"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+  void showIMSIDialogGrille(BuildContext context, String title) {
+    final TextEditingController imsiController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(title),
+          content: TextField(
+            controller: imsiController,
+            maxLength: 21, // Limite à 12 caractères
+            decoration: const InputDecoration(
+              labelText: "Entrez le code IMSI",
+            ),
+            keyboardType: TextInputType.number,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                shareSwappGrille(imsiController.text);
+                print("Code IMSI saisi: ${imsiController.text}");
+              },
+              child: const Text("Valider"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+  void showIMSIDialogEgare(BuildContext context, String title) {
+    final TextEditingController imsiController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(title),
+          content: TextField(
+            controller: imsiController,
+            maxLength: 21, // Limite à 12 caractères
+            decoration: const InputDecoration(
+              labelText: "Entrez le code IMSI",
+            ),
+            keyboardType: TextInputType.number,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                shareSwappEgare(imsiController.text);
+                print("Code IMSI saisi: ${imsiController.text}");
+              },
+              child: const Text("Valider"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+  void showDialogReversement(BuildContext context, String title) {
+    final TextEditingController numeroReversement = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(title),
+          content: TextField(
+            controller: numeroReversement,
+            maxLength: 21, // Limite à 12 caractères
+            decoration: const InputDecoration(
+              labelText: "Entrez le numéro de reversement",
+            ),
+            keyboardType: TextInputType.number,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                shareReversemnt(numeroReversement.text);
+              },
+              child: const Text("Valider"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+
   Widget commByMonth(ChiffreAffaire cbm)
   {
-            return Text(
-                "${_getMonthName(int.parse(cbm.date?? '-'))} : ${NumberFormat("#,###,###,### CFA").format(cbm.chiffreAffaire)}",
-                    style: const TextStyle(fontSize: 15),
-            );
+    return Text(
+      "${_getMonthName(int.parse(cbm.date?? '-'))} : ${NumberFormat("#,###,###,### CFA").format(cbm.chiffreAffaire)}",
+      style: const TextStyle(fontSize: 15),
+    );
   }
 
   String _getMonthName(int monthNumber) {

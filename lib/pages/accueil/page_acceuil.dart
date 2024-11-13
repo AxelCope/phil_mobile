@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:hive/hive.dart';
 import 'package:phil_mobile/methods/methods.dart';
 import 'package:phil_mobile/models/model_chiffre_daffaire.dart';
@@ -197,11 +196,11 @@ class _HomePageState extends State<HomePage> {
             onChanged: _search,
           controller: _searchFieldController,
           cursorColor:  philMainColor,
-          style: GoogleFonts.dmSans(color: Colors.black.withOpacity(0.6)),
+          style: TextStyle(color: Colors.black.withOpacity(0.6)),
           decoration: InputDecoration(
               prefixIcon: Icon(Icons.search, size: 25, color:  hexToColor('#AAA6B9'),),
               hintText: "Rechercher un point de vente",
-              hintStyle: GoogleFonts.dmSans(color: Colors.black, fontSize: 13),
+              hintStyle: TextStyle(color: Colors.black, fontSize: 13),
               filled: true,
               suffixIcon: _searchFieldController.text.isNotEmpty ? IconButton(
                 onPressed: (){

@@ -119,6 +119,7 @@ class _PagePdvTransactionsState extends State<PagePdvTransactions> {
         },
         onError: (e) {
           setState(() {
+            print(e);
             gotData = false;
             getDataError = true;
           });
@@ -230,7 +231,8 @@ class _PagePdvTransactionsState extends State<PagePdvTransactions> {
               subtitle: Padding(
                 padding: const EdgeInsets.only(top: 10.0), // Espacement entre le titre et le sous-titre
                 child: Text(
-                  "De ${tr.fr_pos_name.toString() == widget.pdv.commercial ? "MOI" : tr.fr_pos_name} à ${ tr.to_pos_name.toString() == widget.pdv.commercial ? "MOI" : tr.to_pos_name} \nCommission générée: ${NumberFormat("#,###,### CFA").format(tr.pos_commission)}\n\nDate: ${myDate(tr.timestamp)}",
+                  "De ${tr.fr_pos_name.toString() == widget.pdv.commercial ? "MOI" : tr.fr_pos_name} à ${ tr.to_pos_name.toString() == widget.pdv.commercial ? "MOI" : tr.to_pos_name} \nCommission générée: ${NumberFormat("#,###,### CFA").format(tr.pos_commission)}\n\nDate: ${myDate(tr.timestamp)}"
+                      "\nRéférence (ID): ${tr.id}",
                   style: const TextStyle(
                     color: Colors.black54, // Couleur de texte plus douce pour le sous-titre
                   ),
@@ -338,22 +340,24 @@ class _PagePdvTransactionsState extends State<PagePdvTransactions> {
           "Transactions du ${widget.pdv.startDateTimeT == widget.pdv.endDateTimeT ?
           '${widget.pdv.startDateTimeT!.day}-${widget.pdv.startDateTimeT!.month}-${widget.pdv.startDateTimeT!.year}' :
           '${widget.pdv.startDateTimeT!.day}-${widget.pdv.startDateTimeT!.month}-${widget.pdv.startDateTimeT!.year} au ${widget.pdv.endDateTimeT!.day}-${widget.pdv.endDateTimeT!.month}-${widget.pdv.endDateTimeT!.year}'}",
-          syncfusion.PdfStandardFont(syncfusion.PdfFontFamily.helvetica, 16, style: syncfusion.PdfFontStyle.bold),
+          syncfusion.PdfStandardFont(syncfusion.PdfFontFamily.helvetica, 13, style: syncfusion.PdfFontStyle.bold),
           bounds: const Rect.fromLTWH(0, 60, 0, 40),
         );
       }
 
       // Add the columns
-      grid.columns.add(count: 6);
+      grid.columns.add(count: 8);
 
       // Add the headers
       final syncfusion.PdfGridRow headerRow = grid.headers.add(1)[0];
       headerRow.cells[0].value = 'Type';
-      headerRow.cells[1].value = 'Montant';
-      headerRow.cells[2].value = 'Date';
-      headerRow.cells[3].value = 'Expéditeur';
-      headerRow.cells[4].value = 'Destinataire';
-      headerRow.cells[5].value = 'Commission';
+      headerRow.cells[1].value = 'Solde avant Tr';
+      headerRow.cells[2].value = 'Montant';
+      headerRow.cells[3].value = 'Solde après Tr';
+      headerRow.cells[4].value = 'Date';
+      headerRow.cells[5].value = 'Expéditeur';
+      headerRow.cells[6].value = 'Destinataire';
+      headerRow.cells[7].value = 'Commission';
 
       // Apply styles to header
       for (int j = 0; j < headerRow.cells.count; j++) {
@@ -368,11 +372,13 @@ class _PagePdvTransactionsState extends State<PagePdvTransactions> {
         final transaction = listTransaction[j];
         final syncfusion.PdfGridRow row = grid.rows.add();
         row.cells[0].value = transaction.type == 'CSIN' ? 'DÉPÔT' : 'RETRAIT';
-        row.cells[1].value = NumberFormat("#,###,### CFA").format(transaction.amount).toString();
-        row.cells[2].value = myDate(transaction.timestamp);
-        row.cells[3].value = transaction.frmsisdn == widget.pdv.numeroFlooz ? 'MOI' : transaction.frmsisdn.toString();
-        row.cells[4].value = transaction.tomsisdn == widget.pdv.numeroFlooz ? 'MOI' : transaction.tomsisdn.toString();
-        row.cells[5].value = NumberFormat("#,###,### CFA").format(transaction.pos_commission);
+        row.cells[1].value = NumberFormat("#,###,### CFA").format(transaction.pos_balance_before).toString();
+        row.cells[2].value = NumberFormat("#,###,### CFA").format(transaction.amount).toString();
+        row.cells[3].value = NumberFormat("#,###,### CFA").format(transaction.pos_balance_after).toString();
+        row.cells[4].value = myDate(transaction.timestamp);
+        row.cells[5].value = transaction.frmsisdn == widget.pdv.numeroFlooz ? 'MOI' : transaction.frmsisdn.toString();
+        row.cells[6].value = transaction.tomsisdn == widget.pdv.numeroFlooz ? 'MOI' : transaction.tomsisdn.toString();
+        row.cells[7].value = NumberFormat("#,###,### CFA").format(transaction.pos_commission);
 
         totalCommission += transaction.pos_commission!;
 
@@ -389,7 +395,7 @@ class _PagePdvTransactionsState extends State<PagePdvTransactions> {
         final syncfusion.PdfGridRow totalRow = grid.rows.add();
         totalRow.cells[0].value = 'Total';
         totalRow.cells[0].columnSpan = 5;  // Merge the first 5 cells
-        totalRow.cells[5].value = NumberFormat("#,###,### CFA").format(totalCommission).toString();
+        totalRow.cells[7].value = NumberFormat("#,###,### CFA").format(totalCommission).toString();
 
         // Apply styles to total row
         for (int k = 0; k < totalRow.cells.count; k++) {
