@@ -35,7 +35,15 @@ class _PageGiveComsState extends State<PageGiveComs> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("GIVECOMS du mois"),
+        title: Text(
+          "Total givecom: ${NumberFormat("#,###,###,### CFA").format(givecomTotalAvecFrais())}",
+          style: const TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.bold,
+            color: Colors.green,
+          ),
+        )
+
       ),
       body:
       ListView(
@@ -191,4 +199,13 @@ class _PageGiveComsState extends State<PageGiveComs> {
       },
     );
   }
+
+  double givecomTotalAvecFrais() {
+    double total = 0.0;
+    for (var gv in listGivecom) {
+      total += (gv.montant ?? 0.0) * 0.001;
+    }
+    return total;
+  }
+
 }

@@ -110,7 +110,7 @@ class _PageDetailsPdvState extends State<PageDetailsPdv> {
                     _getDealerCa(),
                     const SizedBox(width: 8,),
 
-                    Text("(Commissions Dealer)" )
+                    Text("(Commissions Dealer)" , style: TextStyle( fontSize: 12 ))
                   ],
                 ),
 
@@ -122,7 +122,7 @@ class _PageDetailsPdvState extends State<PageDetailsPdv> {
                     _getCa(),
                     const SizedBox(width: 8,),
 
-                    Text("(Commissions PDV)" )
+                    Text("(Commissions PDV)" , style: TextStyle( fontSize: 12 ))
                   ],
                 ),
 
@@ -133,7 +133,7 @@ class _PageDetailsPdvState extends State<PageDetailsPdv> {
                     const SizedBox(width: 16,),
                     _getSolde(),
                     const SizedBox(width: 8,),
-                    Text("(Solde du ${date.year}-${date.month}-${date.day} à 5h)" )
+                    Text("(Solde à 5h00)", style: TextStyle( fontSize: 12 ))
                   ],
                 ),
                 const SizedBox(height: 30,),
@@ -523,7 +523,7 @@ class _PageDetailsPdvState extends State<PageDetailsPdv> {
                 "Numéro privé: ${widget.pdv.numeroProprietaireDuPdv ?? 'Non renseigné'}\n\n"
                 "Nom: ${widget.pdv.nomDuPoint ?? 'Non renseigné'}\n\n"
             "Commercial: ${widget.pdv.commercial ?? 'Non renseigné'}\n\n"
-                // "Date de demande: ${date.day}/${date.month}/${date.hour}, ${date.hour}:${date.minute}\n\n"
+
         ,
         subject: "Free Call"
     );

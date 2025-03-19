@@ -177,12 +177,15 @@ class _PageInactifsState extends State<PageInactifs> {
           for (var element in cms) {
             inactivite.add(PointDeVente.MapPdvs(element));
           }
+
+
           gotInactifsError = false;
           gettingInactifs = false;
         });
       },
       onError: (error) {
         setState(() {
+          print(error);
           gotInactifsError = true;
           gettingInactifs = false;
         });

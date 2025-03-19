@@ -89,7 +89,7 @@ class _PagePdvTransactionsState extends State<PagePdvTransactions> {
           ),
         ],
         centerTitle: true,
-        title:  const Text("Transactions"),
+        title:  Text("Total: ${NumberFormat("#,###,### CFA").format(commTotal())}", style: TextStyle(fontSize: 13), ),
       ),
       body: allTransactions(),
     );
@@ -231,10 +231,17 @@ class _PagePdvTransactionsState extends State<PagePdvTransactions> {
               subtitle: Padding(
                 padding: const EdgeInsets.only(top: 10.0), // Espacement entre le titre et le sous-titre
                 child: Text(
-                  "De ${tr.fr_pos_name.toString() == widget.pdv.commercial ? "MOI" : tr.fr_pos_name} à ${ tr.to_pos_name.toString() == widget.pdv.commercial ? "MOI" : tr.to_pos_name} \nCommission générée: ${NumberFormat("#,###,### CFA").format(tr.pos_commission)}\n\nDate: ${myDate(tr.timestamp)}"
-                      "\nRéférence (ID): ${tr.id}",
+                  "De ${tr.fr_pos_name.toString() == widget.pdv.commercial ? "MOI" : tr.fr_pos_name} "
+                      "à ${ tr.to_pos_name.toString() == widget.pdv.commercial ? "MOI" : tr.to_pos_name}"
+                      " \nCommission générée: ${NumberFormat("#,###,### CFA").format(tr.pos_commission)}\n\n"
+                      "Date: ${myDate(tr.timestamp)}"
+                      "\n\nSolde:"
+                      "\npre-transaction: ${NumberFormat("#,###,### CFA").format(tr.pos_balance_before)}"
+                      "\npost-transaction: ${NumberFormat("#,###,### CFA").format(tr.pos_balance_after)}"
+                      "\n\nRéférence (ID): ${tr.id}",
                   style: const TextStyle(
-                    color: Colors.black54, // Couleur de texte plus douce pour le sous-titre
+                    color: Colors.black54,
+                    fontSize: 12// Couleur de texte plus douce pour le sous-titre
                   ),
                 ),
               ),
@@ -294,7 +301,13 @@ class _PagePdvTransactionsState extends State<PagePdvTransactions> {
     return "$day-$month-$year $hour:$minute";
   }
 
-
+  double commTotal() {
+    double total = 0.0;
+    for (var cm in listTransaction) {
+      total += (cm.pos_commission ?? 0);
+    }
+    return total;
+  }
 
   void generatePdfAndShare(BuildContext context) async {
     // Create a new PDF document

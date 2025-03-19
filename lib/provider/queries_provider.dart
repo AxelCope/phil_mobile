@@ -216,9 +216,15 @@ class QueriesProvider {
     GDirectRequest.select(
       sql:
       "SELECT * "
-          "FROM univers "
-          "WHERE (NUMERO_FLOOZ NOT IN (SELECT frmsisdn FROM transactions WHERE EXTRACT(MONTH FROM TIMESTAMP) = $startDate AND EXTRACT(YEAR FROM TIMESTAMP) = EXTRACT(YEAR FROM CURRENT_DATE)) AND NUMERO_FLOOZ NOT IN (SELECT tomsisdn FROM transactions WHERE EXTRACT(MONTH FROM TIMESTAMP) = $startDate AND EXTRACT(YEAR FROM TIMESTAMP) = EXTRACT(YEAR FROM CURRENT_DATE))) "
-          "AND numero_cagnt =  $cmId AND status = True; "
+          "FROM univers u "
+          "WHERE numero_cagnt = $cmId "
+          "AND NOT EXISTS ("
+          "SELECT 1 "
+          "FROM transactions t "
+          "WHERE (t.frmsisdn = u.NUMERO_FLOOZ OR t.tomsisdn = u.NUMERO_FLOOZ) "
+          "AND EXTRACT(MONTH FROM t.TIMESTAMP) = $startDate "
+          "AND EXTRACT(YEAR FROM t.TIMESTAMP) = EXTRACT(YEAR FROM CURRENT_DATE) "
+          ");"
       ,
     ).exec(
         secure: secure,
@@ -347,13 +353,19 @@ class QueriesProvider {
   }) async {
     GDirectRequest.select(
         sql:
-        "SELECT t1.commercial as commercial, SUM(t2.dealer_commission) AS somme "
-            "FROM univers t1 "
-            "JOIN transactions t2 ON t1.numero_flooz = ANY (ARRAY [t2.frmsisdn, t2.tomsisdn]) "
-            "WHERE (EXTRACT(YEAR FROM t2.timestamp) = EXTRACT(YEAR FROM CURRENT_DATE) AND EXTRACT(MONTH FROM t2.timestamp) = EXTRACT(MONTH FROM CURRENT_DATE) ) "
-            "AND t1.commercial <> '#N/A' "
-            "GROUP BY t1.commercial "
-            "ORDER BY somme DESC; "
+        "SELECT "
+        "t1.commercial, "
+        "SUM(t2.dealer_commission) AS somme "
+        "FROM univers t1 "
+        "INNER JOIN transactions t2 "
+        "ON t1.numero_flooz = t2.frmsisdn "
+        "OR t1.numero_flooz = t2.tomsisdn "
+        "WHERE "
+        "DATE_TRUNC('month', t2.timestamp) = DATE_TRUNC('month', CURRENT_DATE) "
+        "GROUP BY "
+        "t1.commercial "
+        "ORDER BY "
+        "somme DESC; "
     ).exec(
         secure: secure,
         onSuccess: (Result result) {

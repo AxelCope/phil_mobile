@@ -158,6 +158,7 @@ class _RankingPageState extends State<RankingPage> {
       },
       onError: (e) {
         setState(() {
+          print(e);
           isLoading = false;
           previousPage(context);
         });
