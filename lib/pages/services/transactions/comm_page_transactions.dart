@@ -227,7 +227,9 @@ class _PageTransactionsState extends State<PageTransactions> {
               subtitle: Padding(
                 padding: const EdgeInsets.only(top: 8.0), // Espacement entre le titre et le sous-titre
                 child: Text(
-                  "De ${tr.fr_pos_name.toString() == widget.comms.nicknameCommerciaux ? "MOI" : tr.fr_pos_name} à ${ tr.to_pos_name.toString() == widget.comms.nicknameCommerciaux ? "MOI" : tr.to_pos_name}\n\nDate: ${myDate(tr.timestamp)}"
+                  "De ${tr.fr_pos_name.toString() == widget.comms.nicknameCommerciaux ? "MOI" : tr.fr_pos_name} à ${ tr.to_pos_name.toString() == widget.comms.nicknameCommerciaux ? "MOI" : tr.to_pos_name}"
+                      "\n${tr.frmsisdn_dealer} -> ${tr.tomsisdn_dealer}"
+                      "\n\nDate: ${myDate(tr.timestamp)}"
                       "\nRéférence (ID): ${tr.id}",
                   style: const TextStyle(
                     color: Colors.black54, // Couleur de texte plus douce pour le sous-titre

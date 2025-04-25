@@ -15,6 +15,8 @@ class Transactions{
   String?  to_pos_name;
   String?  frprofile;
   String?  toprofile;
+  String?  frmsisdn_dealer;
+  String?  tomsisdn_dealer;
   int?  dealer_commission;
   int?  pos_commission;
 
@@ -32,6 +34,8 @@ class Transactions{
     this.tomsisdn,
     this.toprofile,
     this.type,
+    this.frmsisdn_dealer,
+    this.tomsisdn_dealer,
     this.id
   });
 
@@ -51,7 +55,9 @@ class Transactions{
         frprofile: map[dbFrprofile],
         toprofile: map[dbToprofile],
         dealer_commission: map[dbDcom],
-        pos_commission: map[dbPoscom]
+        pos_commission: map[dbPoscom],
+      frmsisdn_dealer: map[dbfrDealerName],
+      tomsisdn_dealer: map[dbtoDealerName]
     );
   }
 

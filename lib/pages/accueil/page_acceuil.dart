@@ -16,11 +16,10 @@ import 'package:phil_mobile/pages/tabs/tabs.dart';
 import 'package:phil_mobile/pages/services/transactions/comm_page_transactions.dart';
 import 'package:phil_mobile/provider/queries_provider.dart';
 
-
 class HomePage extends StatefulWidget {
   const HomePage({super.key, required this.comm});
 
-  final Comms comm ;
+  final Comms comm;
   @override
   State<HomePage> createState() => _HomePageState();
 }
@@ -35,8 +34,8 @@ class _HomePageState extends State<HomePage> {
   DateTime date = DateTime.now();
   bool gotPdvs = true;
   bool gotPdvsError = false;
-
-
+  String? _sortBy; // 'solde' ou 'dotee'
+  bool _isAscending = false; // false: DESC, true: ASC
 
   @override
   void initState() {
@@ -44,7 +43,7 @@ class _HomePageState extends State<HomePage> {
     _initProvider();
   }
 
-  void _initProvider() async{
+  void _initProvider() async {
     _provider = await QueriesProvider.instance;
     fetchPdvs();
   }
@@ -60,8 +59,8 @@ class _HomePageState extends State<HomePage> {
                 shrinkWrap: true,
                 padding: EdgeInsets.zero,
                 children: [
-                   DrawerHeader(
-                     padding: const EdgeInsets.all(10),
+                  DrawerHeader(
+                    padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
                       color: philMainColor,
                     ),
@@ -77,13 +76,13 @@ class _HomePageState extends State<HomePage> {
                   ListTile(
                     title: const Text("Mes performances"),
                     leading: const Icon(Icons.swap_horiz),
-                    onTap: (){
+                    onTap: () {
                       nextPage(context, Tabs(comms: widget.comm));
                     },
                   ),
                   ListTile(
                     title: const Text("Mes inactifs"),
-                    onTap: (){
+                    onTap: () {
                       nextPage(context, PageInactifs(comms: widget.comm));
                     },
                     leading: Image.asset('assets/page des inactifs/inactifs.png', width: 30,),
@@ -91,67 +90,30 @@ class _HomePageState extends State<HomePage> {
                   ListTile(
                     title: const Text("Points qui vont en banque"),
                     leading: SvgPicture.asset('assets/page givecom/givecom.svg', width: 30,),
-                    onTap: (){
+                    onTap: () {
                       nextPage(context, PageGiveComs(comms: widget.comm));
                     },
                   ),
-               ListTile(
+                  ListTile(
                     title: const Text("Mes transactions"),
                     leading: SvgPicture.asset('assets/services/transactions.svg', width: 35,),
-                    onTap: (){
+                    onTap: () {
                       nextPage(context, PageTransactions(comms: widget.comm));
                     },
                   ),
                   ListTile(
                     title: const Text("Classement"),
                     leading: SvgPicture.asset('assets/services/rank.svg', width: 35,),
-                    onTap: (){
+                    onTap: () {
                       nextPage(context, RankingPage(widget.comm));
                     },
                   ),
-
-                  // ExpansionTile(title: const Text("Services SIM"),
-                  // children: [
-                  //   // ListTile(
-                  //   //   leading: Image.asset('assets/creation.png'),
-                  //   //   title: const Text('Créer un nouveau pdv'),
-                  //   //   onTap: () {
-                  //   //     // Update the state of the app.
-                  //   //     // ...
-                  //   //   },
-                  //   // ),
-                  //   // const SizedBox(height: 20,),
-                  //   // ListTile(
-                  //   //   leading: Image.asset('assets/sim swap.png'),
-                  //   //   title: const Text('Swapp pour redéploiement'),
-                  //   //   onTap: () {
-                  //   //   },
-                  //   // ),
-                  //   const SizedBox(height: 20,),
-                  //   ListTile(
-                  //     leading: Image.asset('assets/sim broken.png'),
-                  //     title: const Text('Swapp pour SIM grillé ou perdu'),
-                  //     onTap: () {
-                  //       nextPage(context, SwappGrille(pdvs: listPdvs,));
-                  //     },
-                  //   ),
-                  //   const SizedBox(height: 20,),
-                  //   // ListTile(
-                  //   //   leading: Image.asset('assets/update.png'),
-                  //   //   title: const Text('Update pdv'),
-                  //   //   onTap: () {
-                  //   //     // Update the state of the app.
-                  //   //     // ...
-                  //   //   },
-                  //   // ),
-                  //
-                  // ],),
                 ],
               ),
             ),
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, ),
-              child:  ListTile(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: ListTile(
                 leading: const Icon(Icons.settings),
                 title: const Text(
                   'Paramètres',
@@ -159,25 +121,21 @@ class _HomePageState extends State<HomePage> {
                 ),
                 onTap: () {
                   Navigator.pop(context);
-
-                  nextPage(context, PageSettings(comm: widget.comm,));
-
-                }
-
+                  nextPage(context, PageSettings(comm: widget.comm));
+                },
               ),
             ),
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, ),
-              child:  ListTile(
-                  leading: const Icon(Icons.logout),
-                  title: const Text(
-                    'Se déconnecter',
-                    style: TextStyle(fontSize: 16.0),
-                  ),
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: ListTile(
+                leading: const Icon(Icons.logout),
+                title: const Text(
+                  'Se déconnecter',
+                  style: TextStyle(fontSize: 16.0),
+                ),
                 onTap: () => _setPreferences(context),
               ),
             ),
-
           ],
         ),
       ),
@@ -192,60 +150,153 @@ class _HomePageState extends State<HomePage> {
         child: Column(
           children: [
             const SizedBox(height: 20,),
-          TextField(
-            onChanged: _search,
-          controller: _searchFieldController,
-          cursorColor:  philMainColor,
-          style: TextStyle(color: Colors.black.withOpacity(0.6)),
-          decoration: InputDecoration(
-              prefixIcon: Icon(Icons.search, size: 25, color:  hexToColor('#AAA6B9'),),
-              hintText: "Rechercher un point de vente",
-              hintStyle: TextStyle(color: Colors.black, fontSize: 13),
-              filled: true,
-              suffixIcon: _searchFieldController.text.isNotEmpty ? IconButton(
-                onPressed: (){
-                  setState(() {
-                    _searchFieldController.text = '';
-                    _searchList = null;
-                  });
-                },
-                icon: const Icon(Icons.close),
-              ) : null,
-              enabledBorder: OutlineInputBorder(
+            TextField(
+              onChanged: _search,
+              controller: _searchFieldController,
+              cursorColor: philMainColor,
+              style: TextStyle(color: Colors.black.withValues(red: 0.6)),
+              decoration: InputDecoration(
+                prefixIcon: Icon(Icons.search, size: 25, color: hexToColor('#AAA6B9'),),
+                hintText: "Rechercher un point de vente",
+                hintStyle: const TextStyle(color: Colors.black, fontSize: 13),
+                filled: true,
+                suffixIcon: _searchFieldController.text.isNotEmpty
+                    ? IconButton(
+                  onPressed: () {
+                    setState(() {
+                      _searchFieldController.text = '';
+                      _searchList = null;
+                    });
+                  },
+                  icon: const Icon(Icons.close),
+                )
+                    : null,
+                enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(30),
-                  borderSide: const BorderSide(color: Colors.transparent,)
-              ),
-              focusedBorder: OutlineInputBorder(
+                  borderSide: const BorderSide(color: Colors.transparent,),
+                ),
+                focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(30),
-                  borderSide: const BorderSide(color: Colors.transparent,)
-              ),
-              fillColor: hexToColor('#f5f5f5'),
-              border: OutlineInputBorder(
+                  borderSide: const BorderSide(color: Colors.transparent,),
+                ),
+                fillColor: hexToColor('#f5f5f5'),
+                border: OutlineInputBorder(
                   borderSide: const BorderSide(color: Colors.transparent),
-                  borderRadius: BorderRadius.circular(30)
-              )
-          ),
+                  borderRadius: BorderRadius.circular(30),
+                ),
+              ),
+            ),
+            const SizedBox(height: 10),
+            Wrap(
+              spacing: 10.0, // Espacement horizontal entre les boutons
+              runSpacing: 10.0, // Espacement vertical si les boutons passent à la ligne
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
+                GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      if (_sortBy == 'solde') {
+                        _isAscending = !_isAscending;
+                      } else {
+                        _sortBy = 'solde';
+                        _isAscending = false;
+                      }
+                      _sortList();
+                    });
+                  },
+                  child: Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: MediaQuery.of(context).size.width * 0.04, // Responsive horizontal padding
+                      vertical: 8,
+                    ),
+                    decoration: BoxDecoration(
+                      color: _sortBy == 'solde' ? philMainColor : hexToColor('#f5f5f5'),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          "Trie solde",
+                          style: TextStyle(
+                            fontSize: MediaQuery.of(context).size.width * 0.025, // Responsive font size
+                            color: _sortBy == 'solde' ? Colors.white : Colors.black,
+                          ),
+                        ),
+                        const SizedBox(width: 5),
+                        Icon(
+                          _sortBy == 'solde'
+                              ? (_isAscending ? Icons.arrow_upward : Icons.arrow_downward)
+                              : Icons.sort,
+                          size: 18,
+                          color: _sortBy == 'solde' ? Colors.white : Colors.black,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      if (_sortBy == 'dotee') {
+                        _isAscending = !_isAscending;
+                      } else {
+                        _sortBy = 'dotee';
+                        _isAscending = false;
+                      }
+                      _sortList();
+                    });
+                  },
+                  child: Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: MediaQuery.of(context).size.width * 0.04, // Responsive horizontal padding
+                      vertical: 8,
+                    ),
+                    decoration: BoxDecoration(
+                      color: _sortBy == 'dotee' ? philMainColor : hexToColor('#f5f5f5'),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          "Trie dotations",
+                          style: TextStyle(
+                            fontSize: MediaQuery.of(context).size.width * 0.025, // Responsive font size
+                            color: _sortBy == 'dotee' ? Colors.white : Colors.black,
+                          ),
+                        ),
+                        const SizedBox(width: 5),
+                        Icon(
+                          _sortBy == 'dotee'
+                              ? (_isAscending ? Icons.arrow_upward : Icons.arrow_downward)
+                              : Icons.sort,
+                          size: 18,
+                          color: _sortBy == 'dotee' ? Colors.white : Colors.black,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            Expanded(child: _buildPdvs()),
+          ],
         ),
-            Expanded(child: _buildPdvs())
-          ]
-    ),
-      )
+      ),
     );
   }
 
-  _pdvs(PointDeVente pdvs)
-  {
+  _pdvs(PointDeVente pdvs) {
     var colorsStyle = Colors.black;
     var decoration = TextDecoration.none;
     var status = hexToColor('#f5f5f5');
-    if(pdvs.status == false)
-      {
-        decoration = TextDecoration.lineThrough;
-      }
-    if(pdvs.dotee == 0)
-      {
-        colorsStyle = Colors.red;
-      }
+    if (pdvs.status == false) {
+      decoration = TextDecoration.lineThrough;
+    }
+    if (pdvs.dotee == 0) {
+      colorsStyle = Colors.red;
+    }
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Container(
@@ -254,64 +305,70 @@ class _HomePageState extends State<HomePage> {
           color: status,
         ),
         child: GestureDetector(
-          onTap: (){
-           nextPage(context, PageDetailsPdv(pdv: pdvs));
+          onTap: () {
+            nextPage(context, PageDetailsPdv(pdv: pdvs));
           },
           child: ListTile(
-            title: Text("${pdvs.nomDuPoint}", style: TextStyle(decoration: decoration, fontWeight: FontWeight.bold),),
-            subtitle: Text("${pdvs.numeroFlooz}\nNombre de dotations dans le mois: ${pdvs.dotee}",
-              style: TextStyle(color: colorsStyle),),
+            title: Text(
+              "${pdvs.nomDuPoint}",
+              style: TextStyle(decoration: decoration, fontWeight: FontWeight.bold),
+            ),
+            subtitle: Text(
+              "${pdvs.numeroFlooz}\nDotations dans le mois: ${pdvs.dotee}\nSolde: ${pdvs.solde}",
+              style: TextStyle(color: colorsStyle),
+            ),
           ),
         ),
       ),
     );
   }
-  _buildPdvs()
-  {
-    if(_searchList != null) {
-      if(_searchList!.isNotEmpty) {
-        return
-          ListView.builder(
-              shrinkWrap: true,
-              physics: const BouncingScrollPhysics(),
-              itemCount: _searchList!.length,
-              itemBuilder: (BuildContext context, int i) {
-                return _pdvs(_searchList![i]);
-              });
+
+  _buildPdvs() {
+    if (_searchList != null) {
+      if (_searchList!.isNotEmpty) {
+        return ListView.builder(
+          shrinkWrap: true,
+          physics: const BouncingScrollPhysics(),
+          itemCount: _searchList!.length,
+          itemBuilder: (BuildContext context, int i) {
+            return _pdvs(_searchList![i]);
+          },
+        );
       }
       return const Padding(
-        padding:   EdgeInsets.only(top:100.0),
-        child:   Center(
+        padding: EdgeInsets.only(top: 100.0),
+        child: Center(
           child: Text('Aucun resultat'),
         ),
       );
     }
 
-    if(gotPdvs)
-      {
-        return const Center(
-          child: Padding(
-            padding: EdgeInsets.symmetric(vertical: 200.0),
-            child: SizedBox(
-              height: 30,
-              width: 30,
-              child: CircularProgressIndicator(color: Colors.green,),
-            ),
+    if (gotPdvs) {
+      return const Center(
+        child: Padding(
+          padding: EdgeInsets.symmetric(vertical: 200.0),
+          child: SizedBox(
+            height: 30,
+            width: 30,
+            child: CircularProgressIndicator(color: Colors.green,),
           ),
-        );
-      }
-    if(gotPdvsError){
+        ),
+      );
+    }
+    if (gotPdvsError) {
       return Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const Text("Nous n'avons pas pu contacter le serveur"),
           TextButton(
-            child: const Text("Veuillez réessayer", style: TextStyle(color: Colors.green),), onPressed: () {
-            setState(() {
-              listPdvs.clear();
-              fetchPdvs();
-            });
-          },),
+            child: const Text("Veuillez réessayer", style: TextStyle(color: Colors.green),),
+            onPressed: () {
+              setState(() {
+                listPdvs.clear();
+                fetchPdvs();
+              });
+            },
+          ),
         ],
       );
     }
@@ -320,10 +377,10 @@ class _HomePageState extends State<HomePage> {
       child: ListView.builder(
         shrinkWrap: true,
         itemCount: listPdvs.length,
-          itemBuilder: (context, index)
-      {
-        return _pdvs(listPdvs[index]);
-      }),
+        itemBuilder: (context, index) {
+          return _pdvs(listPdvs[index]);
+        },
+      ),
     );
   }
 
@@ -338,33 +395,55 @@ class _HomePageState extends State<HomePage> {
       month: date.month,
       onSuccess: (r) {
         setState(() {
-          for(var element in r)
-          {
+          for (var element in r) {
             listPdvs.add(PointDeVente.MapPdvs(element));
           }
           gotPdvs = false;
           gotPdvsError = false;
-
         });
       },
       onError: (e) {
         setState(() {
+          print(e);
           gotPdvs = false;
-          gotPdvsError = true;});
+          gotPdvsError = true;
+        });
       },
     );
   }
 
+  void _sortList() {
+    List<PointDeVente> listToSort = _searchList ?? listPdvs;
+    if (_sortBy == 'solde') {
+      listToSort.sort((a, b) {
+        return _isAscending
+            ? a.solde!.compareTo(b.solde!)
+            : b.solde!.compareTo(a.solde!);
+      });
+    } else if (_sortBy == 'dotee') {
+      listToSort.sort((a, b) {
+        return _isAscending
+            ? a.dotee!.compareTo(b.dotee!)
+            : b.dotee!.compareTo(a.dotee!);
+      });
+    }
+    setState(() {
+      if (_searchList != null) {
+        _searchList = List.from(listToSort);
+      } else {
+        listPdvs = List.from(listToSort);
+      }
+    });
+  }
 
   void _search(String value) {
-    if(value.trim().isNotEmpty) {
+    if (value.trim().isNotEmpty) {
       _searchList = [];
       _searchList!.addAll(listPdvs.where((element) =>
-      (element.nomDuPoint != null && element.nomDuPoint!.toLowerCase().contains(value))
-          || element.nomDuPoint!.toLowerCase().contains(value.toLowerCase()) || element.numeroFlooz!.toString().contains(value))
-      );
-      setState(() {
-      });
+      (element.nomDuPoint != null && element.nomDuPoint!.toLowerCase().contains(value)) ||
+          element.nomDuPoint!.toLowerCase().contains(value.toLowerCase()) ||
+          element.numeroFlooz!.toString().contains(value)));
+      setState(() {});
     } else {
       setState(() {
         _searchList = null;
@@ -379,7 +458,7 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  Future<void> _setPreferences( BuildContext context) async {
+  Future<void> _setPreferences(BuildContext context) async {
     try {
       bool confirmed = await showDialog(
         context: context,
@@ -405,26 +484,23 @@ class _HomePageState extends State<HomePage> {
         },
       );
 
-      // If the user confirms the logout, proceed with the logout process
       if (confirmed == true) {
-        // Show a loading dialog while simulating the logout process
         _loginOutDialog();
         await Future.delayed(const Duration(seconds: 2));
         Navigator.of(context).pop();
         final box = await Hive.openBox('commsBox');
         await box.clear();
-         Navigator.pushReplacement(context, MaterialPageRoute(builder:
-         (BuildContext context) => const LoginPage())); // Example for navigation
+        Navigator.pushReplacement(context, MaterialPageRoute(
+            builder: (BuildContext context) => const LoginPage()));
       }
     } catch (e) {
     }
   }
 
-  _loginOutDialog()
-  {
+  _loginOutDialog() {
     showDialog(
       context: context,
-      barrierDismissible: false, // Prevent user from dismissing the dialog
+      barrierDismissible: false,
       builder: (context) {
         return const AlertDialog(
           content: Column(
@@ -439,5 +515,4 @@ class _HomePageState extends State<HomePage> {
       },
     );
   }
-
 }

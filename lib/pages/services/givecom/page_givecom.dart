@@ -106,70 +106,95 @@ class _PageGiveComsState extends State<PageGiveComs> {
         );
       }
     return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(5),
-      ),
       child: DataTable(
         headingRowColor: MaterialStateColor.resolveWith(
-                (states) => Colors.green), // Couleur de la première ligne
-        dataRowColor: MaterialStateColor.resolveWith(
-                (states) => Colors.white), // Couleur des lignes de données
-        dataTextStyle: const TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.normal,
-            color: Colors.black),
-        headingTextStyle: const TextStyle(
-          fontSize: 14,
-          fontWeight: FontWeight.bold,
-          overflow: TextOverflow.ellipsis,
-          color: Colors.white,
+              (states) => Colors.green.shade600, // Couleur de la première ligne
         ),
-        decoration: BoxDecoration(
+        dataRowColor: MaterialStateColor.resolveWith(
+              (states) => Colors.white, // Couleur des lignes de données
+        ),
+        dataTextStyle: const TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.normal,
+          color: Colors.black,
+        ),
+        headingTextStyle: const TextStyle(
+          fontSize: 12, // Taille plus grande pour l'en-tête
+          fontWeight: FontWeight.bold,
           color: Colors.white,
-          borderRadius: BorderRadius.circular(5),
-          border: Border.all(color: Colors.grey),
         ),
         columns: const [
-          DataColumn(label: Text("Montants", textAlign: TextAlign.center)),
-          DataColumn(label: Text("Frais", textAlign: TextAlign.center)),
-          DataColumn(label: Text("Nom pdvs", textAlign: TextAlign.center)),
+          DataColumn(
+            label: Text(
+              "Montants",
+              textAlign: TextAlign.center,
+              style: TextStyle(fontWeight: FontWeight.bold,
+                fontSize: 12,
+              ),
+            ),
+          ),
+          DataColumn(
+            label: Text(
+              "Frais",
+              textAlign: TextAlign.center,
+              style: TextStyle(fontWeight: FontWeight.bold,
+                fontSize: 12,
+              ),
+            ),
+          ),
+          DataColumn(
+            label: Text(
+              "Nom pdvs",
+
+              textAlign: TextAlign.center,
+              style: TextStyle(fontWeight: FontWeight.bold,
+                fontSize: 10,
+              ),
+            ),
+          ),
         ],
         rows: listGivecom.map((data) {
-          return DataRow(cells: [
-            DataCell(
-              Text(
-                NumberFormat("#,###,###,### CFA").format(data.montant),
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  color: Colors.red, // Couleur rouge pour les frais
-                  fontWeight: FontWeight.bold,
+          return DataRow(
+            cells: [
+              DataCell(
+                Text(
+                  NumberFormat("#,###,###,### CFA").format(data.montant),
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 10,
+                    color: Colors.green, // Couleur verte pour les montants
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
-            ),
-            DataCell(
-              Text(
-                NumberFormat("-#,###,###,#### CFA").format(data.montant! * 0.001),
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  color: Colors.red, // Couleur rouge pour les frais
-                  fontWeight: FontWeight.bold,
+              DataCell(
+                Text(
+                  NumberFormat("-#,###,###,#### CFA").format(data.montant! * 0.001),
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    color: Colors.red,
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
-            ),
-            DataCell(
-              Text(
-                "${data.pdvs!.toString()} (${data.numero.toString()})",
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(fontSize: 13),
-                softWrap: true,
-
+              DataCell(
+                Text(
+                  "${data.pdvs!.toString()} (${data.numero.toString()})",
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 10, // Taille de texte un peu plus petite pour les noms
+                    color: Colors.black87, // Texte légèrement plus clair pour les noms
+                  ),
+                ),
               ),
-            ),
-          ]);
+            ],
+          );
         }).toList(),
       ),
     );
+
   }
 
 
@@ -178,7 +203,7 @@ class _PageGiveComsState extends State<PageGiveComs> {
       gettingGivecom = true;
       gotGivecomError = false;
     });
-    await _provider.giveCOmDistinct(
+    await _provider.giveComDistinct(
       secure: false,
       commId: widget.comms.id,
       date: date.month,
@@ -193,6 +218,7 @@ class _PageGiveComsState extends State<PageGiveComs> {
       },
       onError: (e) {
         setState(() {
+          print(e);
           gotGivecomError = true;
           gettingGivecom = false;
         });

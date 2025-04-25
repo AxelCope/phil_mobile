@@ -170,15 +170,12 @@ class _PageInactifsState extends State<PageInactifs> {
     });
     await _provider.fetchInactifsZone(
       cmId: widget.comms.id,
-      startDate: DateTime.now().month,
       secure: false,
       onSuccess: (cms) {
         setState(() {
           for (var element in cms) {
             inactivite.add(PointDeVente.MapPdvs(element));
           }
-
-
           gotInactifsError = false;
           gettingInactifs = false;
         });

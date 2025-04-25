@@ -1,31 +1,30 @@
 import 'package:calendar_date_picker2/calendar_date_picker2.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:phil_mobile/models/model_dotations.dart';
 import 'package:phil_mobile/models/users.dart';
 import 'package:phil_mobile/pages/consts.dart';
 import 'package:phil_mobile/provider/DotationProvider.dart';
-import 'package:syncfusion_flutter_charts/charts.dart';
 
 class DetailsDotations extends StatefulWidget {
   const DetailsDotations({
     Key? key,
-    required this.comms
+    required this.comms,
   }) : super(key: key);
 
   final Comms comms;
 
-
   @override
   State<DetailsDotations> createState() => _DetailsDotationsState();
 }
-class _DetailsDotationsState extends State<DetailsDotations> with AutomaticKeepAliveClientMixin{
 
-
+class _DetailsDotationsState extends State<DetailsDotations> with AutomaticKeepAliveClientMixin {
   List<Dotations> listDotations = [];
-  List<String> labels = ["Courbes de dotations", "Courbe de reconversions"];
   bool gotData = true;
   bool getDataError = false;
   late DotationProvider dv;
+  bool _sortAscending = true;
+  int _sortColumnIndex = 0;
 
   @override
   void initState() {
@@ -42,46 +41,32 @@ class _DetailsDotationsState extends State<DetailsDotations> with AutomaticKeepA
   Widget build(BuildContext context) {
     super.build(context);
     return Scaffold(
-        body: buildWidget()
+      body: buildWidget(),
     );
   }
 
   String myDate(formattedString) {
-    var day = DateTime
-        .parse(formattedString)
-        .day;
-    var month = DateTime
-        .parse(formattedString)
-        .month;
-    var year = DateTime
-        .parse(formattedString)
-        .year;
-
+    var day = DateTime.parse(formattedString).day;
+    var month = DateTime.parse(formattedString).month;
+    var year = DateTime.parse(formattedString).year;
     return "$day-$month-$year";
   }
 
-
-  List<ChartSeries<dynamic, dynamic>> gotCHarts()
-  {
-    return <ChartSeries>[
-      LineSeries<Dotations, String>(
-          dataLabelSettings: const DataLabelSettings(
-              isVisible: true,
-              color: Colors.black
-          ),
-          name: 'Dotations journalières',
-          dataSource: listDotations,
-          xValueMapper: (Dotations rt, _) => myDate(rt.dates),
-          yValueMapper: (Dotations rt, _) => rt.dotations,
-          markerSettings: const MarkerSettings(isVisible: true)
-      ),
-    ];
+  int getMaxDotation() {
+    int max = 0;
+    if (listDotations.isNotEmpty) {
+      max = listDotations[0].dotations!;
+      for (var i = 0; i < listDotations.length; i++) {
+        if (listDotations[i].dotations! > max) {
+          max = listDotations[i].dotations!;
+        }
+      }
+    }
+    return max;
   }
 
-  Widget chart()
-  {
-    if(gotData)
-    {
+  Widget chart() {
+    if (gotData) {
       return const Center(
         child: Padding(
           padding: EdgeInsets.symmetric(vertical: 200.0),
@@ -94,7 +79,7 @@ class _DetailsDotationsState extends State<DetailsDotations> with AutomaticKeepA
       );
     }
 
-    if(getDataError) {
+    if (getDataError) {
       return Padding(
         padding: const EdgeInsets.symmetric(vertical: 200.0),
         child: Column(
@@ -103,77 +88,126 @@ class _DetailsDotationsState extends State<DetailsDotations> with AutomaticKeepA
           children: [
             const Padding(
               padding: EdgeInsets.all(8.0),
-              child: Text('Réessayez.', style: TextStyle(fontSize: 25),),
+              child: Text('Réessayez.', style: TextStyle(fontSize: 25)),
             ),
-
             const Padding(
               padding: EdgeInsets.all(8.0),
-              child: Text('Nous n\'avons pas pu charger la page. Réessayez ultérieurement.', style: TextStyle(fontSize: 15),),
+              child: Text(
+                'Nous n\'avons pas pu charger la page. Réessayez ultérieurement.',
+                style: TextStyle(fontSize: 15),
+              ),
             ),
-
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: TextButton(
-                  style: ButtonStyle(backgroundColor:MaterialStateProperty.all(philMainColor)),
-                  child: const Text("Actualiser la page", style: TextStyle(color: Colors.black)), onPressed: (){_fetchData();}),
-            )
-
+                style: ButtonStyle(
+                  backgroundColor: MaterialStateProperty.all(philMainColor),
+                ),
+                child: const Text("Actualiser la page", style: TextStyle(color: Colors.black)),
+                onPressed: () {
+                  _fetchData();
+                },
+              ),
+            ),
           ],
         ),
       );
     }
 
+    final maxDotation = getMaxDotation();
     return Card(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          SfCartesianChart(
-            title: ChartTitle(
-              textStyle: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
+      elevation: 6,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: DataTable(
+          sortColumnIndex: _sortColumnIndex,
+          sortAscending: _sortAscending,
+          columns: [
+            DataColumn(
+              label: Text(
+                'Date',
+                style: TextStyle(fontWeight: FontWeight.bold, color: philMainColor),
               ),
+              onSort: (columnIndex, ascending) {
+                setState(() {
+                  _sortColumnIndex = columnIndex;
+                  _sortAscending = ascending;
+                  listDotations.sort((a, b) {
+                    final aDate = DateTime.parse(a.dates!);
+                    final bDate = DateTime.parse(b.dates!);
+                    return ascending ? aDate.compareTo(bDate) : bDate.compareTo(aDate);
+                  });
+                });
+              },
             ),
-            tooltipBehavior: TooltipBehavior(enable: true),
-            legend: const Legend(
-              isVisible: false,
-              toggleSeriesVisibility: true,
-              textStyle: TextStyle(
-                fontSize: 12,
+            DataColumn(
+              label: Text(
+                'Nombre de dotations',
+                style: TextStyle(fontWeight: FontWeight.bold, color: philMainColor),
               ),
+              onSort: (columnIndex, ascending) {
+                setState(() {
+                  _sortColumnIndex = columnIndex;
+                  _sortAscending = ascending;
+                  listDotations.sort((a, b) =>
+                  ascending ? a.dotations!.compareTo(b.dotations!) : b.dotations!.compareTo(a.dotations!));
+                });
+              },
             ),
-            primaryXAxis: CategoryAxis(
-              majorGridLines: const MajorGridLines(width: 0),
-              minorGridLines: const MinorGridLines(width: 0),
-              axisBorderType: AxisBorderType.withoutTopAndBottom,
-              labelStyle: const TextStyle(
-                fontSize: 10, // Augmenter la taille de la police des labels
-                fontWeight: FontWeight.bold, // Rendre la police en gras si nécessaire
-              ),
-            ),
-            primaryYAxis: NumericAxis(
-              labelStyle: const TextStyle(
-                fontSize: 12,
-              ),
-            ),
-            series: gotCHarts(),
-          ),
-        ],
+          ],
+          rows: listDotations.map((dotation) {
+            final isMax = dotation.dotations == maxDotation && maxDotation != 0;
+            return DataRow(
+              color: isMax
+                  ? MaterialStateProperty.all(philMainColor.withOpacity(0.1))
+                  : null,
+              cells: [
+                DataCell(
+                  Text(
+                    myDate(dotation.dates!),
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: isMax ? FontWeight.bold : FontWeight.normal,
+                    ),
+                  ),
+                ),
+                DataCell(
+                  Row(
+                    children: [
+                      Text(
+                        NumberFormat("#,###,###").format(dotation.dotations),
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: isMax ? philMainColor : Colors.black,
+                          fontWeight: isMax ? FontWeight.bold : FontWeight.normal,
+                        ),
+                      ),
+                      if (isMax)
+                        const Padding(
+                          padding: EdgeInsets.only(left: 8),
+                          child: Icon(Icons.trending_up, color: Colors.green, size: 18),
+                        ),
+                    ],
+                  ),
+                ),
+              ],
+            );
+          }).toList(),
+        ),
       ),
     );
   }
 
-  Widget averageDotationCard()
-  {
-    var somme = 0.0 ;
+  Widget averageDotationCard() {
+    var somme = 0.0;
     var average = 0;
-    for(var i = 0; i < listDotations.length; i++)
-    {
+    for (var i = 0; i < listDotations.length; i++) {
       somme += listDotations[i].dotations!;
     }
     average = (somme == 0 ? 0 : somme / listDotations.length).toInt();
 
-    return  Card(
+    return Card(
       elevation: 5,
       child: ClipPath(
         child: Container(
@@ -183,7 +217,7 @@ class _DetailsDotationsState extends State<DetailsDotations> with AutomaticKeepA
             ),
           ),
           child: Padding(
-            padding: const EdgeInsets.all(10), // Ajoute une marge intérieure pour un espacement équilibré
+            padding: const EdgeInsets.all(10),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -194,7 +228,7 @@ class _DetailsDotationsState extends State<DetailsDotations> with AutomaticKeepA
                   children: [
                     Text(
                       "Moyenne de Dotations de ${widget.comms.nomCommerciaux}",
-                      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold), // Police plus grande et en gras
+                      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 10),
                     Row(
@@ -202,155 +236,79 @@ class _DetailsDotationsState extends State<DetailsDotations> with AutomaticKeepA
                       children: [
                         Text(
                           "$average/jours",
-                          style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold), // Police plus grande, en gras et en couleur
+                          style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
                         ),
                         const Icon(
                           Icons.star,
-                          color: Colors.orange, // Couleur de l'icône étoile
+                          color: Colors.orange,
                         ),
                       ],
                     ),
                   ],
-                ),],
+                ),
+              ],
             ),
           ),
         ),
       ),
     );
-
-
   }
 
-  Widget maxDotation()
-  {
-    int max = 0;
-    if(listDotations.isNotEmpty)
-    {
-      var max = listDotations[0].dotations;
-    }
-    else {
-      max = 0;
-    }
-    for(var i = 0; i < listDotations.length; i++)
-    {
-      if( listDotations[i].dotations! > max)
-      {
-        max = listDotations[i].dotations!;
-      }
-      else{
-        max = max;
-      }
-    }
-
-    return
-      Card(
-        elevation: 5,
-        child: ClipPath(
-          child: Container(
-            decoration: BoxDecoration(
-              border: Border(
-                bottom: BorderSide(color: philMainColor, width: 5),
-              ),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(10), // Ajoute une marge intérieure pour un espacement équilibré
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  const SizedBox(height: 10),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                                  "Plus haute Dotation de ${widget.comms.nomCommerciaux}",
-                                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold), // Police plus grande et en gras
-                                ),
-                                const SizedBox(height: 10),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      "$max",
-                                      style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold), // Police plus grande, en gras et en couleur
-                                    ),
-                                    const Icon(
-                                      Icons.trending_up,
-                                      color: Colors.green, // Couleur de l'icône flèche vers le haut
-                                    ),
-                        ],
-                      ),
-                    ],
-                  ),],
-              ),
-            ),
-          ),
-        ),
-      );
-  }
-
-  Widget headerCard()
-  {
+  Widget headerCard() {
     return Padding(
       padding: const EdgeInsets.all(18),
       child: Wrap(
         children: [
           averageDotationCard(),
-          const SizedBox(width: 20,),
-          maxDotation(),
         ],
       ),
     );
   }
 
-  Widget buildWidget()
-  {
+  Widget buildWidget() {
     return ListView(
-      //shrinkWrap: true,
       children: [
         headerCard(),
         chart(),
         ElevatedButton(
           style: ElevatedButton.styleFrom(
-            backgroundColor: philMainColor
+            backgroundColor: philMainColor,
           ),
           onPressed: () {
             datePicker();
           },
-          child: const Text('Selectionner la plage de dates', style: TextStyle(color: Colors.white),),
+          child: const Text(
+            'Selectionner la plage de dates',
+            style: TextStyle(color: Colors.white),
+          ),
         ),
       ],
     );
   }
 
-
-  datePicker() async{
-    List<DateTime> dates = [widget.comms.startDateTime!,  ];
+  datePicker() async {
+    List<DateTime> dates = [widget.comms.startDateTime!];
     var results = await showCalendarDatePicker2Dialog(
       context: context,
       config: CalendarDatePicker2WithActionButtonsConfig(
         calendarType: CalendarDatePicker2Type.range,
-
       ),
       dialogSize: const Size(325, 400),
       value: dates,
       borderRadius: BorderRadius.circular(15),
     );
     setState(() {
-      if(results!.length == 2)
-      {
+      if (results!.length == 2) {
         widget.comms.startDateTime = results[0]!;
         widget.comms.endDateTime = results[1]!;
-      }else{
+      } else {
         widget.comms.startDateTime = results[0]!;
         widget.comms.endDateTime = results[0]!;
       }
     });
     _fetchData();
     listDotations.clear();
-
   }
-
 
   Future<void> _fetchData() async {
     setState(() {
@@ -358,28 +316,28 @@ class _DetailsDotationsState extends State<DetailsDotations> with AutomaticKeepA
       getDataError = false;
     });
     dv.getAllDotation(
-        startDate: widget.comms.startDateTime.toString(),
-        endDate: widget.comms.endDateTime.toString(),
-        commId: widget.comms.id,
-        secure: false,
-        onSuccess: (r) {
-          setState(() {
-            listDotations = r;
-          });
-          setState(() {
-            gotData = false;
-            getDataError = false;
-          });
-        },
-        onError: (e) {
-          setState(() {
-            gotData = false;
-            getDataError = true;
-          });
+      startDate: widget.comms.startDateTime.toString(),
+      endDate: widget.comms.endDateTime.toString(),
+      commId: widget.comms.id,
+      secure: false,
+      onSuccess: (r) {
+        setState(() {
+          listDotations = r;
         });
+        setState(() {
+          gotData = false;
+          getDataError = false;
+        });
+      },
+      onError: (e) {
+        setState(() {
+          gotData = false;
+          getDataError = true;
+        });
+      },
+    );
   }
+
   @override
   bool get wantKeepAlive => true;
-
 }
-

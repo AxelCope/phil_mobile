@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
- import 'package:phil_mobile/models/model_chiffre_daffaire.dart';
+import 'package:phil_mobile/models/model_chiffre_daffaire.dart';
 import 'package:phil_mobile/models/model_segmentation.dart';
- import 'package:phil_mobile/models/users.dart';
+import 'package:phil_mobile/models/users.dart';
 import 'package:phil_mobile/pages/consts.dart';
 import 'package:phil_mobile/provider/queries_provider.dart';
 import 'package:phil_mobile/widget/card.dart';
-import 'package:syncfusion_flutter_gauges/gauges.dart';
+import 'dart:math' as math;
+import 'dart:ui' as ui; // Import pour TextDirection.ltr
 
 class ProgressionObjectif extends StatefulWidget {
-  const ProgressionObjectif({super.key,required this.comms
-  });
+  const ProgressionObjectif({super.key, required this.comms});
 
   final Comms comms;
 
@@ -18,7 +18,7 @@ class ProgressionObjectif extends StatefulWidget {
   State<ProgressionObjectif> createState() => _ProgressionObjectifState();
 }
 
-class _ProgressionObjectifState extends State<ProgressionObjectif> with AutomaticKeepAliveClientMixin{
+class _ProgressionObjectifState extends State<ProgressionObjectif> with AutomaticKeepAliveClientMixin {
   List<ChiffreAffaire> commCagnt = [];
   List<ChiffreAffaire> objectifComm = [];
   late final QueriesProvider _provider;
@@ -41,47 +41,44 @@ class _ProgressionObjectifState extends State<ProgressionObjectif> with Automati
     _initProvider();
   }
 
-  void _initProvider() async{
+  void _initProvider() async {
     _provider = await QueriesProvider.instance;
     objectifsComm();
     getCommission();
     segmentation();
   }
+
   @override
   Widget build(BuildContext context) {
     super.build(context);
     return Scaffold(
       body: RefreshIndicator(
         onRefresh: _refresh,
-        child: all()
+        child: all(),
       ),
     );
   }
 
-
-  Widget all()
-  {
-  return ListView(
-  children: [
-  _getCa(),
-    const SizedBox(height: 10,),
-    const Padding(
-      padding: EdgeInsets.only(left: 10.0),
-      child: Text("Mes segments", style: TextStyle(fontSize: 21),),
-    ),
-    allSegments(),
-    const SizedBox(height: 10,),
-  ],
-  );
+  Widget all() {
+    return ListView(
+      children: [
+        _getCa(),
+        const SizedBox(height: 10),
+        const Padding(
+          padding: EdgeInsets.only(left: 10.0),
+          child: Text("Mes segments", style: TextStyle(fontSize: 21)),
+        ),
+        allSegments(),
+        const SizedBox(height: 10),
+      ],
+    );
   }
-  _getCa()
-  {
 
+  Widget _getCa() {
     int obj = 0;
     int comm = 0;
     var rep1 = 0;
-    if(!gotObjectif && !gotComm)
-    {
+    if (!gotObjectif && !gotComm) {
       return const Center(
         child: Padding(
           padding: EdgeInsets.symmetric(vertical: 100.0),
@@ -95,8 +92,7 @@ class _ProgressionObjectifState extends State<ProgressionObjectif> with Automati
         ),
       );
     }
-    if(objectifComm.isNotEmpty && commCagnt.isNotEmpty)
-    {
+    if (objectifComm.isNotEmpty && commCagnt.isNotEmpty) {
       obj = objectifComm[0].obj!;
       comm = int.parse(commCagnt[0].comm!);
       rep1 = ((comm / obj) * 100).round();
@@ -109,57 +105,19 @@ class _ProgressionObjectifState extends State<ProgressionObjectif> with Automati
           padding: const EdgeInsets.all(15.0),
           child: Column(
             children: [
-              const Text("Ma progresion sur l'objectif du mois", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),),
+              const Text(
+                "Ma progression sur l'objectif du mois",
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
               const SizedBox(
                 width: 70,
-                  child: Divider()),
-              SizedBox(
-                width: 130,
-                height: 130,
-                 child:SfRadialGauge(axes: <RadialAxis>[
-                   RadialAxis(
-                       showLabels: false,
-                       showTicks: false,
-                       startAngle: 270,
-                       endAngle: 270,
-                       //radiusFactor: model.isWebFullView ? 0.7 : 0.8,
-                       axisLineStyle: AxisLineStyle(
-                         thickness: 1,
-                         color: philMainColor,
-                         thicknessUnit: GaugeSizeUnit.factor,
-                       ),
-                       pointers: <GaugePointer>[
-                         RangePointer(
-                           value: ((comm / obj) * 100),
-                           width: 0.15,
-                           enableAnimation: true,
-                           animationDuration: 30,
-                           color: Colors.white,
-                           pointerOffset: 0.1,
-                           cornerStyle: CornerStyle.bothCurve,
-                           animationType: AnimationType.linear,
-                           sizeUnit: GaugeSizeUnit.factor,
-                         )
-                       ],
-                       annotations: <GaugeAnnotation>[
-                         GaugeAnnotation(
-                             positionFactor: 0.5,
-                             widget: Text('${rep1.toStringAsFixed(0)}%',
-                                 style: const TextStyle(
-                                     color: Colors.white, fontWeight: FontWeight.bold)))
-                       ])
-                 ]),
-                // CircularProgressIndicator(
-                //   value: (comm / obj).clamp(0.0, 1.0),
-                //   valueColor: const AlwaysStoppedAnimation<Color>(Colors.green),
-                //   strokeWidth: 10,
-                //   backgroundColor: Colors.grey[200],
-                //   strokeCap: StrokeCap.round,
-                // ),
+                child: Divider(),
               ),
-
+              CustomRadialGauge(
+                percentage: (comm / obj).clamp(0.0, 1.0),
+              ),
               Padding(
-                padding: const EdgeInsets.only(top:10.0),
+                padding: const EdgeInsets.only(top: 10.0),
                 child: RichText(
                   textAlign: TextAlign.center,
                   text: TextSpan(
@@ -169,21 +127,22 @@ class _ProgressionObjectifState extends State<ProgressionObjectif> with Automati
                         style: TextStyle(fontSize: 19, color: Colors.black),
                       ),
                       TextSpan(
-                        text: " ${NumberFormat("###,### CFA").format(comm)} / ${NumberFormat("###,### CFA").format(obj)}",
-                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.black),
+                        text:
+                        " ${NumberFormat("###,### CFA").format(comm)} / ${NumberFormat("###,### CFA").format(obj)}",
+                        style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                            color: Colors.black),
                       ),
                     ],
                   ),
                 ),
-              )
-
+              ),
             ],
           ),
         ),
       ),
     );
-
-
   }
 
   Future<void> objectifsComm() async {
@@ -196,8 +155,7 @@ class _ProgressionObjectifState extends State<ProgressionObjectif> with Automati
       date: _getMonthName(date.month),
       onSuccess: (r) {
         setState(() {
-          for(var element in r)
-          {
+          for (var element in r) {
             objectifComm.add(ChiffreAffaire.MapObj(element));
           }
           gotObjectif = true;
@@ -211,7 +169,7 @@ class _ProgressionObjectifState extends State<ProgressionObjectif> with Automati
     );
   }
 
-  Future<void>  getCommission() async {
+  Future<void> getCommission() async {
     setState(() {
       gotComm = false;
     });
@@ -221,8 +179,7 @@ class _ProgressionObjectifState extends State<ProgressionObjectif> with Automati
       date: date.month,
       onSuccess: (r) {
         setState(() {
-          for(var element in r)
-          {
+          for (var element in r) {
             commCagnt.add(ChiffreAffaire.MapComm(element));
           }
           gotComm = true;
@@ -252,8 +209,7 @@ class _ProgressionObjectifState extends State<ProgressionObjectif> with Automati
   }
 
   Widget allSegments() {
-    if(segmentationCheck)
-    {
+    if (segmentationCheck) {
       return const Center(
         child: Padding(
           padding: EdgeInsets.symmetric(vertical: 200.0),
@@ -270,13 +226,13 @@ class _ProgressionObjectifState extends State<ProgressionObjectif> with Automati
     return Column(
       children: [
         sgA(),
-        const SizedBox(width: 50),
+        const SizedBox(height: 10),
         sgB(),
-        const SizedBox(width: 50),
+        const SizedBox(height: 10),
         sgC(),
-        const SizedBox(width: 50),
+        const SizedBox(height: 10),
         sgD(),
-        const SizedBox(width: 50),
+        const SizedBox(height: 10),
         sgE(),
       ],
     );
@@ -454,9 +410,9 @@ class _ProgressionObjectifState extends State<ProgressionObjectif> with Automati
   }
 
   Future<void> segmentation() async {
-setState(() {
-  segmentationCheck = true;
-});
+    setState(() {
+      segmentationCheck = true;
+    });
     await _provider.SegmentationParComm(
       cmId: widget.comms.id,
       date: DateTime.now().month,
@@ -479,17 +435,14 @@ setState(() {
               ? zoneD.add(Segmentation.mapSegmentation(element))
               : (null);
           seg == 0 ? zoneE.add(Segmentation.mapSegmentation(element)) : (null);
-
         }
         setState(() {
           segmentationCheck = false;
-          //segmentationCheckError = false;
         });
       },
       onError: (error) {
         setState(() {
           segmentationCheck = true;
-          //segmentationCheckError = true;
         });
       },
     );
@@ -497,12 +450,98 @@ setState(() {
 
   String _getMonthName(int monthNumber) {
     const monthNames = [
-      "January", "February", "March", "April", "May", "June",
-      "July", "August", "September", "October", "November", "December"
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December"
     ];
     return monthNames[monthNumber - 1].toUpperCase();
   }
 
   @override
   bool get wantKeepAlive => true;
+}
+
+class CustomRadialGauge extends StatelessWidget {
+  final double percentage;
+
+  const CustomRadialGauge({super.key, required this.percentage});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 130,
+      height: 130,
+      child: CustomPaint(
+        painter: RadialGaugePainter(percentage: percentage),
+      ),
+    );
+  }
+}
+
+class RadialGaugePainter extends CustomPainter {
+  final double percentage;
+
+  RadialGaugePainter({required this.percentage});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final center = Offset(size.width / 2, size.height / 2);
+    final radius = size.width / 2;
+
+    // Dessiner l'arrière-plan
+    final backgroundPaint = Paint()
+      ..color = Colors.grey[200]!
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 10
+      ..strokeCap = StrokeCap.round;
+    canvas.drawCircle(center, radius, backgroundPaint);
+
+    // Dessiner la progression
+    final progressPaint = Paint()
+      ..color = Colors.green
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 10
+      ..strokeCap = StrokeCap.round;
+    double sweepAngle = (2 * math.pi * percentage).clamp(0, 2 * math.pi);
+    canvas.drawArc(
+      Rect.fromCircle(center: center, radius: radius),
+      -math.pi / 2, // Début à 12h
+      sweepAngle,
+      false,
+      progressPaint,
+    );
+
+    // Dessiner le texte
+    final textPainter = TextPainter(
+      text: TextSpan(
+        text: '${(percentage * 100).toStringAsFixed(0)}%',
+        style: const TextStyle(
+          color: Colors.black,
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      textDirection: ui.TextDirection.ltr, // Correction ici
+    );
+    textPainter.layout();
+    textPainter.paint(
+      canvas,
+      Offset(
+        center.dx - textPainter.width / 2,
+        center.dy - textPainter.height / 2,
+      ),
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }

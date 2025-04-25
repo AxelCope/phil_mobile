@@ -39,24 +39,40 @@ class QueriesProvider {
   }) async {
     GDirectRequest.select(
         sql:
-        " WITH doted AS ( "
-        "SELECT * "
+            "WITH doted AS ( "
+            "SELECT * "
             "FROM univers "
-            "WHERE numero_cagnt = $id "
+            "WHERE numero_cagnt = 22896780460 "
             "), "
             "dotation AS ( "
-            "SELECT COUNT(tomsisdn) AS dotreg, tomsisdn "
+            "SELECT "
+            "COUNT(tomsisdn) AS dotreg, "
+            "tomsisdn "
             "FROM give "
-            "WHERE EXTRACT(MONTH FROM TIMESTAMP) = $month "
+            "WHERE EXTRACT(MONTH FROM TIMESTAMP) = 4 "
             "AND EXTRACT(YEAR FROM TIMESTAMP) = EXTRACT(YEAR FROM CURRENT_DATE) "
-            "AND FRMSISDN = $id "
-            "AND TOMSISDN IN (SELECT NUMERO_FLOOZ FROM univers where numero_cagnt = $id) "
+            "AND frmsisdn = 22896780460 "
+            "AND tomsisdn IN (SELECT numero_flooz FROM univers WHERE numero_cagnt = 22896780460) "
             "GROUP BY tomsisdn "
+            "), "
+            "soldes AS ( "
+            "SELECT "
+            "pos_msisdn, "
+            "date_execution, "
+            "pos_solde_principal AS solde "
+            "FROM solde_pdvs "
+            "WHERE DATE(date_execution) = (CURRENT_DATE) "
             ") "
-            "SELECT doted.*, COALESCE(dotation.dotreg, 0) AS dotreg "
+            "SELECT "
+            "doted.*, "
+            "COALESCE(dotation.dotreg, 0) AS dotreg, "
+            "COALESCE(soldes.solde, 0) AS pos_solde_principal "
             "FROM doted "
-            "LEFT JOIN dotation ON doted.numero_flooz = dotation.tomsisdn "
-            "ORDER BY dotreg DESC "
+            "LEFT JOIN dotation "
+            "ON doted.numero_flooz = dotation.tomsisdn "
+            "LEFT JOIN soldes "
+            "ON doted.numero_flooz = soldes.pos_msisdn "
+            "ORDER BY solde ASC; "
     ).exec(
         secure: secure,
         onSuccess: (Result result) {
@@ -137,7 +153,7 @@ class QueriesProvider {
     );
   }
 
-  Future<void> giveCOmDistinct({
+  Future<void> giveComDistinct({
     required date,
     required commId,
     required Function(List<Map<String, dynamic>>) onSuccess,
@@ -146,23 +162,20 @@ class QueriesProvider {
   }) async {
     GDirectRequest.select(
         sql:
-        " select sum(givecom) as somme, frname as pdvs, frmsisdn as numero "
-            "from ( "
-            "select sum(amount) as givecom, frname, frmsisdn "
-            "from give "
-            "where (toprofile = 'BNKAGNT') "
-            "AND (frmsisdn in (select numero_flooz from univers where numero_cagnt = $commId)) "
-            "AND EXTRACT(MONTH FROM TIMESTAMP) = $date AND EXTRACT(YEAR FROM TIMESTAMP) = EXTRACT(YEAR FROM CURRENT_DATE) "
-            "group by frmsisdn, frname "
-            "union all "
-            "select sum(amount) as  to_client_amount,toname, tomsisdn "
-            "from give "
-            "where (frprofile = 'BNKAGNT') "
-            "AND (tomsisdn in (select numero_flooz from univers where numero_cagnt = $commId)) "
-            "AND EXTRACT(MONTH FROM TIMESTAMP) = $date AND EXTRACT(YEAR FROM TIMESTAMP) = EXTRACT(YEAR FROM CURRENT_DATE) "
-            "group by tomsisdn, toname "
-            ") tbl "
-            "group by frname, frmsisdn; "
+        "SELECT "
+            "u.nom_du_point AS pdvs, "
+            "u.numero_flooz AS numero, "
+            "SUM(g.givecom_debit_amount) * 1000 AS somme "
+            "FROM univers u "
+            "LEFT JOIN give g "
+            "ON g.frmsisdn = u.numero_flooz "
+            "WHERE u.numero_cagnt = $commId "
+            "AND EXTRACT(MONTH FROM g.timestamp) = EXTRACT(MONTH FROM CURRENT_DATE) "
+            "AND EXTRACT(YEAR FROM g.timestamp) = EXTRACT(YEAR FROM CURRENT_DATE) "
+            "GROUP BY u.numero_flooz, u.nom_du_point "
+            "HAVING SUM(g.givecom_debit_amount) > 0 "
+            "ORDER BY somme DESC; "
+
 
     ).exec(
         secure: secure,
@@ -182,20 +195,42 @@ class QueriesProvider {
     bool secure = true
   }) async {
     GDirectRequest.select(
-        sql: "SELECT SUM(fr_amount) sommedotes, frmsisdn pos_msidsn, frname nom_commercial "
-            "FROM "
-            "( "
-            "SELECT SUM(amount) AS fr_amount, frmsisdn, frname "
+        sql:
+
+        "WITH transactions_pdvs AS ( "
+            "SELECT "
+            "CASE "
+            "WHEN type = 'CSIN' THEN frmsisdn "
+            "WHEN type = 'AGNT' THEN tomsisdn "
+            "END AS pdv_number, "
+            "CASE "
+            "WHEN type = 'CSIN' THEN frname "
+            "WHEN type = 'AGNT' THEN toname "
+            "END AS pdv_name, "
+            "SUM(amount) AS sommedotes "
             "FROM transactions "
-            "WHERE TYPE = 'CSIN' AND frmsisdn IN (SELECT numero_flooz FROM univers WHERE numero_cagnt = $cmId) AND EXTRACT(MONTH FROM TIMESTAMP) = $date AND EXTRACT(YEAR FROM TIMESTAMP) = EXTRACT(YEAR FROM CURRENT_DATE) "
-            "GROUP BY frmsisdn, frname "
-            "UNION ALL "
-            "SELECT SUM(amount) AS to_amount, tomsisdn, toname "
-            "FROM transactions  "
-            "WHERE TYPE = 'AGNT' AND tomsisdn IN (SELECT numero_flooz FROM univers WHERE numero_cagnt = $cmId) AND EXTRACT(MONTH FROM TIMESTAMP) = $date AND EXTRACT(YEAR FROM TIMESTAMP) = EXTRACT(YEAR FROM CURRENT_DATE) "
-            "GROUP BY tomsisdn, toname "
-            ") tbl "
-            "GROUP BY frmsisdn, frname; "
+            "WHERE (type = 'CSIN' OR type = 'AGNT') "
+            "AND EXTRACT(MONTH FROM timestamp) = EXTRACT(MONTH FROM CURRENT_DATE) "
+            "AND EXTRACT(YEAR FROM timestamp) = EXTRACT(YEAR FROM CURRENT_DATE) "
+            "GROUP BY "
+            "CASE "
+            "WHEN type = 'CSIN' THEN frmsisdn "
+            "WHEN type = 'AGNT' THEN tomsisdn "
+            "END, "
+            "CASE "
+            "WHEN type = 'CSIN' THEN frname "
+            "WHEN type = 'AGNT' THEN toname "
+            "END "
+            ") "
+            "SELECT "
+            "COALESCE(t.pdv_name, u.nom_du_point) AS nom_commercial, "
+            "COALESCE(t.pdv_number, u.numero_flooz) AS pos_msidsn, "
+            "COALESCE(t.sommedotes, 0) AS sommedotes "
+            "FROM univers u "
+            "LEFT JOIN transactions_pdvs t "
+            "ON t.pdv_number = u.numero_flooz "
+            "WHERE u.numero_cagnt = $cmId "
+            "ORDER BY sommedotes DESC, nom_commercial; "
 
     ).exec(
         secure: secure,
@@ -208,23 +243,28 @@ class QueriesProvider {
 
   Future<void> fetchInactifsZone({
     required cmId,
-    required startDate,
     required Function(List<Map<String, dynamic>>) onSuccess,
     required Function(RequestError) onError,
     bool secure = true
   }) async {
     GDirectRequest.select(
       sql:
-      "SELECT * "
-          "FROM univers u "
-          "WHERE numero_cagnt = $cmId "
-          "AND NOT EXISTS ("
-          "SELECT 1 "
-          "FROM transactions t "
-          "WHERE (t.frmsisdn = u.NUMERO_FLOOZ OR t.tomsisdn = u.NUMERO_FLOOZ) "
-          "AND EXTRACT(MONTH FROM t.TIMESTAMP) = $startDate "
-          "AND EXTRACT(YEAR FROM t.TIMESTAMP) = EXTRACT(YEAR FROM CURRENT_DATE) "
-          ");"
+      "SELECT "
+      "u.* "
+      "FROM univers u "
+      "WHERE u.numero_flooz NOT IN ( "
+      "SELECT t.frmsisdn "
+      "FROM transactions t "
+      "WHERE t.timestamp >= date_trunc('month', CURRENT_DATE) "
+      "AND t.timestamp < (CURRENT_DATE - interval '1 day') + interval '1 day' "
+      "UNION "
+      "SELECT t.tomsisdn "
+      "FROM transactions t "
+      "WHERE t.timestamp >= date_trunc('month', CURRENT_DATE) "
+      "AND t.timestamp < (CURRENT_DATE - interval '1 day') + interval '1 day' "
+      ") "
+      "AND numero_cagnt = $cmId "
+      "ORDER BY u.commercial, u.nom_du_point; "
       ,
     ).exec(
         secure: secure,

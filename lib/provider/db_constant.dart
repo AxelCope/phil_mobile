@@ -64,6 +64,8 @@ const String dbFrprofile = "frprofile";
 const String dbToprofile = "toprofile";
 const String dbDcom = "dealer_commission";
 const String dbPoscom = "pos_commission";
+const String dbfrDealerName = "frmsisdn_dealer";
+const String dbtoDealerName = "tomsisdn_dealer";
 
 const String dbMonth = "mois";
 

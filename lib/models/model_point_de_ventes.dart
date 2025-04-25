@@ -12,8 +12,8 @@ class PointDeVente {
    String? commune;
    String? canton;
    String? quartier;
-   String? latitude;
-   String? longitude;
+   double? latitude;
+   double? longitude;
    String? numeroProprietaireDuPdv;
    String? autreContactDuPdv;
    String? sexeDuGerant;
@@ -28,6 +28,7 @@ class PointDeVente {
    bool checked;
    DateTime? startDateTimeT;
    DateTime? endDateTimeT;
+   int? solde;
 
   PointDeVente({
      this.numeroFlooz,
@@ -55,7 +56,8 @@ class PointDeVente {
      this.dotee,
      this.checked = false,
      this.endDateTimeT,
-     this.startDateTimeT
+     this.startDateTimeT,
+    this.solde
   });
 
 
@@ -86,6 +88,7 @@ class PointDeVente {
          status: map[dbRetired],
         startDateTimeT: DateTime.now().subtract(const Duration(days: 7)),
         endDateTimeT: DateTime.now(),
+       solde: map[dbSolde]
      );
    }
 

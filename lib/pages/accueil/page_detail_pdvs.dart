@@ -174,8 +174,8 @@ class _PageDetailsPdvState extends State<PageDetailsPdv> {
                       GestureDetector(
                         onTap: () async{
                           if(widget.pdv.longitude != null && widget.pdv.latitude != null) {
-                            double dl = double.parse(widget.pdv.longitude!);
-                            double dL = double.parse(widget.pdv.latitude!);
+                            double dl = widget.pdv.longitude!;
+                            double dL = widget.pdv.latitude!;
                             final availableMaps =
                             await MapLauncher.installedMaps;
                             await availableMaps.first.showDirections(
