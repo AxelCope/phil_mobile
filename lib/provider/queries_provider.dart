@@ -49,7 +49,7 @@ class QueriesProvider {
             "COUNT(tomsisdn) AS dotreg, "
             "tomsisdn "
             "FROM give "
-            "WHERE EXTRACT(MONTH FROM TIMESTAMP) = 4 "
+            "WHERE EXTRACT(MONTH FROM TIMESTAMP) = EXTRACT(MONTH FROM CURRENT_DATE) "
             "AND EXTRACT(YEAR FROM TIMESTAMP) = EXTRACT(YEAR FROM CURRENT_DATE) "
             "AND frmsisdn = $id "
             "AND tomsisdn IN (SELECT numero_flooz FROM univers WHERE numero_cagnt = $id) "
