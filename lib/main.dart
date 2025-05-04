@@ -11,6 +11,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:phil_mobile/provider/queries_provider.dart';
 import 'package:provider/provider.dart';
 
+
 void main() async {
   await Hive.initFlutter();
   Hive.registerAdapter(CommsAdapter());
@@ -25,7 +26,6 @@ void main() async {
 
 class MyApp extends StatefulWidget {
   const MyApp({Key? key}) : super(key: key);
-
   @override
   State<MyApp> createState() => _MyAppState();
 }
@@ -33,81 +33,31 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   bool _genosInit = false;
   bool _sameVers = true;
-  bool connected = true;
   bool _checkingComplete = false;
+  bool connected = true;
+
   List<Versioning> version = [];
-  late final QueriesProvider _provider;
   Widget _initialContent = const MyLoadingScreen();
 
-
-  Future<void> _checkLoggedIn() async {
-    final box = await Hive.openBox('commsBox');
-    Comms? storedComms = box.get('user') as Comms?;
-
-    setState(() {
-      _initialContent = storedComms != null
-          ? HomePage(comm: storedComms)
-          : const LoginPage();
-    });
-
-    if(storedComms != null)
-    {
-      checkInternetConnection(context);
-    }
-  }
-
-
+  late final QueriesProvider _provider;
 
   @override
   void initState() {
     super.initState();
-    _initGenos();
-    _checkLoggedIn();
+    _initApp();
   }
 
-  void _initProvider() async {
-    _provider = await QueriesProvider.instance;
-  }
-
-
-  @override
-  Widget build(BuildContext context) {
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.portraitUp,
-      DeviceOrientation.portraitDown,
-    ]);
-
-    if (connected == false) {
-      return MaterialApp(
-        debugShowCheckedModeBanner: false,
-        home: Scaffold(
-          body: AlertDialog(
-            title: const Text('Connexion Internet non disponible'),
-            content: const Text('Vérifiez votre connexion internet et réessayez.'),
-            actions: <Widget>[
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                child: const Text('OK'),
-              ),
-            ],
-          ),
-        ),
-      );
-    } else if (!_sameVers && _checkingComplete && connected == true) {
-      return const VersionDialog();
+  Future<void> _initApp() async {
+    await _initGenos(); // init Genos + Provider
+    await checkInternetConnection(); // check connection
+    if (connected) {
+      await _checkVersion(); // fetch version
     }
-
-
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: _initialContent,
-    );
+    await _checkLoggedIn(); // show home or login
   }
 
   Future<void> _initGenos() async {
-    Genos.instance.initialize(
+    await Genos.instance.initialize(
       appSignature: '91a2dbf0-292d-11ed-91f1-4f98460f463c',
       appWsSignature: '91a2dbf0-292d-11ed-91f1-4f98460f464c',
       appPrivateDirectory: '.',
@@ -117,78 +67,93 @@ class _MyAppState extends State<MyApp> {
       unsecurePort: '80',
       dbms: DBMS.postgres,
       onInitialization: (ge) async {
-        setState(() {
-          _genosInit = true;
-        });
-        _initProvider();
+        _provider = await QueriesProvider.instance;
+        _genosInit = true;
       },
     );
   }
 
-
-  Future<void> checkInternetConnection(BuildContext context) async {
+  Future<void> checkInternetConnection() async {
     final List<ConnectivityResult> connectivityResult = await Connectivity().checkConnectivity();
-
-
-    if(connectivityResult[0] == ConnectivityResult.none) {
-      connected = false;
-    } else{
-      connected = true;
-    }
-    _checkVersion();
+    connected = connectivityResult.isNotEmpty && connectivityResult[0] != ConnectivityResult.none;
   }
 
   Future<void> _checkVersion() async {
     await _provider.version(
       secure: false,
       onSuccess: (cms) {
-        setState(() {
-          for (var element in cms) {
-            version.add(Versioning.MapVersion(element));
-          }
-          checkingVersion();
-        });
+        version = cms.map((e) => Versioning.MapVersion(e)).toList();
+        _compareVersions();
       },
       onError: (error) {
-        setState(() {
-        });
+        debugPrint("Erreur lors du check de version : $error");
       },
     );
   }
 
-  Future<void> checkingVersion() async {
+  void _compareVersions() async {
     final packageInfo = await PackageInfo.fromPlatform();
     final localVersion = packageInfo.version;
     final fetchedVersion = version.isNotEmpty ? version[0].version : '';
 
-    if(version.isNotEmpty)
-    {
-      if (localVersion != fetchedVersion) {
-        _sameVers = false;
-      }
-    }else{
-      setState(() {
-        AlertDialog(
-          title: const Text('Connexion Internet non disponible'),
-          content: const Text('Vérifiez votre connexion internet et réessayez.'),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                version.clear();
-                _checkVersion();
-              },
-              child: const Text('OK'),
-            ),
-          ],
-        );
-      });
+    if (fetchedVersion!.isNotEmpty && localVersion != fetchedVersion) {
+      _sameVers = false;
     }
 
     _checkingComplete = true;
-    setState(() {});
+    setState(() {}); // trigger build
   }
 
+  Future<void> _checkLoggedIn() async {
+    final box = await Hive.openBox('commsBox');
+    final storedComms = box.get('user') as Comms?;
 
+    setState(() {
+      _initialContent = storedComms != null
+          ? HomePage(comm: storedComms)
+          : const LoginPage();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
+
+    if (!connected) {
+      return _buildError('Connexion Internet non disponible',
+          'Vérifiez votre connexion internet et réessayez.');
+    }
+
+    if (!_sameVers && _checkingComplete) {
+      return const VersionDialog();
+    }
+
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: _initialContent,
+    );
+  }
+
+  Widget _buildError(String title, String content) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: Scaffold(
+        body: AlertDialog(
+          title: Text(title),
+          content: Text(content),
+          actions: [
+            TextButton(
+              onPressed: () => SystemNavigator.pop(),
+              child: const Text("Fermer"),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
 class MyLoadingScreen extends StatelessWidget {
@@ -200,14 +165,14 @@ class MyLoadingScreen extends StatelessWidget {
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
+          children: [
             CircularProgressIndicator(
               valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
             ),
-            SizedBox(height: 20),
+            SizedBox(height: 20.0),
             Text(
               'Chargement',
-              style: TextStyle(fontSize: 20),
+              style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.w500),
             ),
           ],
         ),
@@ -217,27 +182,49 @@ class MyLoadingScreen extends StatelessWidget {
 }
 
 class VersionDialog extends StatelessWidget {
+
   const VersionDialog({Key? key}) : super(key: key);
 
-  @override
-  Widget build(BuildContext context) {
-    return const MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: Scaffold(
-        body: AlertDialog(
-          title: Text('Nouvelle version disponible'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text('Une nouvelle version de l\'application est disponible.'),
-              SizedBox(height: 10),
-              Text(
-                  'Veuillez installer la nouvelle version pour continuer à utiliser l\'application.'),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
 
+
+  @override
+
+  Widget build(BuildContext context) {
+
+    return const MaterialApp(
+
+      debugShowCheckedModeBanner: false,
+
+      home: Scaffold(
+
+        body: AlertDialog(
+
+          title: Text('Nouvelle version disponible'),
+
+          content: Column(
+
+            mainAxisSize: MainAxisSize.min,
+
+            children: [
+
+              Text('Une nouvelle version de l\'application est disponible.'),
+
+              SizedBox(height: 10),
+
+              Text(
+
+                  'Veuillez installer la nouvelle version pour continuer à utiliser l\'application.'),
+
+            ],
+
+          ),
+
+        ),
+
+      ),
+
+    );
+
+  }
+
+}
