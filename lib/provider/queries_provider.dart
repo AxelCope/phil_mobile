@@ -93,7 +93,7 @@ class QueriesProvider {
     GDirectRequest.select(
         sql:
         "select COALESCE(SUM(pos_commission), 0) as somme "
-    "from transactions "
+    "from transactions_pdvs "
             "where (frmsisdn = $pdv or tomsisdn = $pdv) AND "
              " (EXTRACT(MONTH FROM TIMESTAMP) = $month "
     "AND EXTRACT(YEAR FROM TIMESTAMP) = EXTRACT(YEAR FROM CURRENT_DATE)); "
@@ -357,7 +357,7 @@ class QueriesProvider {
     GDirectRequest.select(
         sql:
         "select pos_solde_principal as solde "
-            "from solde_pdvs "
+            "from balance_pdv "
             "where date(date_execution) = '$date' and pos_msisdn = $id; "
     ).exec(
         secure: secure,

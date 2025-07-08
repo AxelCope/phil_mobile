@@ -231,7 +231,7 @@ class _PageDetailsPdvState extends State<PageDetailsPdv> {
     });
     await _provider.getCA(
       secure: false,
-      pdv: widget.pdv.numeroFlooz,
+      pdv: widget.pdv.numeroFlooz.toString(),
       month: date.month,
       onSuccess: (r) {
         setState(() {
@@ -245,6 +245,7 @@ class _PageDetailsPdvState extends State<PageDetailsPdv> {
       },
       onError: (e) {
         setState(() {
+          print(e);
           gotCaError = true;
           gotCa = true;
         });
@@ -259,7 +260,7 @@ class _PageDetailsPdvState extends State<PageDetailsPdv> {
     });
     await _provider.getDealerCA(
       secure: false,
-      pdv: widget.pdv.numeroFlooz,
+      pdv: widget.pdv.numeroFlooz.toString(),
       month: date.month,
       onSuccess: (r) {
         setState(() {
@@ -287,7 +288,7 @@ class _PageDetailsPdvState extends State<PageDetailsPdv> {
     });
     await _provider.solde(
       secure: false,
-      id: widget.pdv.numeroFlooz,
+      id: widget.pdv.numeroFlooz.toString(),
       date: '${date.year}-${date.month}-${date.day}',
       onSuccess: (r) {
         setState(() {
@@ -302,6 +303,7 @@ class _PageDetailsPdvState extends State<PageDetailsPdv> {
       },
       onError: (e) {
         setState(() {
+          print(e);
           gotSoldeError = true;
           gotSolde = true;
         });
