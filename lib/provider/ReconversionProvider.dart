@@ -17,7 +17,7 @@ class ReconversionProvider {
   }
 
   Future<void> getAllReconversion({
-    required int? commId,
+    required String? commId,
     required String? endDate,
     required String? startDate,
     required ValueChanged<List<Rec>> onSuccess,
@@ -26,12 +26,13 @@ class ReconversionProvider {
     bool secure = true,
   }) async {
     await GDirectRequest.select(
-        sql: "SELECT SUM(AMOUNT) as reconversion, DATE(TIMESTAMP) AS jours "
-            "FROM give "
-            "WHERE "
-            "DATE(TIMESTAMP) >= '$startDate' AND DATE(TIMESTAMP) <= '$endDate' "
-            "AND (FRMSISDN IN (SELECT NUMERO_FLOOZ FROM univers WHERE NUMERO_CAGNT = $commId) AND TOMSISDN = $commId) "
-            "GROUP BY jours; "
+          sql:
+          "SELECT SUM(amount) AS reconversion, DATE(timestamp) AS jours "
+      "FROM transactions_pdvs "
+      "WHERE "
+      "DATE(timestamp) >= '$startDate' AND DATE(timestamp) <= '$endDate' "
+      "AND (frmsisdn IN (SELECT numero_flooz FROM univers WHERE numero_cagnt = '$commId') AND tomsisdn = '$commId') "
+      "GROUP BY jours; "
     ).exec(
         secure: secure,
         onSuccess: (Result result) {

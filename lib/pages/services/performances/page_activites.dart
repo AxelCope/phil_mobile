@@ -442,6 +442,7 @@ class _ProgressionObjectifState extends State<ProgressionObjectif> with Automati
       },
       onError: (error) {
         setState(() {
+          print(error);
           segmentationCheck = true;
         });
       },

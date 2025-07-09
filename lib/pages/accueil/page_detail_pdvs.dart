@@ -260,7 +260,7 @@ class _PageDetailsPdvState extends State<PageDetailsPdv> {
     });
     await _provider.getDealerCA(
       secure: false,
-      pdv: widget.pdv.numeroFlooz.toString(),
+      pdv: widget.pdv.numeroFlooz,
       month: date.month,
       onSuccess: (r) {
         setState(() {
@@ -288,8 +288,7 @@ class _PageDetailsPdvState extends State<PageDetailsPdv> {
     });
     await _provider.solde(
       secure: false,
-      id: widget.pdv.numeroFlooz.toString(),
-      date: '${date.year}-${date.month}-${date.day}',
+      id: widget.pdv.numeroFlooz,
       onSuccess: (r) {
         setState(() {
           for(var element in r)

@@ -17,7 +17,7 @@ class DotationProvider {
   }
 
   Future<void> getAllDotation({
-    required int? commId,
+    required String? commId,
     required String? endDate,
     required String? startDate,
     required ValueChanged<List<Dotations>> onSuccess,
@@ -26,11 +26,12 @@ class DotationProvider {
   }) async {
     await GDirectRequest.select(
 
-        sql: "SELECT COUNT(DISTINCT tomsisdn) AS dotreg, DATE(TIMESTAMP) AS jours "
-            "FROM give "
-        "WHERE DATE(TIMESTAMP) >= '$startDate' AND DATE(TIMESTAMP) <= '$endDate' AND FRMSISDN = $commId "
-        "AND TOMSISDN IN (SELECT NUMERO_FLOOZ FROM univers) "
-        "GROUP BY jours;",
+          sql:
+          "SELECT COUNT(DISTINCT tomsisdn) AS dotreg, DATE(timestamp) AS jours "
+    "FROM transactions_pdvs "
+    "WHERE DATE(timestamp) >= '$startDate' AND DATE(timestamp) <= '$endDate' AND frmsisdn = '$commId' "
+    "AND tomsisdn IN (SELECT numero_flooz FROM univers) "
+    "GROUP BY jours; "
     ).exec(
         secure: secure,
         onSuccess: (Result result) {

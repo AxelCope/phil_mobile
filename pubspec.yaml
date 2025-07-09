@@ -53,6 +53,8 @@ dependencies:
   google_fonts: ^4.0.4
   syncfusion_flutter_datepicker: ^23.1.41
   graphic: ^2.5.1
+  onesignal_flutter: ^5.3.4
+  firebase_core: ^3.4.0
 
 dev_dependencies:
   flutter_test:

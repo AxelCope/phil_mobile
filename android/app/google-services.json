@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "323937929439",
+    "project_id": "phil-mobile-2db4a",
+    "storage_bucket": "phil-mobile-2db4a.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:323937929439:android:77978a930322c5d69b416a",
+        "android_client_info": {
+          "package_name": "com.phil.phil_mobile"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCmbk2oMdsQeGVjYxKjh-03yNkVf_T8u0I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -14,7 +14,7 @@ class Comms {
   String? nicknameCommerciaux;
 
   @HiveField(2)
-  int? id;
+  String? id;
 
   @HiveField(3)
   String? mail;

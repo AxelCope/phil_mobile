@@ -180,13 +180,20 @@ class _PagePdvTransactionsState extends State<PagePdvTransactions> {
   }
 
   Widget transaction(TransactionsPdv tr) {
-    Color bandColor = Colors.blue;
-    if ((tr.frmsisdn!) == widget.pdv.numeroFlooz) {
+    Color bandColor = Colors.blue; // Couleur par défaut
+    if (tr.frmsisdn == widget.pdv.numeroFlooz) {
       bandColor = philMainColor;
-    } else if ((tr.frmsisdn!) == 22897391919) {
+    } else if (tr.frmsisdn == '22897391919') { // Conversion en String pour correspondre au type String?
       bandColor = Colors.red;
-    } else if ((tr.frmsisdn!) != 22897391919 && (tr.frmsisdn!) != widget.pdv.numeroFlooz) {
+    } else if (tr.type == 'GIVE') {
+      bandColor = Colors.red; // Bordure rouge pour Dotation
+    } else if (tr.frmsisdn != '22897391919' && tr.frmsisdn != widget.pdv.numeroFlooz) {
       bandColor = Colors.grey;
+    }
+
+    // Fonction utilitaire pour formater un montant, gérant les nulls
+    String formatAmount(num? value) {
+      return value != null ? NumberFormat("#,###,### CFA").format(value) : "0 CFA";
     }
 
     return Card(
@@ -215,8 +222,7 @@ class _PagePdvTransactionsState extends State<PagePdvTransactions> {
           padding: const EdgeInsets.all(10.0),
           child: ListTile(
             title: Text(
-              "${tr.type == 'CSIN' ? 'DÉPÔT' : 'RETRAIT'}\nMontant: ${NumberFormat("#,###,### CFA").format(tr.amount)}",
-              style: const TextStyle(
+              "${tr.type == 'CashIn' ? 'DÉPÔT' : tr.type == 'GIVE' ? 'Dotation' : 'RETRAIT'}\nMontant: ${formatAmount(tr.amount)}",              style: const TextStyle(
                 fontWeight: FontWeight.bold,
                 color: Colors.black87,
               ),
@@ -224,13 +230,13 @@ class _PagePdvTransactionsState extends State<PagePdvTransactions> {
             subtitle: Padding(
               padding: const EdgeInsets.only(top: 10.0),
               child: Text(
-                "De ${tr.fr_pos_name.toString() == widget.pdv.commercial ? "MOI" : tr.fr_pos_name} "
-                    "à ${tr.to_pos_name.toString() == widget.pdv.commercial ? "MOI" : tr.to_pos_name} "
-                    "\nCommission générée: ${NumberFormat("#,###,### CFA").format(tr.pos_commission)}\n\n"
+                "De ${tr.frmsisdn.toString() == widget.pdv.numeroFlooz ? widget.pdv.nomDuPoint : tr.frmsisdn} "
+                    "à ${tr.tomsisdn.toString() == widget.pdv.numeroFlooz ? widget.pdv.nomDuPoint : tr.tomsisdn} "
+                    "\nCommission générée: ${formatAmount(tr.pos_commission)}\n\n"
                     "Date: ${myDate(tr.timestamp)}"
                     "\n\nSolde:"
-                    "\npre-transaction: ${NumberFormat("#,###,### CFA").format(tr.pos_balance_before)}"
-                    "\npost-transaction: ${NumberFormat("#,###,### CFA").format(tr.pos_balance_after)}"
+                    "\npre-transaction: ${formatAmount(tr.pos_balance_before)}"
+                    "\npost-transaction: ${formatAmount(tr.pos_balance_after)}"
                     "\n\nRéférence (ID): ${tr.id}",
                 style: const TextStyle(
                   color: Colors.black54,
@@ -243,7 +249,6 @@ class _PagePdvTransactionsState extends State<PagePdvTransactions> {
       ),
     );
   }
-
   datePicker() async {
     List<DateTime> dates = [widget.pdv.startDateTimeT!];
     var results = await showCalendarDatePicker2Dialog(
@@ -294,6 +299,11 @@ class _PagePdvTransactionsState extends State<PagePdvTransactions> {
     final pw.Font headerFont = pw.Font.helveticaBold();
     final pw.Font cellFont = pw.Font.helvetica();
     final NumberFormat formatter = NumberFormat("#,###,### CFA");
+
+    // Fonction utilitaire pour formater un montant, gérant les nulls
+    String formatAmount(num? value) {
+      return value != null ? formatter.format(value) : '0 CFA';
+    }
 
     int totalCommission = listTransaction.fold(0, (prev, t) => prev + (t.pos_commission ?? 0));
 
@@ -369,14 +379,14 @@ class _PagePdvTransactionsState extends State<PagePdvTransactions> {
               ],
               data: listTransaction.map((t) {
                 return [
-                  t.type == 'CSIN' ? 'DÉPÔT' : 'RETRAIT',
-                  formatter.format(t.pos_balance_before),
-                  formatter.format(t.amount),
-                  formatter.format(t.pos_balance_after),
+                  t.type == 'CashIn' ? 'DÉPÔT' : t.type == 'GIVE' ? 'Dotation' : 'RETRAIT',
+                  formatAmount(t.pos_balance_before),
+                  formatAmount(t.amount),
+                  formatAmount(t.pos_balance_after),
                   myDate(t.timestamp),
-                  t.frmsisdn == widget.pdv.numeroFlooz ? 'MOI' : t.frmsisdn.toString(),
-                  t.tomsisdn == widget.pdv.numeroFlooz ? 'MOI' : t.tomsisdn.toString(),
-                  formatter.format(t.pos_commission),
+                  t.frmsisdn == widget.pdv.numeroFlooz ? 'MOI' : t.frmsisdn?.toString() ?? 'Inconnu',
+                  t.tomsisdn == widget.pdv.numeroFlooz ? 'MOI' : t.tomsisdn?.toString() ?? 'Inconnu',
+                  formatAmount(t.pos_commission),
                 ];
               }).toList()
                 ..add([
@@ -387,7 +397,7 @@ class _PagePdvTransactionsState extends State<PagePdvTransactions> {
                   '',
                   '',
                   '',
-                  formatter.format(totalCommission),
+                  formatAmount(totalCommission),
                 ]),
             ),
           ];

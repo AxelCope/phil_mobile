@@ -3,9 +3,9 @@ import 'package:phil_mobile/provider/db_constant.dart';
 
 class TransactionsPdv{
   String?  type;
-  int?  id;
-  int?  frmsisdn;
-  int?  tomsisdn;
+  String?  id;
+  String?  frmsisdn;
+  String?  tomsisdn;
   int?  amount;
   String?  timestamp;
   int?  pos_balance_before;

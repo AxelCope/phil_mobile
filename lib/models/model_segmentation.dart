@@ -3,7 +3,7 @@ import 'package:phil_mobile/provider/db_constant.dart';
 
 class Segmentation{
   String? nomPoints;
-  int? id;
+  String? id;
   double? somme;
   int? objectifs;
   int? commissions;

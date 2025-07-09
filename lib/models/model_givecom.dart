@@ -3,7 +3,7 @@ import 'package:phil_mobile/provider/db_constant.dart';
 class GiveCom
 {
   int? montant;
-  int? numero;
+  String? numero;
   String? pdvs;
 
   GiveCom({
@@ -15,7 +15,7 @@ class GiveCom
   factory GiveCom.mapGivecom(Map<String, dynamic> map)
   {
     return GiveCom(
-      montant: map[dbSomme],
+      montant: int.parse(map[dbSomme]),
       numero: map[dbnumero],
       pdvs: map[dbPdvs]
     );

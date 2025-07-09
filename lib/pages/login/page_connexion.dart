@@ -99,7 +99,7 @@ class _LoginPageState extends State<LoginPage> {
                  },
                 child: Padding(
                   padding: const EdgeInsets.all(15.0),
-                  child: Text( "SE CONNETER", style: TextStyle(fontSize: 20, color: Colors.white, fontWeight: FontWeight.bold)),
+                  child: Text( "SE CONNECTER", style: TextStyle(fontSize: 20, color: Colors.white, fontWeight: FontWeight.bold)),
                 )
             ),
             ],
@@ -118,7 +118,7 @@ class _LoginPageState extends State<LoginPage> {
       }
     else{
       for (var check in listUsers) {
-        if (int.parse(userId.text) == check.id && password.text == check.password) {
+        if (userId.text == check.id && password.text == check.password) {
           Comms user = check;
           _setPreferences(user);
           Navigator.pop(context); 

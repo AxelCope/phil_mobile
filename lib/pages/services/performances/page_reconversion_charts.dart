@@ -63,6 +63,7 @@ class _DetailsReconversionState extends State<DetailsReconversion> with Automati
       },
       onError: (e) {
         setState(() {
+          print(e);
           gotData = false;
           getDataError = true;
         });

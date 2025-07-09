@@ -9,6 +9,7 @@ class Transactions{
   String?  tomsisdn;
   int?  amount;
   String?  timestamp;
+  String?  status;
   int?  pos_balance_before;
   int?  pos_balance_after;
   String?  fr_pos_name;
@@ -30,6 +31,7 @@ class Transactions{
     this.pos_balance_before,
     this.pos_commission,
     this.timestamp,
+    this.status,
     this.to_pos_name,
     this.tomsisdn,
     this.toprofile,
@@ -48,6 +50,7 @@ class Transactions{
         tomsisdn: map[dbToms],
         amount: map[dbAmount],
         timestamp: map[dbTime],
+        status: map[dbRetired],
         pos_balance_before: map[dbBef],
         pos_balance_after: map[dbAmount],
         fr_pos_name: map[dbGiveFrname],

@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:phil_mobile/provider/db_constant.dart';
 
 class PointDeVente {
-   int? numeroFlooz;
+   String? numeroFlooz;
    String? nomDuPoint;
    String? profil;
    String? typeDactivite;
@@ -21,7 +21,7 @@ class PointDeVente {
    String? regimeFiscal;
    String? supportDeVisibiliteChevaletPotenceAutocollant;
    String? etatDuSupportDeVisibiliteBonMauvais;
-   int? numeroCagnt;
+   String? numeroCagnt;
    String? commercial;
    int? dotee;
    bool? status;

@@ -39,29 +39,30 @@ class QueriesProvider {
   }) async {
     GDirectRequest.select(
         sql:
-            "WITH doted AS ( "
+        "WITH doted AS ("
             "SELECT * "
             "FROM univers "
-            "WHERE numero_cagnt = $id "
+            "WHERE numero_cagnt = '$id' "
             "), "
-            "dotation AS ( "
+            "dotation AS ("
             "SELECT "
             "COUNT(tomsisdn) AS dotreg, "
             "tomsisdn "
-            "FROM give "
-            "WHERE EXTRACT(MONTH FROM TIMESTAMP) = EXTRACT(MONTH FROM CURRENT_DATE) "
-            "AND EXTRACT(YEAR FROM TIMESTAMP) = EXTRACT(YEAR FROM CURRENT_DATE) "
-            "AND frmsisdn = $id "
-            "AND tomsisdn IN (SELECT numero_flooz FROM univers WHERE numero_cagnt = $id) "
+            "FROM transactions_pdvs "
+            "WHERE EXTRACT(MONTH FROM timestamp) = EXTRACT(MONTH FROM CURRENT_DATE) "
+            "AND EXTRACT(YEAR FROM timestamp) = EXTRACT(YEAR FROM CURRENT_DATE) "
+            "AND frmsisdn = '$id' "
+            "AND transaction_type = 'GIVE' "
+            "AND tomsisdn IN (SELECT numero_flooz FROM univers WHERE numero_cagnt = '$id') "
             "GROUP BY tomsisdn "
             "), "
-            "soldes AS ( "
+            "soldes AS ("
             "SELECT "
             "pos_msisdn, "
             "date_execution, "
             "pos_solde_principal AS solde "
-            "FROM solde_pdvs "
-            "WHERE DATE(date_execution) = (CURRENT_DATE) "
+            "FROM balance_pdv "
+            "WHERE DATE(date_execution) = CURRENT_DATE "
             ") "
             "SELECT "
             "doted.*, "
@@ -94,7 +95,7 @@ class QueriesProvider {
         sql:
         "select COALESCE(SUM(pos_commission), 0) as somme "
     "from transactions_pdvs "
-            "where (frmsisdn = $pdv or tomsisdn = $pdv) AND "
+            "where (frmsisdn = '$pdv' or tomsisdn = '$pdv') AND "
              " (EXTRACT(MONTH FROM TIMESTAMP) = $month "
     "AND EXTRACT(YEAR FROM TIMESTAMP) = EXTRACT(YEAR FROM CURRENT_DATE)); "
     ).exec(
@@ -118,7 +119,7 @@ class QueriesProvider {
         "SELECT objectifs/2 as somme "
             "FROM objectifs_moov "
             "WHERE mois = '$date' and "
-            "numero_commercial = $id ;"
+            "numero_commercial = '$id' ;"
 
     ).exec(
         secure: secure,
@@ -139,9 +140,9 @@ class QueriesProvider {
     GDirectRequest.select(
         sql:
         "SELECT SUM(DEALER_COMMISSION) as somme "
-            "FROM transactions "
+            "FROM transactions_pdvs "
             "WHERE EXTRACT(MONTH FROM TIMESTAMP) = $date AND EXTRACT(YEAR FROM TIMESTAMP) = EXTRACT(YEAR FROM CURRENT_DATE) AND "
-            "(TOMSISDN IN (SELECT NUMERO_FLOOZ FROM univers WHERE NUMERO_CAGNT = $cmId) OR FRMSISDN IN (SELECT NUMERO_FLOOZ FROM univers WHERE NUMERO_CAGNT = $cmId));  "
+            "(TOMSISDN IN (SELECT NUMERO_FLOOZ FROM univers WHERE NUMERO_CAGNT = '$cmId') OR FRMSISDN IN (SELECT NUMERO_FLOOZ FROM univers WHERE NUMERO_CAGNT = '$cmId'));  "
 
 
     ).exec(
@@ -165,16 +166,17 @@ class QueriesProvider {
         "SELECT "
             "u.nom_du_point AS pdvs, "
             "u.numero_flooz AS numero, "
-            "SUM(g.givecom_debit_amount) * 1000 AS somme "
+            "SUM(t.givecom_debit_amount) * 1000 AS somme "
             "FROM univers u "
-            "LEFT JOIN give g "
-            "ON g.frmsisdn = u.numero_flooz "
-            "WHERE u.numero_cagnt = $commId "
-            "AND EXTRACT(MONTH FROM g.timestamp) = EXTRACT(MONTH FROM CURRENT_DATE) "
-            "AND EXTRACT(YEAR FROM g.timestamp) = EXTRACT(YEAR FROM CURRENT_DATE) "
+            "LEFT JOIN transactions_pdvs t "
+            "ON t.tomsisdn = u.numero_flooz "
+            "WHERE u.numero_cagnt = '$commId' "
+            "AND EXTRACT(MONTH FROM t.timestamp) = EXTRACT(MONTH FROM CURRENT_DATE) "
+            "AND EXTRACT(YEAR FROM t.timestamp) = EXTRACT(YEAR FROM CURRENT_DATE) "
+            "AND t.transaction_type = 'GIVE' "
             "GROUP BY u.numero_flooz, u.nom_du_point "
-            "HAVING SUM(g.givecom_debit_amount) > 0 "
-            "ORDER BY somme DESC; "
+            "HAVING SUM(t.givecom_debit_amount) > 0 "
+            "ORDER BY somme DESC;"
 
 
     ).exec(
@@ -200,37 +202,37 @@ class QueriesProvider {
         "WITH transactions_pdvs AS ( "
             "SELECT "
             "CASE "
-            "WHEN type = 'CSIN' THEN frmsisdn "
-            "WHEN type = 'AGNT' THEN tomsisdn "
+            "WHEN transaction_type = 'CashIn' THEN frmsisdn "
+            "WHEN transaction_type = 'CashOut' THEN tomsisdn "
             "END AS pdv_number, "
             "CASE "
-            "WHEN type = 'CSIN' THEN frname "
-            "WHEN type = 'AGNT' THEN toname "
+            "WHEN transaction_type = 'CashIn' THEN (SELECT nom_du_point FROM univers WHERE numero_flooz = frmsisdn) "
+            "WHEN transaction_type = 'CashOut' THEN (SELECT nom_du_point FROM univers WHERE numero_flooz = tomsisdn) "
             "END AS pdv_name, "
             "SUM(amount) AS sommedotes "
-            "FROM transactions "
-            "WHERE (type = 'CSIN' OR type = 'AGNT') "
+            "FROM transactions_pdvs "
+            "WHERE (transaction_type = 'CashIn' OR transaction_type = 'CashOut') "
             "AND EXTRACT(MONTH FROM timestamp) = EXTRACT(MONTH FROM CURRENT_DATE) "
             "AND EXTRACT(YEAR FROM timestamp) = EXTRACT(YEAR FROM CURRENT_DATE) "
             "GROUP BY "
             "CASE "
-            "WHEN type = 'CSIN' THEN frmsisdn "
-            "WHEN type = 'AGNT' THEN tomsisdn "
+            "WHEN transaction_type = 'CashIn' THEN frmsisdn "
+            "WHEN transaction_type = 'CashOut' THEN tomsisdn "
             "END, "
             "CASE "
-            "WHEN type = 'CSIN' THEN frname "
-            "WHEN type = 'AGNT' THEN toname "
+            "WHEN transaction_type = 'CashIn' THEN (SELECT nom_du_point FROM univers WHERE numero_flooz = frmsisdn) "
+            "WHEN transaction_type = 'CashOut' THEN (SELECT nom_du_point FROM univers WHERE numero_flooz = tomsisdn) "
             "END "
             ") "
             "SELECT "
             "COALESCE(t.pdv_name, u.nom_du_point) AS nom_commercial, "
-            "COALESCE(t.pdv_number, u.numero_flooz) AS pos_msidsn, "
+            "COALESCE((SELECT nom_du_point FROM univers WHERE numero_flooz = t.pdv_number), u.nom_du_point) AS pos_msidsn, "
             "COALESCE(t.sommedotes, 0) AS sommedotes "
             "FROM univers u "
             "LEFT JOIN transactions_pdvs t "
             "ON t.pdv_number = u.numero_flooz "
-            "WHERE u.numero_cagnt = $cmId "
-            "ORDER BY sommedotes DESC, nom_commercial; "
+            "WHERE u.numero_cagnt = '$cmId' "
+            "ORDER BY sommedotes DESC, nom_commercial;"
 
     ).exec(
         secure: secure,
@@ -254,16 +256,16 @@ class QueriesProvider {
       "FROM univers u "
       "WHERE u.numero_flooz NOT IN ( "
       "SELECT t.frmsisdn "
-      "FROM transactions t "
+      "FROM transactions_pdvs t "
       "WHERE t.timestamp >= date_trunc('month', CURRENT_DATE) "
       "AND t.timestamp < (CURRENT_DATE - interval '1 day') + interval '1 day' "
       "UNION "
       "SELECT t.tomsisdn "
-      "FROM transactions t "
+      "FROM transactions_pdvs t "
       "WHERE t.timestamp >= date_trunc('month', CURRENT_DATE) "
       "AND t.timestamp < (CURRENT_DATE - interval '1 day') + interval '1 day' "
       ") "
-      "AND numero_cagnt = $cmId "
+      "AND numero_cagnt = '$cmId' "
       "ORDER BY u.commercial, u.nom_du_point; "
       ,
     ).exec(
@@ -308,10 +310,27 @@ class QueriesProvider {
   }) async {
     GDirectRequest.select(
         sql:
-        "select * from give "
-        "where (frmsisdn = $id or tomsisdn = $id) "
-        "and (DATE(timestamp) >= '$Sdate' and DATE(timestamp) <= '$Edate') "
-            "ORDER BY timestamp "
+        "SELECT "
+            "referenceid, "
+            "transaction_type AS type, "
+            "frmsisdn, "
+            "tomsisdn, "
+            "status, "
+            "COALESCE(amount, 0) AS amount, "
+            "timestamp, "
+            "COALESCE(pos_balance_before, 0) AS bef, "
+            "COALESCE(pos_balance_after, 0) AS aft, "
+            "frname_dealer AS give_frname, "
+            "toname_dealer AS give_toname, "
+            "frprofile, "
+            "toprofile, "
+            "COALESCE(dealer_commission, 0) AS dcom, "
+            "COALESCE(pos_commission, 0) AS poscom "
+            "FROM transactions_pdvs "
+            "WHERE (frmsisdn = '$id' OR tomsisdn = '$id') "
+            "AND (DATE(timestamp) >= '$Sdate' AND DATE(timestamp) <= '$Edate') "
+            "AND transaction_type = 'GIVE' "
+            "ORDER BY timestamp; "
     ).exec(
         secure: secure,
         onSuccess: (Result result) {
@@ -331,8 +350,8 @@ class QueriesProvider {
   }) async {
     GDirectRequest.select(
         sql:
-        "select * from transactions "
-        "where (frmsisdn = $id or tomsisdn = $id) "
+        "select * from transactions_pdvs "
+        "where (frmsisdn = '$id' or tomsisdn = '$id') "
         "and (DATE(timestamp) >= '$Sdate' and DATE(timestamp) <= '$Edate') "
             "ORDER BY timestamp "
     ).exec(
@@ -349,16 +368,16 @@ class QueriesProvider {
 
  Future<void> solde({
     required id,
-    required date,
     required Function(List<Map<String, dynamic>>) onSuccess,
     required Function(RequestError) onError,
     bool secure = true
   }) async {
     GDirectRequest.select(
         sql:
-        "select pos_solde_principal as solde "
-            "from balance_pdv "
-            "where date(date_execution) = '$date' and pos_msisdn = $id; "
+        "SELECT pos_solde_principal AS solde "
+        "FROM balance_pdv "
+        "WHERE DATE(date_execution) = CURRENT_DATE "
+    "AND pos_msisdn = '$id'; "
     ).exec(
         secure: secure,
         onSuccess: (Result result) {
@@ -397,7 +416,7 @@ class QueriesProvider {
         "t1.commercial, "
         "SUM(t2.dealer_commission) AS somme "
         "FROM univers t1 "
-        "INNER JOIN transactions t2 "
+        "INNER JOIN transactions_pdvs t2 "
         "ON t1.numero_flooz = t2.frmsisdn "
         "OR t1.numero_flooz = t2.tomsisdn "
         "WHERE "
@@ -421,7 +440,7 @@ class QueriesProvider {
   Future<void> mois_precedents({
     required Function(List<Map<String, dynamic>>) onSuccess,
     required Function(RequestError) onError,
-    required int pdv,
+    required String pdv,
     bool secure = true
   }) async {
     GDirectRequest.select(
@@ -449,11 +468,11 @@ class QueriesProvider {
   }) async {
     GDirectRequest.select(
         sql:
-        "select COALESCE(SUM(dealer_commission), 0) as somme "
-            "from transactions "
-            "where (frmsisdn = $pdv or tomsisdn = $pdv) AND "
-            " (EXTRACT(MONTH FROM TIMESTAMP) = EXTRACT(MONTH FROM CURRENT_DATE) "
-            "AND EXTRACT(YEAR FROM TIMESTAMP) = EXTRACT(YEAR FROM CURRENT_DATE));"
+        "SELECT COALESCE(SUM(dealer_commission), 0) AS somme, "
+    "CURRENT_DATE AS date_du_jour "
+    "FROM transactions_pdvs "
+    "WHERE (frmsisdn = '$pdv' OR tomsisdn = '$pdv') "
+    "AND date_trunc('month', timestamp) = date_trunc('month', CURRENT_DATE); "
     ).exec(
         secure: secure,
         onSuccess: (Result result) {

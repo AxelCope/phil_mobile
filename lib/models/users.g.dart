@@ -18,7 +18,7 @@ class CommsAdapter extends TypeAdapter<Comms> {
     };
     return Comms(
       nomCommerciaux: fields[0] as String?,
-      id: fields[2] as int?,
+      id: fields[2] as String?,
       startDateTime: fields[4] as DateTime?,
       endDateTime: fields[5] as DateTime?,
       startDateTimeR: fields[6] as DateTime?,
