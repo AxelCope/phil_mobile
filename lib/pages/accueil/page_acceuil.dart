@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hive/hive.dart';
+import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:phil_mobile/methods/methods.dart';
 import 'package:phil_mobile/models/model_chiffre_daffaire.dart';
 import 'package:phil_mobile/models/model_point_de_ventes.dart';
@@ -20,6 +21,7 @@ class HomePage extends StatefulWidget {
   const HomePage({super.key, required this.comm});
 
   final Comms comm;
+
   @override
   State<HomePage> createState() => _HomePageState();
 }
@@ -41,6 +43,8 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     _initProvider();
+    // Ajouter le tag OneSignal pour le commercial
+    OneSignal.User.addTags({"comm_id": widget.comm.id.toString()});
   }
 
   void _initProvider() async {
@@ -66,10 +70,19 @@ class _HomePageState extends State<HomePage> {
                     ),
                     child: Column(
                       children: [
-                        Text(widget.comm.nomCommerciaux!, style: const TextStyle(fontSize: 25),),
-                        Text(widget.comm.id!.toString(), style: const TextStyle(fontSize: 20),),
-                        const SizedBox(height: 10,),
-                        Text(widget.comm.nicknameCommerciaux!, style: const TextStyle(fontWeight: FontWeight.bold),),
+                        Text(
+                          widget.comm.nomCommerciaux!,
+                          style: const TextStyle(fontSize: 25),
+                        ),
+                        Text(
+                          widget.comm.id!.toString(),
+                          style: const TextStyle(fontSize: 20),
+                        ),
+                        const SizedBox(height: 10),
+                        Text(
+                          widget.comm.nicknameCommerciaux!,
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
                       ],
                     ),
                   ),
@@ -85,25 +98,37 @@ class _HomePageState extends State<HomePage> {
                     onTap: () {
                       nextPage(context, PageInactifs(comms: widget.comm));
                     },
-                    leading: Image.asset('assets/page des inactifs/inactifs.png', width: 30,),
+                    leading: Image.asset(
+                      'assets/page des inactifs/inactifs.png',
+                      width: 30,
+                    ),
                   ),
                   ListTile(
                     title: const Text("Points qui vont en banque"),
-                    leading: SvgPicture.asset('assets/page givecom/givecom.svg', width: 30,),
+                    leading: SvgPicture.asset(
+                      'assets/page givecom/givecom.svg',
+                      width: 30,
+                    ),
                     onTap: () {
                       nextPage(context, PageGiveComs(comms: widget.comm));
                     },
                   ),
                   ListTile(
                     title: const Text("Mes transactions"),
-                    leading: SvgPicture.asset('assets/services/transactions.svg', width: 35,),
+                    leading: SvgPicture.asset(
+                      'assets/services/transactions.svg',
+                      width: 35,
+                    ),
                     onTap: () {
                       nextPage(context, PageTransactions(comms: widget.comm));
                     },
                   ),
                   ListTile(
                     title: const Text("Classement"),
-                    leading: SvgPicture.asset('assets/services/rank.svg', width: 35,),
+                    leading: SvgPicture.asset(
+                      'assets/services/rank.svg',
+                      width: 35,
+                    ),
                     onTap: () {
                       nextPage(context, RankingPage(widget.comm));
                     },
@@ -149,14 +174,18 @@ class _HomePageState extends State<HomePage> {
         padding: const EdgeInsets.symmetric(horizontal: 20.0),
         child: Column(
           children: [
-            const SizedBox(height: 20,),
+            const SizedBox(height: 20),
             TextField(
               onChanged: _search,
               controller: _searchFieldController,
               cursorColor: philMainColor,
               style: TextStyle(color: Colors.black.withValues(red: 0.6)),
               decoration: InputDecoration(
-                prefixIcon: Icon(Icons.search, size: 25, color: hexToColor('#AAA6B9'),),
+                prefixIcon: Icon(
+                  Icons.search,
+                  size: 25,
+                  color: hexToColor('#AAA6B9'),
+                ),
                 hintText: "Rechercher un point de vente",
                 hintStyle: const TextStyle(color: Colors.black, fontSize: 13),
                 filled: true,
@@ -173,11 +202,11 @@ class _HomePageState extends State<HomePage> {
                     : null,
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(30),
-                  borderSide: const BorderSide(color: Colors.transparent,),
+                  borderSide: const BorderSide(color: Colors.transparent),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(30),
-                  borderSide: const BorderSide(color: Colors.transparent,),
+                  borderSide: const BorderSide(color: Colors.transparent),
                 ),
                 fillColor: hexToColor('#f5f5f5'),
                 border: OutlineInputBorder(
@@ -188,8 +217,8 @@ class _HomePageState extends State<HomePage> {
             ),
             const SizedBox(height: 10),
             Wrap(
-              spacing: 10.0, // Espacement horizontal entre les boutons
-              runSpacing: 10.0, // Espacement vertical si les boutons passent à la ligne
+              spacing: 10.0,
+              runSpacing: 10.0,
               crossAxisAlignment: WrapCrossAlignment.center,
               children: [
                 GestureDetector(
@@ -206,11 +235,13 @@ class _HomePageState extends State<HomePage> {
                   },
                   child: Container(
                     padding: EdgeInsets.symmetric(
-                      horizontal: MediaQuery.of(context).size.width * 0.04, // Responsive horizontal padding
+                      horizontal: MediaQuery.of(context).size.width * 0.04,
                       vertical: 8,
                     ),
                     decoration: BoxDecoration(
-                      color: _sortBy == 'solde' ? philMainColor : hexToColor('#f5f5f5'),
+                      color: _sortBy == 'solde'
+                          ? philMainColor
+                          : hexToColor('#f5f5f5'),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Row(
@@ -219,17 +250,22 @@ class _HomePageState extends State<HomePage> {
                         Text(
                           "Trie solde",
                           style: TextStyle(
-                            fontSize: MediaQuery.of(context).size.width * 0.025, // Responsive font size
-                            color: _sortBy == 'solde' ? Colors.white : Colors.black,
+                            fontSize:
+                            MediaQuery.of(context).size.width * 0.025,
+                            color:
+                            _sortBy == 'solde' ? Colors.white : Colors.black,
                           ),
                         ),
                         const SizedBox(width: 5),
                         Icon(
                           _sortBy == 'solde'
-                              ? (_isAscending ? Icons.arrow_upward : Icons.arrow_downward)
+                              ? (_isAscending
+                              ? Icons.arrow_upward
+                              : Icons.arrow_downward)
                               : Icons.sort,
                           size: 18,
-                          color: _sortBy == 'solde' ? Colors.white : Colors.black,
+                          color:
+                          _sortBy == 'solde' ? Colors.white : Colors.black,
                         ),
                       ],
                     ),
@@ -249,11 +285,13 @@ class _HomePageState extends State<HomePage> {
                   },
                   child: Container(
                     padding: EdgeInsets.symmetric(
-                      horizontal: MediaQuery.of(context).size.width * 0.04, // Responsive horizontal padding
+                      horizontal: MediaQuery.of(context).size.width * 0.04,
                       vertical: 8,
                     ),
                     decoration: BoxDecoration(
-                      color: _sortBy == 'dotee' ? philMainColor : hexToColor('#f5f5f5'),
+                      color: _sortBy == 'dotee'
+                          ? philMainColor
+                          : hexToColor('#f5f5f5'),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Row(
@@ -262,17 +300,22 @@ class _HomePageState extends State<HomePage> {
                         Text(
                           "Trie dotations",
                           style: TextStyle(
-                            fontSize: MediaQuery.of(context).size.width * 0.025, // Responsive font size
-                            color: _sortBy == 'dotee' ? Colors.white : Colors.black,
+                            fontSize:
+                            MediaQuery.of(context).size.width * 0.025,
+                            color:
+                            _sortBy == 'dotee' ? Colors.white : Colors.black,
                           ),
                         ),
                         const SizedBox(width: 5),
                         Icon(
                           _sortBy == 'dotee'
-                              ? (_isAscending ? Icons.arrow_upward : Icons.arrow_downward)
+                              ? (_isAscending
+                              ? Icons.arrow_upward
+                              : Icons.arrow_downward)
                               : Icons.sort,
                           size: 18,
-                          color: _sortBy == 'dotee' ? Colors.white : Colors.black,
+                          color:
+                          _sortBy == 'dotee' ? Colors.white : Colors.black,
                         ),
                       ],
                     ),
@@ -311,7 +354,8 @@ class _HomePageState extends State<HomePage> {
           child: ListTile(
             title: Text(
               "${pdvs.nomDuPoint}",
-              style: TextStyle(decoration: decoration, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                  decoration: decoration, fontWeight: FontWeight.bold),
             ),
             subtitle: Text(
               "${pdvs.numeroFlooz}\nDotations dans le mois: ${pdvs.dotee}\nSolde: ${pdvs.solde}",
@@ -350,7 +394,7 @@ class _HomePageState extends State<HomePage> {
           child: SizedBox(
             height: 30,
             width: 30,
-            child: CircularProgressIndicator(color: Colors.green,),
+            child: CircularProgressIndicator(color: Colors.green),
           ),
         ),
       );
@@ -361,7 +405,10 @@ class _HomePageState extends State<HomePage> {
         children: [
           const Text("Nous n'avons pas pu contacter le serveur"),
           TextButton(
-            child: const Text("Veuillez réessayer", style: TextStyle(color: Colors.green),),
+            child: const Text(
+              "Veuillez réessayer",
+              style: TextStyle(color: Colors.green),
+            ),
             onPressed: () {
               setState(() {
                 listPdvs.clear();
@@ -440,7 +487,8 @@ class _HomePageState extends State<HomePage> {
     if (value.trim().isNotEmpty) {
       _searchList = [];
       _searchList!.addAll(listPdvs.where((element) =>
-      (element.nomDuPoint != null && element.nomDuPoint!.toLowerCase().contains(value)) ||
+      (element.nomDuPoint != null &&
+          element.nomDuPoint!.toLowerCase().contains(value)) ||
           element.nomDuPoint!.toLowerCase().contains(value.toLowerCase()) ||
           element.numeroFlooz!.toString().contains(value)));
       setState(() {});
@@ -456,63 +504,64 @@ class _HomePageState extends State<HomePage> {
       listPdvs.clear();
       fetchPdvs();
     });
-  }
+    }
 
-  Future<void> _setPreferences(BuildContext context) async {
-    try {
-      bool confirmed = await showDialog(
+        Future<void> _setPreferences(BuildContext context) async {
+      try {
+        bool confirmed = await showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('Déconnexion'),
+              content: const Text('Voulez vous vraiment vous déconneter ?'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(false); // Cancel the logout
+                  },
+                  child: const Text('Annuler'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(true); // Confirm the logout
+                  },
+                  child: const Text('Se déconnecter'),
+                ),
+              ],
+            );
+          },
+        );
+
+        if (confirmed == true) {
+          _loginOutDialog();
+          await Future.delayed(const Duration(seconds: 2));
+          Navigator.of(context).pop();
+          final box = await Hive.openBox('commsBox');
+          await box.clear();
+          Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                  builder: (BuildContext context) => const LoginPage()));
+        }
+      } catch (e) {}
+    }
+
+    _loginOutDialog() {
+      showDialog(
         context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: const Text('Déconnexion'),
-            content: const Text('Voulez vous vraiment vous déconneter ?'),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop(false); // Cancel the logout
-                },
-                child: const Text('Annuler'),
-              ),
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop(true); // Confirm the logout
-                },
-                child: const Text('Se déconnecter'),
-              ),
-            ],
+        barrierDismissible: false,
+        builder: (context) {
+          return const AlertDialog(
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(height: 16),
+                Text('Logging out...'),
+              ],
+            ),
           );
         },
       );
-
-      if (confirmed == true) {
-        _loginOutDialog();
-        await Future.delayed(const Duration(seconds: 2));
-        Navigator.of(context).pop();
-        final box = await Hive.openBox('commsBox');
-        await box.clear();
-        Navigator.pushReplacement(context, MaterialPageRoute(
-            builder: (BuildContext context) => const LoginPage()));
-      }
-    } catch (e) {
     }
   }
-
-  _loginOutDialog() {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) {
-        return const AlertDialog(
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              CircularProgressIndicator(),
-              SizedBox(height: 16),
-              Text('Logging out...'),
-            ],
-          ),
-        );
-      },
-    );
-  }
-}
